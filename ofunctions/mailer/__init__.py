@@ -17,8 +17,8 @@ __intname__ = 'ofunctions.mailer'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.3.4'
-__build__ = '2021020901'
+__version__ = '0.3.5'
+__build__ = '2021020902'
 
 import logging
 import os
@@ -66,9 +66,9 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
         raise ValueError('No subject set')
 
     # Fix for empty passed auth strings
-    if len(smtp_user) == 0:
+    if smtp_user is not None and len(smtp_user) == 0:
         smtp_user = None
-    if len(smtp_password) == 0:
+    if smtp_password is not None and len(smtp_password) == 0:
         smtp_password = None
 
     if destination_mails is None:
