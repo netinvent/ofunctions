@@ -6,7 +6,7 @@
 
 ofunctions is a set of various recurrent functions amongst
 
-- bisect: bisection algorithm for *any* function
+- bisection: bisection algorithm for *any* function with *any* number of arguments, works LtoR and RtoL
 - checksums: various SHA256 tools for checking and creating checksum files
 - delayed_keyboardinterrupt: Just a nifty tool to catch CTRL+C signals
 - file_utils:
