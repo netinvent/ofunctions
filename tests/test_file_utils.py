@@ -31,17 +31,17 @@ def test_check_path_access():
     result = check_path_access(r'/somedirthathopefullydoesnotexistinthisuniverse2424', check='W')
     assert result is False, 'check_path_access failed'
     if os.name == 'nt':
-        # should be readable
-        result = check_path_access(r'C:\Windows\system32', check='R')
-        assert result is True, 'Access to system32 should be readable'
-        # should be writable
-        check_path_access(os.path.expandvars('%temp%'), check='W')
-        assert result is True, 'Access to current temp {} should be writable'.format(os.path.expandvars('%temp'))
+        bin_dir = r'C:\Windows\system32'
+        tmp_dir = os.path.expandvars('%temp%')
     else:
-        result = check_path_access('/usr/bin', check='R')
-        assert result is True, 'Access to /usr/bin should be readable'
-        result = check_path_access(os.path.expandvars('TMPDIR'), check='W')
-        assert result is True, 'Access to current temp {} should be writable'.format(os.path.expandvars('%temp'))
+        bin_dir = '/usr/bin'
+        tmp_dir = '/tmp'
+    # should be readable
+    result = check_path_access(bin_dir, check='R')
+    assert result is True, 'Access to bin dir {} should be readable'.format(bin_dir)
+    # should be writable
+    check_path_access(tmp_dir, check='W')
+    assert result is True, 'Access to current temp "{}" should be writable'.format(tmp_dir)
 
 
 def test_glob_path_match():
