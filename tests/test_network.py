@@ -112,7 +112,7 @@ def test_probe_mtu():
     # ping does not work on GH
     if running_on_github_actions():
         return None
-    
+
     result = probe_mtu('127.0.0.1', min=1400, max=9000)
     print('Localhost MTU: %s' % result)
     assert 9000 <= result <= 65500, 'Localhost MTU should be somewhere between 9000 and 65500, is: {}'.format(result)
