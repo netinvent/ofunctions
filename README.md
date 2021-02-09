@@ -12,7 +12,7 @@ ofunctions is a set of various recurrent functions amongst
 - checksums: various SHA256 tools for checking and creating checksum files
 - delayed_keyboardinterrupt: Just a nifty tool to catch CTRL+C signals
 - file_utils:
-- json_sanitze: make sure json does not contain unsupported chars, yes I look at you Windows eventlog
+- json_sanitize: make sure json does not contain unsupported chars, yes I look at you Windows eventlog
 - logger_utils: basic no brain console + file log creation
 - mailer: send emails regardless of ssl/tls protocols, in batch or as single mail, with attachments
 - network: various tools like ping, internet check, MTU probing and public IP discovery
