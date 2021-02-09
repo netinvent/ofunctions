@@ -18,7 +18,7 @@ __intname__ = 'tests.ofunctions.file_utils'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__build__ = '2021020901'
+__build__ = '2021020902'
 
 import sys
 
@@ -61,11 +61,11 @@ def test_get_files_recursive():
     for file in files:
         print(file)
     files = get_files_recursive(os.path.dirname(__file__))
-    assert 'bisection.py' in [os.path.basename(file) for file in files], 'get_files_recursive test failed'
+    assert 'test_bisection.py' in [os.path.basename(file) for file in files], 'get_files_recursive test failed'
 
     # Include directories in output
     files = get_files_recursive(os.path.dirname(__file__), include_dirs=True)
-    assert 'json_sanitize.py' in [os.path.basename(file) for file in files], 'get_files_recursive with dirs test failed'
+    assert 'test_json_sanitize.py' in [os.path.basename(file) for file in files], 'get_files_recursive with dirs test failed'
 
     # Try d_exclude_list
     files = get_files_recursive(os.path.dirname(os.path.dirname(__file__)),
@@ -74,8 +74,8 @@ def test_get_files_recursive():
                                  files], 'get_files_recursive with d_exclude_list failed'
 
     # Try f_exclude_list
-    files = get_files_recursive(os.path.dirname(__file__), f_exclude_list=['file_utils.py'])
-    assert 'file_utils.py' not in [os.path.basename(file) for file in
+    files = get_files_recursive(os.path.dirname(__file__), f_exclude_list=['test_file_utils.py'])
+    assert 'test_file_utils.py' not in [os.path.basename(file) for file in
                                    files], 'get_files_recursive with f_exclude_list failed'
 
     # Try ext_exclude_list
@@ -92,12 +92,15 @@ def test_get_files_recursive():
 
 
 def test_is_file_older_than():
-    # Test is_older_than()
+    filename = "test.file"
+    with open(filename, 'w') as file_handle:
+        file_handle.write('test')
     result = is_file_older_than(sys.argv[0], years=0, days=0, hours=0, minutes=0, seconds=5)
-    assert result is True, 'Current file should not be newer than 5 seconds'
+    os.remove(filename)
+    assert result is True, 'Current file should not be older than 5 seconds'
 
     result = is_file_older_than(sys.argv[0], years=200, days=0, hours=0, minutes=0, seconds=0)
-    assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in 2220 ?'
+    assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in the year 2221 ?'
 
 
 if __name__ == '__main__':
