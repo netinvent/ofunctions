@@ -21,7 +21,7 @@ __version__ = '0.5.0'
 __build__ = '2021020901'
 
 import os
-from ofunctions import bisect
+from ofunctions import bisection
 from typing import List, Tuple, Union, Iterable, Optional
 from ipaddress import IPv4Address, IPv6Address, AddressValueError
 from command_runner import command_runner
@@ -297,6 +297,6 @@ def probe_mtu(target: str, method: str = 'ICMP', min: int = 1100, max: int = 900
         ping_args = [(target, mtu, 2, 4, 1, iptype, True) for mtu in range(min, max + 1)]
 
         # Bisect will return argument, list, let's just return the MTU
-        return bisect.bisect(ping, ping_args, allow_all_expected=True)[1]
+        return bisection.bisect(ping, ping_args, allow_all_expected=True)[1]
     else:
         raise ValueError("Method {} not implemented yet".format(method))

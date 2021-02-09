@@ -61,7 +61,7 @@ def test_get_files_recursive():
     for file in files:
         print(file)
     files = get_files_recursive(os.path.dirname(__file__))
-    assert 'bisect.py' in [os.path.basename(file) for file in files], 'get_files_recursive test failed'
+    assert 'bisection.py' in [os.path.basename(file) for file in files], 'get_files_recursive test failed'
 
     # Include directories in output
     files = get_files_recursive(os.path.dirname(__file__), include_dirs=True)
