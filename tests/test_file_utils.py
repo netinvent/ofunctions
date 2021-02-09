@@ -21,6 +21,7 @@ __licence__ = 'BSD 3 Clause'
 __build__ = '2021020902'
 
 import sys
+from time import sleep
 
 from ofunctions.file_utils import *
 
@@ -95,9 +96,12 @@ def test_is_file_older_than():
     filename = "test.file"
     with open(filename, 'w') as file_handle:
         file_handle.write('test')
-    result = is_file_older_than(sys.argv[0], years=0, days=0, hours=0, minutes=0, seconds=5)
+    result = is_file_older_than(filename, years=0, days=0, hours=0, minutes=0, seconds=2)
+    assert result is False, 'Just created file should not be older than 2 seconds'
+    sleep(2)
+    result = is_file_older_than(filename, years=0, days=0, hours=0, minutes=0, seconds=2)
+    assert result is True, 'Just created file should now be older than 2 seconds'
     os.remove(filename)
-    assert result is True, 'Current file should not be older than 5 seconds'
 
     result = is_file_older_than(sys.argv[0], years=200, days=0, hours=0, minutes=0, seconds=0)
     assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in the year 2221 ?'
