@@ -1,4 +1,4 @@
-name: ofunctions
+name: ofunctions-linux-tests
 
 on: [push]
 
