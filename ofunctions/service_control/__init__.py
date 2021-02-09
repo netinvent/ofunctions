@@ -43,12 +43,12 @@ def system_service_handler(service: str, action: str) -> bool:
     loops = 0  # Number of seconds elapsed since we started Windows service
     max_wait = 6  # Number of seconds we'll wait for Windows service to start
 
-    msg_already_running = f'Service [{service}] already running.'
-    msg_not_running = f'Service [{service}] is not running.'
-    msg_action = f'Action {action} for service [{service}].'
-    msg_success = f'Action {action} succeeded.'
-    msg_failure = f'Action {action} failed.'
-    msg_too_long = f'Action {action} took more than {max_wait} seconds and seems to have failed.'
+    msg_already_running = 'Service "{}" already running.'.format(service)
+    msg_not_running = 'Service "{}" is not running.'.format(service)
+    msg_action = 'Action {} for service "{}".'.format(action, service)
+    msg_success = 'Action {} succeeded.'.format(service)
+    msg_failure = 'Action {} failed.'.format(service)
+    msg_too_long = 'Action {} took more than {} seconds and seems to have failed.'.format(action, max_wait)
 
     def nt_service_status(service):
         # Returns list. If second entry = 4, service is running
@@ -112,7 +112,7 @@ def system_service_handler(service: str, action: str) -> bool:
         # service_status = os.system("service " + service + " status > /dev/null 2>&1")
 
         # Valid exit code are 0 and 3 (because of systemctl using a service redirect)
-        service_status, _ = command_runner(f'service "{service}" status')
+        service_status, _ = command_runner('service "{}" status'.format(service))
         if service_status in [0, 3]:
             is_running = True
         else:
@@ -122,30 +122,20 @@ def system_service_handler(service: str, action: str) -> bool:
             if is_running:
                 logger.info(msg_already_running)
                 return True
+        if action == "stop":
+            if not is_running:
+                logger.info(msg_not_running)
+                return True
 
+        if action in ['start', 'stop']:
             logger.info(msg_action)
-            # result = os.system('service ' + service + ' start > /dev/null 2>&1')
-            result, output = command_runner(f'service "{service} start')
+            result, output = command_runner('service "{}" {}}'.format(service, action))
             if result == 0:
                 logger.info(msg_success)
                 return True
-            logger.error(f'Could not start service, code [{result}].')
-            logger.error(f'Output:\n{output}')
-            raise OSError('Cannot start service')
-
-        elif action == "stop":
-            if not is_running:
-                logger.info(msg_not_running)
-            else:
-                logger.info(msg_action)
-                # result = os.system('service ' + service + ' stop > /dev/null 2>&1')
-                result, output = command_runner(f'service "{service}" stop')
-                if result == 0:
-                    logger.info(msg_success)
-                    return True
-                logger.error(f'Could not start service, code [{result}].')
-                logger.error(f'Output:\n{output}')
-                raise OSError('Cannot stop service')
+            logger.error('Could not {} service, code [{}].'.format(action, result))
+            logger.error('Output:\n{}'.format(output))
+            raise OSError('Cannot {} service'.format(action))
 
         elif action == "restart":
             system_service_handler(service, 'stop')
