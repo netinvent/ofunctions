@@ -17,6 +17,13 @@ __intname__ = 'ofunctions'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__version__ = '2.0.0'
+__version__ = '2.0.2'
 __build__ = '2021020901'
 
+
+# Make sure we declare this file as namespace holder
+try:
+    __import__('pkg_resources').declare_namespace(__name__)
+except ImportError:
+    from pkgutil import extend_path
+    __path__ = extend_path(__path__, __name__)
