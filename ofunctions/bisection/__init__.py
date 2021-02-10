@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #  -*- coding: utf-8 -*-
 #
-# This file is part of ofunctions module
+# This file is part of ofunctions package
 
 """
 Bisection tool takes a function and and argument list for that function, and will proceed to find

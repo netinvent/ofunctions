@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 #  -*- coding: utf-8 -*-
 #
-# This file is part of ofunctions module
+# This file is part of ofunctions package
 
 """
 ofunctions is a general library for basic repetitive tasks that should be no brainers :)
