@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.7.6'
-__build__ = '2021020902'
+__version__ = '0.7.7'
+__build__ = '2021021101'
 
 import json
 import logging
@@ -302,7 +302,8 @@ def file_creation_date(path_to_file: str) -> float:
     last modified if that isn't possible.
     See http://stackoverflow.com/a/39501288/1709587 for explanation.
 
-    Returned epochs are always UTC
+    Returned epochs are always UTC under Linux
+    Returned epochs are TZ under Windows
     """
     try:
         return os.path.getctime(path_to_file)
@@ -325,7 +326,12 @@ def is_file_older_than(file: str, years: int = 0, days: int = 0, hours: int = 0,
     if not os.path.isfile(file):
         raise FileNotFoundError('[%s] not found.' % file)
     delta = seconds + (minutes * 60) + (hours * 3600) + (days * 86400) + (years * 31536000)
-    return bool((datetime.utcnow().timestamp() - delta - file_creation_date(file)) > 0)
+    # file creation date is UTC for Linux, TZ for Windows
+    if os.name == 'nt':
+        now = datetime.now().timestamp()
+    else:
+        now = datetime.utcnow().timestamp()
+    return bool((now - delta - file_creation_date(file)) > 0)
 
 
 def remove_files_older_than(directory: str, years: int = 0, days: int = 0, hours: int = 0,

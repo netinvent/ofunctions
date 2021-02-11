@@ -18,12 +18,13 @@ __intname__ = 'tests.ofunctions.file_utils'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__build__ = '2021020902'
+__build__ = '2021021101'
 
 import sys
 from time import sleep
 
 from ofunctions.file_utils import *
+from ofunctions.random import random_string
 
 
 def test_check_path_access():
@@ -93,15 +94,21 @@ def test_get_files_recursive():
 
 
 def test_is_file_older_than():
-    filename = "test.file"
+    """
+    Windows file creation dates are VERY wrong from python
+    The following code will keep earlier file creation dates, even if file is removed
+    Hence we'll add some random string to the filename to make sure the tests will not fail
+    """
+    filename = "test" + random_string(8) + ".file"
+    remove_file(filename)
     with open(filename, 'w') as file_handle:
         file_handle.write('test')
     result = is_file_older_than(filename, years=0, days=0, hours=0, minutes=0, seconds=2)
     assert result is False, 'Just created file should not be older than 2 seconds'
-    sleep(2)
+    sleep(3)
     result = is_file_older_than(filename, years=0, days=0, hours=0, minutes=0, seconds=2)
     assert result is True, 'Just created file should now be older than 2 seconds'
-    os.remove(filename)
+    remove_file(filename)
 
     result = is_file_older_than(sys.argv[0], years=200, days=0, hours=0, minutes=0, seconds=0)
     assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in the year 2221 ?'
