@@ -68,15 +68,19 @@ def get_long_description(filename):
         _long_description = readme_file.read()
     return _long_description
 
+
 def clear_package_build_path(package_rel_path):
     """
     We need to clean build path, but setuptools will wait for build/lib/package_name so we need to create that
     """
     build_path = os.path.abspath(os.path.join('build', 'lib', package_rel_path))
     try:
+        # We need to use shutil.rmtree() instead of os.remove() since the latter implementation
+        # produces "WindowsError: [Error 5] Access is denied"
         shutil.rmtree('build')
     except FileNotFoundError:
         print('build path: {} does not exist'.format(build_path))
+    # Now we need to create the 'build/lib/package/subpackage' path so setuptools won't fail
     os.makedirs(build_path)
 
 
