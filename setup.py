@@ -17,6 +17,7 @@ except ImportError:
 
 import codecs
 import os
+import shutil
 
 import pkg_resources
 import setuptools
@@ -24,7 +25,7 @@ import setuptools
 
 def get_metadata(package_file):
     """
-    Read metadata from pacakge file
+    Read metadata from package file
     """
 
     def _read(_package_file):
@@ -67,6 +68,17 @@ def get_long_description(filename):
         _long_description = readme_file.read()
     return _long_description
 
+def clear_package_build_path(package_rel_path):
+    """
+    We need to clean build path, but setuptools will wait for build/lib/package_name so we need to create that
+    """
+    build_path = os.path.abspath(os.path.join('build', 'lib', package_rel_path))
+    try:
+        shutil.rmtree('build')
+    except FileNotFoundError:
+        print('build path: {} does not exist'.format(build_path))
+    os.makedirs(build_path)
+
 
 #  ######### ACTUAL SCRIPT ENTRY POINT
 
@@ -75,6 +87,10 @@ namespace_package_path = os.path.abspath(NAMESPACE_PACKAGE_NAME)
 namespace_package_file = os.path.join(namespace_package_path, '__init__.py')
 metadata = get_metadata(namespace_package_file)
 requirements = parse_requirements(os.path.join(namespace_package_path, 'requirements.txt'))
+
+# First lets make sure build path is clean (avoiding namespace package pollution in subpackages)
+# Clean build dir before every run so we don't make cumulative wheel files
+clear_package_build_path(NAMESPACE_PACKAGE_NAME)
 
 # Generic namespace package
 setuptools.setup(
@@ -115,8 +131,11 @@ setuptools.setup(
     zip_safe=False
 )
 
+
+
 for package in setuptools.find_namespace_packages(include=['ofunctions.*']):
-    package_path = os.path.abspath(package.replace('.', os.sep))
+    rel_package_path = package.replace('.', os.sep)
+    package_path = os.path.abspath(rel_package_path)
     package_file = os.path.join(package_path, '__init__.py')
     metadata = get_metadata(package_file)
     requirements = parse_requirements(os.path.join(package_path, 'requirements.txt'))
@@ -124,6 +143,9 @@ for package in setuptools.find_namespace_packages(include=['ofunctions.*']):
     print(package_file)
     print(metadata)
     print(requirements)
+
+    # Again, we need to clean build paths between runs
+    clear_package_build_path(rel_package_path)
 
     setuptools.setup(
         name=package,
@@ -163,3 +185,4 @@ for package in setuptools.find_namespace_packages(include=['ofunctions.*']):
         # ref https://packaging.python.org/guides/packaging-namespace-packages/
         zip_safe=False
     )
+
