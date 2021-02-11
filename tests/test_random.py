@@ -14,13 +14,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'tests.ofunctions.pw_gen'
+__intname__ = 'tests.ofunctions.random'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
 __build__ = '2021020901'
 
-from ofunctions.pw_gen import *
+from ofunctions.random import *
 
 
 def test_pw_gen():
