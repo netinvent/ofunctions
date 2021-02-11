@@ -15,16 +15,18 @@ except ImportError:
     __path__ = extend_path(__path__, __name__)
 """
 
-import os
 import codecs
-import setuptools
+import os
+
 import pkg_resources
+import setuptools
 
 
 def get_metadata(package_file):
     """
     Read metadata from pacakge file
     """
+
     def _read(_package_file):
         here = os.path.abspath(os.path.dirname(__file__))
         with codecs.open(os.path.join(here, _package_file), 'r') as fp:
@@ -36,12 +38,9 @@ def get_metadata(package_file):
         if line.startswith('__version__'):
             delim = '"' if '"' in line else "'"
             _metadata['version'] = line.split(delim)[1]
-        if line.startswith('__short_description__'):
+        if line.startswith('__description__'):
             delim = '"' if '"' in line else "'"
-            _metadata['short_description'] = line.split(delim)[1]
-
-    # TODO
-    _metadata['short_description'] = 'toto'
+            _metadata['description'] = line.split(delim)[1]
     return _metadata
 
 
@@ -59,8 +58,8 @@ def parse_requirements(filename):
             ]
         return install_requires
     except OSError:
-        raise EnvironmentError('No requirements.txt file found as "{}". Please check path or create an empty one'
-                               .format(filename))
+        print('WARNING: No requirements.txt file found as "{}". Please check path or create an empty one'
+              .format(filename))
 
 
 def get_long_description(filename):
@@ -70,12 +69,14 @@ def get_long_description(filename):
 
 
 #  ######### ACTUAL SCRIPT ENTRY POINT
+
 NAMESPACE_PACKAGE_NAME = 'ofunctions'
 namespace_package_path = os.path.abspath(NAMESPACE_PACKAGE_NAME)
 namespace_package_file = os.path.join(namespace_package_path, '__init__.py')
 metadata = get_metadata(namespace_package_file)
 requirements = parse_requirements(os.path.join(namespace_package_path, 'requirements.txt'))
 
+# Generic namespace package
 setuptools.setup(
     name=NAMESPACE_PACKAGE_NAME,
     namespace_packages=[NAMESPACE_PACKAGE_NAME],
@@ -83,7 +84,6 @@ setuptools.setup(
     version=metadata['version'],
     install_requires=requirements,
     classifiers=[
-        # ofunctions is mature
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Topic :: Software Development",
@@ -102,7 +102,7 @@ setuptools.setup(
         "Operating System :: Microsoft :: Windows",
         "License :: OSI Approved :: BSD License",
     ],
-    #description=metadata['short_description'],
+    description=metadata['description'],
     author='NetInvent - Orsiris de Jong',
     author_email='contact@netinvent.fr',
     url='https://github.com/netinvent/ofunctions',
@@ -115,3 +115,51 @@ setuptools.setup(
     zip_safe=False
 )
 
+for package in setuptools.find_namespace_packages(include=['ofunctions.*']):
+    package_path = os.path.abspath(package.replace('.', os.sep))
+    package_file = os.path.join(package_path, '__init__.py')
+    metadata = get_metadata(package_file)
+    requirements = parse_requirements(os.path.join(package_path, 'requirements.txt'))
+    print(package_path)
+    print(package_file)
+    print(metadata)
+    print(requirements)
+
+    setuptools.setup(
+        name=package,
+        namespace_packages=[NAMESPACE_PACKAGE_NAME],
+        packages=[package],
+        package_data={package: ['__init__.py']},
+        version=metadata['version'],
+        install_requires=requirements,
+        classifiers=[
+            "Development Status :: 5 - Production/Stable",
+            "Intended Audience :: Developers",
+            "Topic :: Software Development",
+            "Topic :: System",
+            "Topic :: System :: Operating System",
+            "Topic :: System :: Shells",
+            "Programming Language :: Python",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: Implementation :: CPython",
+            "Programming Language :: Python :: Implementation :: PyPy",
+            "Operating System :: POSIX :: Linux",
+            "Operating System :: POSIX :: BSD :: FreeBSD",
+            "Operating System :: POSIX :: BSD :: NetBSD",
+            "Operating System :: POSIX :: BSD :: OpenBSD",
+            "Operating System :: Microsoft",
+            "Operating System :: Microsoft :: Windows",
+            "License :: OSI Approved :: BSD License",
+        ],
+        description=metadata['description'],
+        author='NetInvent - Orsiris de Jong',
+        author_email='contact@netinvent.fr',
+        url='https://github.com/netinvent/ofunctions',
+        keywords=['network', 'bisection', 'logging'],
+        long_description=get_long_description('README.md'),
+        long_description_content_type="text/markdown",
+        python_requires='>=3.5',
+        # namespace packages don't work well with zipped eggs
+        # ref https://packaging.python.org/guides/packaging-namespace-packages/
+        zip_safe=False
+    )
