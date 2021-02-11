@@ -18,7 +18,7 @@ ofunctions is a set of various recurrent functions amongst
 - network: various tools like ping, internet check, MTU probing and public IP discovery
 - platform: nothing special here, just check what arch we are running on
 - process: simple kill-them-all function to terminate subprocesses
-- pw_gen: basic password generator
+- random: basic random string & password generator
 - service_control: control Windows / Linux service start / stop / status
 - string_handling: Remove accents / special chars from strings
 
