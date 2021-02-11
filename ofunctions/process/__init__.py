@@ -16,6 +16,7 @@ Versioning semantics:
 __intname__ = 'ofunctions.process'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
+__description__ = 'Shorthand for killing an entire process tree'
 __licence__ = 'BSD 3 Clause'
 __version__ = '0.1.1'
 __build__ = '2020102801'

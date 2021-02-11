@@ -16,6 +16,7 @@ Versioning semantics:
 __intname__ = 'ofunctions.checksums'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
+__description__ = 'SHA256 Checksumming functions, checksum manifest file creation and verification'
 __licence__ = 'BSD 3 Clause'
 __version__ = '0.2.1'
 __build__ = '2020110201'
@@ -116,8 +117,7 @@ def create_manifest_from_dict(manifest_file: str, manifest_dict: dict) -> None:
         raise IOError('Cannot write manifest file "%s".' % manifest_file) from IOError
 
 
-
-def create_manifest_from_dir(manifest_file: str, path: str, remove_prefixes : list = None,
+def create_manifest_from_dir(manifest_file: str, path: str, remove_prefixes: list = None,
                              f_exclude_list: list = None, d_exclude_list: list = None) -> None:
     """
     Creates a bash like file manifest with sha256sum and filenames

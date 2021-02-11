@@ -16,6 +16,7 @@ Versioning semantics:
 __intname__ = 'ofunctions.netowrk'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
+__description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping'
 __licence__ = 'BSD 3 Clause'
 __version__ = '0.5.0'
 __build__ = '2021020901'
