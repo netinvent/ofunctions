@@ -44,7 +44,7 @@ class ContextFilterWorstLevel(logging.Filter):
         super().__init__()
 
     @property
-    def level(self):
+    def worst_level(self):
         """
         Returns worst log level called
         """
