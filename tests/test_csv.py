@@ -10,10 +10,12 @@ Versioning semantics:
     Patch version: Backwards compatible bug fixes
 """
 
-__intname__ = 'tests.ofunctions.platform'
+__intname__ = 'tests.ofunctions.csv'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
 __build__ = '2021020901'
+
+from ofunctions.csv import *
 
 # TODO write tests
