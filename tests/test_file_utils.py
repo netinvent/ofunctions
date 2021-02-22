@@ -49,6 +49,9 @@ def test_glob_path_match():
 
 
 def print_perm_error(file):
+    """
+    This function solely exists for test_get_files_recursive
+    """
     print('Perm error on: %s' % file)
 
 
