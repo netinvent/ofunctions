@@ -13,7 +13,7 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.logging'
+__intname__ = 'ofunctions.logger_utils'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
 __description__ = 'Shorthand for logger initialization, recording worst called loglevel and handling nice console output'
