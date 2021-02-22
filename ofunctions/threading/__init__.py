@@ -28,7 +28,7 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.csv'
+__intname__ = 'ofunctions.threading'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
 __description__ = 'Threading decorator to run functions as threads'
