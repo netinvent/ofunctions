@@ -1,4 +1,4 @@
-name: pylint-tests
+name: pylint-linux-tests
 
 on: [push, pull_request]
 
