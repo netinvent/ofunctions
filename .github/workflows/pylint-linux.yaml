@@ -26,4 +26,5 @@ jobs:
       run: |
         # Do not run pylint on python 3.3 because isort is not available for python 3.3, don't run on python 3.4 because pylint: disable=xxxx does not exist
         pip install pylint
-        python -m pylint --disable=C,W,R --max-line-length=127 ofunctions
+        # Disable E0401 import error since we lint on linux and pywin32 is obviously missing
+        python -m pylint --disable=C,W,R,E0401 --max-line-length=127 ofunctions
