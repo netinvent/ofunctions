@@ -3,7 +3,8 @@
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/netinvent/ofunctions.svg)](http://isitmaintained.com/project/netinvent/ofunctions "Percentage of issues still open")
-![Linux Build Status](https://github.com/netinvent/ofunctions/workflows/ofunctions-linux-tests/badge.svg)
+![Linux Build Status](https://github.com/netinvent/ofunctions/workflows/linux-tests/badge.svg)
+![Windows Build Status](https://github.com/netinvent/ofunctions/workflows/windows-tests/badge.svg)
 [![GitHub Release](https://img.shields.io/github/release/netinvent/ofunctions.svg?label=Latest)](https://github.com/netinvent/ofunctions/releases/latest)
 
 ofunctions is a set of various recurrent functions amongst
