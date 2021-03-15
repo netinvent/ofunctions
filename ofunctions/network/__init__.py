@@ -13,7 +13,7 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.netowrk'
+__intname__ = 'ofunctions.network'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
 __description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping'
