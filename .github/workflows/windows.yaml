@@ -14,7 +14,8 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        python-version: [3.5, 3.6, 3.7, 3.8, 'pypy-3.6', 'pypy-3.7']
+        # Don't use pypy on windows since it does not have pywin32 module
+        python-version: [3.5, 3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
