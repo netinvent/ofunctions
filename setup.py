@@ -3,6 +3,13 @@
 #
 # This file is part of ofunctions package
 
+
+__intname__ = 'ofunctions.setup'
+__author__ = 'Orsiris de Jong'
+__copyright__ = 'Copyright (C) 2021 Orsiris de Jong'
+__licence__ = 'BSD 3 Clause'
+__build__ = '2021031601'
+
 """
 Namespace packaging here
 
