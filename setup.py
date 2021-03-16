@@ -15,7 +15,7 @@ except ImportError:
     __path__ = extend_path(__path__, __name__)
 """
 
-import codecs
+import sys
 import os
 import shutil
 
