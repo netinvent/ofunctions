@@ -27,6 +27,8 @@ ofunctions is a set of various recurrent functions amongst
 - string_handling: remove accents / special chars from strings
 - threading: threading decorator for functions
 
+It is compatible with Python 3.5+ and is tested on both Linux and Windows.
+
 ## Setup
 
 ```
