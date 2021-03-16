@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Windows & Linux service control functions'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.1.2'
-__build__ = '2021020901'
+__version__ = '0.1.3'
+__build__ = '2021031601'
 
 import logging
 import os
@@ -33,6 +33,17 @@ if os.name == 'nt':
 
 
 logger = logging.getLogger(__intname__)
+
+
+def nt_service_status(service: str):
+    """
+    # Returns list. If second entry = 4, service is running
+    # TODO: handle other service states than 4
+    """
+    service_status = win32serviceutil.QueryServiceStatus(service)
+    if service_status[1] == 4:
+        return True
+    return False
 
 
 def system_service_handler(service: str, action: str) -> bool:
@@ -50,14 +61,6 @@ def system_service_handler(service: str, action: str) -> bool:
     msg_success = 'Action {} succeeded.'.format(service)
     msg_failure = 'Action {} failed.'.format(service)
     msg_too_long = 'Action {} took more than {} seconds and seems to have failed.'.format(action, max_wait)
-
-    def nt_service_status(service):
-        # Returns list. If second entry = 4, service is running
-        # TODO: handle other service states than 4
-        service_status = win32serviceutil.QueryServiceStatus(service)
-        if service_status[1] == 4:
-            return True
-        return False
 
     if os.name == 'nt':
         is_running = nt_service_status(service)
@@ -102,14 +105,13 @@ def system_service_handler(service: str, action: str) -> bool:
         elif action == "restart":
             system_service_handler(service, 'stop')
             sleep(1)  # arbitrary sleep between
-            system_service_handler(service, 'start')
+            return system_service_handler(service, 'start')
 
         elif action == "status":
             return is_running
 
     else:
         # Using lsb service X command on Unix variants, hopefully the most portable
-
         # service_status = os.system("service " + service + " status > /dev/null 2>&1")
 
         # Valid exit code are 0 and 3 (because of systemctl using a service redirect)
@@ -140,7 +142,7 @@ def system_service_handler(service: str, action: str) -> bool:
 
         elif action == "restart":
             system_service_handler(service, 'stop')
-            system_service_handler(service, 'start')
+            return system_service_handler(service, 'start')
 
         elif action == "status":
             return is_running
