@@ -93,6 +93,7 @@ def check_path_access(path: str, check: str = 'R') -> bool:
                 return res
             else:
                 try:
+                    # Let's create a real file in path in order to check effective write permissions
                     test_file = sub_path + '/.somehopefullyunexistenttestfile' + str(datetime.now().timestamp())
                     open(test_file, 'w')
                     remove_file(test_file)
@@ -151,6 +152,10 @@ def remove_file(path: str):
 def remove_dir(path: str):
     with _file_lock():
         # May be false even if dir exists but ACLs deny
+
+        # We need to use shutil.rmtree() instead of os.remove() since the latter implementation
+        # produces random "WindowsError: [Error 5] Access is denied" when python process still uses the dir for
+        # some unobvious reason
         if os.path.isdir(path):
             shutil.rmtree(path)
 
