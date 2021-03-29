@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.7.7'
-__build__ = '2021021101'
+__version__ = '0.7.8'
+__build__ = '2021032901'
 
 import json
 import logging
@@ -299,9 +299,11 @@ def replace_in_file(source_file: str, text_to_search: str, replacement_text: str
         fp.write(data)
 
 
-def file_creation_date(path_to_file: str) -> float:
+def get_file_time(path_to_file: str, mac_type: str = 'ctime') -> float:
     """
-    Modified version of:
+    Returns file ctime/mtime/atime
+
+    Heaviliy modified version of:
     Source: https://stackoverflow.com/a/39501288/2635443
     Try to get the date that a file was created, falling back to when it was
     last modified if that isn't possible.
@@ -310,23 +312,43 @@ def file_creation_date(path_to_file: str) -> float:
     Returned epochs are always UTC under Linux
     Returned epochs are TZ under Windows
     """
+    if mac_type not in ['ctime', 'mtime', 'atime']:
+        raise ValueError('Invalid file MAC time type request')
     try:
-        return os.path.getctime(path_to_file)
+        return getattr(os.path, 'get' + mac_type)(path_to_file)
     # Some linuxes may not have os.path.getctime ?
     except AttributeError:
         stat = os.stat(path_to_file)
         try:
-            return stat.st_ctime
+            return getattr(stat, 'st_' + mac_type)
         except AttributeError:
             # We're probably on Linux. No easy way to get creation dates here,
             # so we'll settle for when its content was last modified.
             return stat.st_mtime
 
 
-def is_file_older_than(file: str, years: int = 0, days: int = 0, hours: int = 0,
+def file_creation_date(path_to_file: str) -> float:
+    """
+    Wrapper for get_file_time (kept for compatibility reasons)
+    """
+    return get_file_time(path_to_file, 'ctime')
+
+
+def file_modification_date(path_to_file: str) -> float:
+    """
+    Wrapper for get_file_time (kept for compatibility reasons)
+    """
+    return get_file_time(path_to_file, 'mtime')
+
+
+def check_file_timestamp_delta(file: str, mac_type: str = 'ctime', years: int = 0, days: int = 0, hours: int = 0,
                        minutes: int = 0, seconds: int = 0) -> bool:
     """
-    Simple check if a file is older than given delta from now
+    mac_type can be ctime, mtime, or atime for comparison purposes
+
+    Simple check if a file is older (ctime) than given time delta from now
+    Can also check if file has been modified (mtime) earlier than given time delta from now
+
     """
     if not os.path.isfile(file):
         raise FileNotFoundError('[%s] not found.' % file)
@@ -336,10 +358,19 @@ def is_file_older_than(file: str, years: int = 0, days: int = 0, hours: int = 0,
         now = datetime.now().timestamp()
     else:
         now = datetime.utcnow().timestamp()
-    return bool((now - delta - file_creation_date(file)) > 0)
+    return bool((now - delta - get_file_time(file, mac_type)) > 0)
 
 
-def remove_files_older_than(directory: str, years: int = 0, days: int = 0, hours: int = 0,
+def is_file_older_than(file: str, years: int = 0, days: int = 0, hours: int = 0,
+                       minutes: int = 0, seconds: int = 0) -> bool:
+    """
+    Wrapper for check_file_times kept for compat reasons
+    """
+    mac_type = 'ctime'
+    return check_file_timestamp_delta(file, mac_type='ctime', years=years, days=days, hours=hours, minutes=minutes, seconds=seconds)
+
+
+def remove_files_on_timestamp_delta(directory: str, mac_type: str = 'ctime', years: int = 0, days: int = 0, hours: int = 0,
                             minutes: int = 0, seconds: int = 0) -> None:
     """
     Remove files older than given delta from now
@@ -352,12 +383,22 @@ def remove_files_older_than(directory: str, years: int = 0, days: int = 0, hours
         for filename in filenames:
             filename = os.path.join(directory, filename)
             try:
-                if is_file_older_than(filename, years=years, days=days, hours=hours, minutes=minutes, seconds=seconds):
+                if check_file_timestamp_delta(filename, mac_type=mac_type, years=years, days=days, hours=hours, minutes=minutes, seconds=seconds):
                     os.remove(filename)
             except FileNotFoundError:
                 pass
             except (IOError, OSError):
                 raise OSError('Cannot remove file [%s].' % filename)
+
+
+def remove_files_older_than(directory: str, years: int = 0, days: int = 0, hours: int = 0,
+                            minutes: int = 0, seconds: int = 0) -> None:
+    """
+    Wrapper for remove_files_on_timestamp_delta for compatibility
+    """
+    mac_type = 'ctime'
+    remove_files_on_timestamp_delta(directory, mac_type='ctime',
+                                    years=years, days=days, hours=hours, minutes=minutes, seconds=seconds)
 
 
 def remove_bom(file: str) -> None:
@@ -446,3 +487,4 @@ def hide_windows_file(file: str, hidden: bool = True) -> None:
         result, _ = command_runner('attrib %sh "%s"' % (symbol, file))
         if result != 0:
             raise IOError(file)
+

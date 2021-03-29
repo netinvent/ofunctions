@@ -95,7 +95,7 @@ def test_get_files_recursive():
 
 def test_is_file_older_than():
     """
-    Windows file creation dates are VERY wrong from python
+    Windows file creation dates are VERY wrong when requested by python
     The following code will keep earlier file creation dates, even if file is removed
     Hence we'll add some random string to the filename to make sure the tests will not fail
     """
