@@ -50,6 +50,11 @@ class ContextFilterWorstLevel(logging.Filter):
         """
         return self._worst_level
 
+    @worst_level.setter
+    def worst_level(self, value: int):
+        if isinstance(value, int):
+            self._worst_level = value
+
     def filter(self, record) -> bool:
         """
         A filter can change the default log output
@@ -59,8 +64,8 @@ class ContextFilterWorstLevel(logging.Filter):
         # record.msg = f'{record.msg}'.encode('ascii', errors='backslashreplace')
         # When using this filter, something can be added to logging.Formatter like '%(something)s'
         # record.something = 'value'
-        if record.levelno > self._worst_level:
-            self._worst_level = record.levelno
+        if record.levelno > self.worst_level:
+            self.worst_level = record.levelno
         return True
 
 
