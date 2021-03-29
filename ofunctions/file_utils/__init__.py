@@ -449,23 +449,6 @@ def read_json_from_file(file: str) -> dict:
         return {}
 
 
-def get_lzma_dict_size(directory: str) -> int:
-    # Returns lzma dict (in MB) size based on approx of files size
-
-    # Get dist size (bytes to MB by shr 20)
-    # Lets assume that dict should be 2 <= dist_size <= 128 MB
-    total_dist_size = 0
-    for file in get_files_recursive(directory):
-        if not os.path.islink(file):
-            total_dist_size += os.path.getsize(file) >> 20
-
-    # Compute best dict size for compression
-    factor = 2
-    while (total_dist_size / factor > 1) and factor < 128:
-        factor *= 2
-    return int(factor)
-
-
 def grep(file: str, pattern: str) -> list:
     if os.path.isfile(file):
         result = []
