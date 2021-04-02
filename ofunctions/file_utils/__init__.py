@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.7.8'
-__build__ = '2021032901'
+__version__ = '0.8.0'
+__build__ = '2021040201'
 
 import json
 import logging
@@ -327,7 +327,7 @@ def get_file_time(path_to_file: str, mac_type: str = 'ctime') -> float:
             return stat.st_mtime
 
 
-def file_creation_date(path_to_file: str) -> float:
+def file_creation_date(path_to_file: str) -> float:  # COMPAT <0.7.8
     """
     Wrapper for get_file_time (kept for compatibility reasons)
     """
@@ -346,8 +346,11 @@ def check_file_timestamp_delta(file: str, mac_type: str = 'ctime', years: int = 
     """
     mac_type can be ctime, mtime, or atime for comparison purposes
 
-    Simple check if a file is older (ctime) than given time delta from now
+    Simple check if a file is newer/older (ctime) than given time delta from now
     Can also check if file has been modified (mtime) earlier than given time delta from now
+
+    Future timestamps are achieved by specifying positive values, eg days=1
+    Past timestamps are achieved by specifying negative values, eg days=-1
 
     """
     if not os.path.isfile(file):
@@ -358,20 +361,21 @@ def check_file_timestamp_delta(file: str, mac_type: str = 'ctime', years: int = 
         now = datetime.now().timestamp()
     else:
         now = datetime.utcnow().timestamp()
-    return bool((now - delta - get_file_time(file, mac_type)) > 0)
+    return bool((now + delta - get_file_time(file, mac_type)) > 0)
 
 
 def is_file_older_than(file: str, years: int = 0, days: int = 0, hours: int = 0,
-                       minutes: int = 0, seconds: int = 0) -> bool:
+                       minutes: int = 0, seconds: int = 0) -> bool:  # COMPAT <0.7.8
     """
-    Wrapper for check_file_times kept for compat reasons
+    Wrapper for check_file_times kept for compatibility
     """
     mac_type = 'ctime'
-    return check_file_timestamp_delta(file, mac_type='ctime', years=years, days=days, hours=hours, minutes=minutes, seconds=seconds)
+    return check_file_timestamp_delta(file, mac_type='ctime', years=-years, days=-days,
+                                      hours=-hours, minutes=-minutes, seconds=-seconds)
 
 
-def remove_files_on_timestamp_delta(directory: str, mac_type: str = 'ctime', years: int = 0, days: int = 0, hours: int = 0,
-                            minutes: int = 0, seconds: int = 0) -> None:
+def remove_files_on_timestamp_delta(directory: str, mac_type: str = 'ctime', years: int = 0, days: int = 0,
+                                    hours: int = 0, minutes: int = 0, seconds: int = 0) -> None:
     """
     Remove files older than given delta from now
     """
@@ -383,7 +387,8 @@ def remove_files_on_timestamp_delta(directory: str, mac_type: str = 'ctime', yea
         for filename in filenames:
             filename = os.path.join(directory, filename)
             try:
-                if check_file_timestamp_delta(filename, mac_type=mac_type, years=years, days=days, hours=hours, minutes=minutes, seconds=seconds):
+                if check_file_timestamp_delta(filename, mac_type=mac_type, years=years, days=days,
+                                              hours=hours, minutes=minutes, seconds=seconds):
                     os.remove(filename)
             except FileNotFoundError:
                 pass
@@ -392,13 +397,14 @@ def remove_files_on_timestamp_delta(directory: str, mac_type: str = 'ctime', yea
 
 
 def remove_files_older_than(directory: str, years: int = 0, days: int = 0, hours: int = 0,
-                            minutes: int = 0, seconds: int = 0) -> None:
+                            minutes: int = 0, seconds: int = 0) -> None:  # COMPAT <0.7.8
     """
     Wrapper for remove_files_on_timestamp_delta for compatibility
     """
     mac_type = 'ctime'
     remove_files_on_timestamp_delta(directory, mac_type='ctime',
-                                    years=years, days=days, hours=hours, minutes=minutes, seconds=seconds)
+                                    years=-years, days=-days,
+                                    hours=-hours, minutes=-minutes, seconds=-seconds)
 
 
 def remove_bom(file: str) -> None:

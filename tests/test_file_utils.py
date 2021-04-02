@@ -15,7 +15,7 @@ __intname__ = 'tests.ofunctions.file_utils'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__build__ = '2021021101'
+__build__ = '2021040201'
 
 import sys
 from time import sleep
@@ -93,7 +93,16 @@ def test_get_files_recursive():
             assert False, 'get_files_recursive failed with ext_include_list'
 
 
-def test_is_file_older_than():
+def test_get_file_time():
+    for mac_type in ['ctime', 'mtime', 'atime']:
+        mac_timestamp = get_file_time(__file__, mac_type)
+        print(mac_type, mac_timestamp)
+        dt = datetime.fromtimestamp(mac_timestamp)
+        assert isinstance(dt, datetime), 'Timestamp could not be converted to datetime object'
+        assert 2021 <= dt.year < 2300, 'Code will prabably not run in 200 years, ehh'
+
+
+def test_check_file_timestamp_delta():
     """
     Windows file creation dates are VERY wrong when requested by python
     The following code will keep earlier file creation dates, even if file is removed
@@ -103,20 +112,21 @@ def test_is_file_older_than():
     remove_file(filename)
     with open(filename, 'w') as file_handle:
         file_handle.write('test')
-    result = is_file_older_than(filename, years=0, days=0, hours=0, minutes=0, seconds=2)
+    result = check_file_timestamp_delta(filename, years=0, days=0, hours=0, minutes=0, seconds=-2)
     assert result is False, 'Just created file should not be older than 2 seconds'
     sleep(3)
-    result = is_file_older_than(filename, years=0, days=0, hours=0, minutes=0, seconds=2)
+    result = check_file_timestamp_delta(filename, years=0, days=0, hours=0, minutes=0, seconds=-2)
     assert result is True, 'Just created file should now be older than 2 seconds'
     remove_file(filename)
 
-    result = is_file_older_than(sys.argv[0], years=200, days=0, hours=0, minutes=0, seconds=0)
+    result = check_file_timestamp_delta(sys.argv[0], years=-200, days=0, hours=0, minutes=0, seconds=0)
     assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in the year 2221 ?'
 
 
 if __name__ == '__main__':
     print('Example code for %s, %s' % (__intname__, __build__))
-    test_check_path_access()
-    test_glob_path_match()
-    test_get_files_recursive()
-    test_is_file_older_than()
+    #test_check_path_access()
+    #test_glob_path_match()
+    #test_get_files_recursive()
+    #test_get_file_time()
+    test_check_file_timestamp_delta()
