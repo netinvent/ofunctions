@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
 __description__ = 'SHA256 Checksumming functions, checksum manifest file creation and verification'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.2.1'
-__build__ = '2020110201'
+__version__ = '0.2.2'
+__build__ = '2021041201'
 
 
 import os
@@ -85,8 +85,8 @@ def create_sha256sum_file(directory: str, sumfile: str = 'SHA256SUMS.TXT', depth
     files = get_files_recursive(directory, depth=depth)
     try:
         sumfile = os.path.join(directory, sumfile)
-        with open(sumfile, 'w') as file_handle:
-            file_handle.write('# Generated on %s\n\n' % datetime.today())
+        with open(sumfile, 'w', encoding='utf-8') as file_handle:
+            file_handle.write('# Generated on %s UTC\n\n' % datetime.utcnow())
 
             def _get_file_sum(files):
                 for file in files:
