@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
 __description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.5.0'
-__build__ = '2021020901'
+__version__ = '0.5.1'
+__build__ = '2021042301'
 
 import os
 from ofunctions import bisection
@@ -235,7 +235,7 @@ def get_public_ip(check_services=None, proxy: str = None, timeout: int = 5) -> O
     Get public IP address from one of the various web services
     """
     if check_services is None:
-        check_services = ['https://ident.me', 'https://api.ipifyx.org', 'http://ipinfo.io/ip', 'http://ifconfig.me/ip']
+        check_services = ['https://ident.me', 'https://api.ipify.org', 'http://ipinfo.io/ip', 'http://ifconfig.me/ip']
 
     def _try_server(server: str, proxy_dict: dict) -> Optional[str]:
         # With optional proxy
