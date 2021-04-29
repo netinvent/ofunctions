@@ -57,7 +57,9 @@ def call_with_future(fn, future, args, kwargs):
 
 def threaded(fn):
     """
-    wraps decorator sole purpose is for function.__name__ to be the real function
+    @threaded wrapper in order to thread any function
+
+    @wraps decorator sole purpose is for function.__name__ to be the real function
     instead of 'wrapper'
 
     """
