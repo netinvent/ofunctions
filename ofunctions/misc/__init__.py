@@ -71,7 +71,7 @@ def time_is_between(current_time: str, time_range: tuple) -> bool:
 
 def reverse_dict(dictionary: dict) -> dict:
     """
-    Return a reversed dictionnary ie {value: key}
+    Return a reversed dictionary ie {value: key}
     """
     return {value: key for key, value in dictionary.items()}
 
