@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Collection of various functions'
 __licence__ = 'BSD 3 Clause'
-__version__ = '1.0.0'
-__build__ = '2021020901'
+__version__ = '1.1.0'
+__build__ = '2021050601'
 
 from typing import Union, List
 
@@ -67,3 +67,17 @@ def time_is_between(current_time: str, time_range: tuple) -> bool:
     if time_range[1] < time_range[0]:
         return current_time >= time_range[0] or current_time <= time_range[1]
     return time_range[0] <= current_time <= time_range[1]
+
+
+def reverse_dict(dictionary: dict) -> dict:
+    """
+    Return a reversed dictionnary ie {value: key}
+    """
+    return {value: key for key, value in dictionary.items()}
+
+
+def get_key_from_value(haystack: dict, needle: str):
+    """
+    Returns a dict key by it's value, ie get_key_from_value({key: value}, value) returns key
+    """
+    return next((k for k, v in haystack.items() if v == needle), None)
