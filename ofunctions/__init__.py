@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Toolset with various file logging / network / checksumming / process functions'
 __licence__ = 'BSD 3 Clause'
-__version__ = '2.0.3'
-__build__ = '2021033001'
+__version__ = '2.0.4'
+__build__ = '2021051201'
 
 
 # Make sure we declare this file as namespace holder
