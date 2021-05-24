@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.9.0'
-__build__ = '2021051201'
+__version__ = '0.9.1'
+__build__ = '2021052401'
 
 import json
 import logging
@@ -64,45 +64,62 @@ def check_path_access(path: str, check: str = 'R') -> bool:
     when writable checks fail, we automatically fallback to readable tests
     This is mostly a debug function, we only log successes in debug level
 
+    We don't rely on os.access since it doesn't work well on Windows:
+            os.access also returns True with writable files or links
+            os.access does report W_OK with windows directories when they arent supposed to
 
     :param path: path to check (directory or file)
     :param check: [R/W] check for readability / writability
     :return: bool: do we have desired access ?
     """
     if check == 'W':
-        access_check = os.W_OK
         perm_type = 'writable'
     else:
-        access_check = os.R_OK
         perm_type = 'readable'
 
     logger.debug('Checking access to path "{0}"'.format(path))
 
     def _check_path_access(sub_path: str):
         if os.path.exists(sub_path):
-            # os.access also returns True with writable files or links
-            res = os.access(sub_path, access_check)
-            # os.access does report W_OK with windows directories when they arent supposed to
-            # Let's bypass this diag
             obj = 'file' if os.path.isfile(sub_path) else 'directory'
-            if obj == 'file' or check == 'R':
-                if res:
-                    logger.debug('Path "{0}" is a {1} {2}.'.format(sub_path, perm_type, obj))
+            if obj == 'file':
+                if check == 'W':
+                    try:
+                        fp = open(sub_path, 'a')
+                        fp.close()
+                        res = True
+                    except (PermissionError, OSError):
+                        res = False
                 else:
-                    logger.warning('Path "{0}" is a non {1} {2}.'.format(sub_path, perm_type, obj))
-                return res
+                    try:
+                        fp = open(sub_path, 'r')
+                        fp.close()
+                        res = True
+                    except (PermissionError, OSError):
+                        res = False
+            # Handle directory tests
             else:
-                try:
-                    # Let's create a real file in path in order to check effective write permissions
-                    test_file = sub_path + '/.somehopefullyunexistenttestfile' + str(datetime.now().timestamp())
-                    open(test_file, 'w')
-                    remove_file(test_file)
-                except (IOError, OSError):
-                    logger.warning('Path "{0} is a non writable directory.'.format(sub_path))
-                    return False
+                if check == 'W':
+                    try:
+                        # Let's create a real file in path in order to check effective write permissions
+                        test_file = sub_path + '/.somehopefullyunexistenttestfile' + str(datetime.now().timestamp())
+                        open(test_file, 'w')
+                        remove_file(test_file)
+                        res = True
+                    except (IOError, OSError):
+                        res = False
                 else:
-                    logger.debug('Path "{0} is a writable directory.'.format(sub_path))
-                    return True
+                    try:
+                        os.listdir(sub_path)
+                        res = True
+                    except (PermissionError, OSError):
+                        res = False
+
+            if res:
+                logger.debug('Path "{0}" is a {1} {2}.'.format(sub_path, perm_type, obj))
+            else:
+                logger.warning('Path "{0}" is a non {1} {2}.'.format(sub_path, perm_type, obj))
+            return res
 
         else:
             logger.warning('Path "{0}" does not exist or has ACLs that prevent access.'.format(sub_path))
