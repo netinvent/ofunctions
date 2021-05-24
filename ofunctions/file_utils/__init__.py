@@ -141,8 +141,7 @@ def check_path_access(path: str, check: str = 'R') -> bool:
 
     result = _split_path(path)
     if result and check == 'W':
-        # If not writable, allow a readable test too
-        access_check = os.R_OK
+        # If not writable, fallback to a readable test
         perm_type = 'readable'
         check = 'R'
         _split_path(path)
