@@ -19,7 +19,7 @@ __copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
 __description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping'
 __licence__ = 'BSD 3 Clause'
 __version__ = '0.5.1'
-__build__ = '2021042301'
+__build__ = '2021052501'
 
 import os
 from ofunctions import bisection
@@ -284,18 +284,15 @@ def probe_mtu(target: str, method: str = 'ICMP', min: int = 1100, max: int = 900
     if method == 'ICMP':
         # Let's always keep 2 retries just to make sure we don't get false positives
         # timeout = 4, interval = 1, ip_type is detected
+        ip_type = 4
         try:
-            IPv4Address(target)
-            iptype = 4
+            IPv6Address(target)
+            ip_type = 6
         except AddressValueError:
-            try:
-                IPv6Address(target)
-                iptype = 6
-            except AddressValueError:
-                # Let's assume it's -4:
-                iptype = 4
+            # Let's assume it's IPv4:
+            pass
 
-        ping_args = [(target, mtu, 2, 4, 1, iptype, True) for mtu in range(min, max + 1)]
+        ping_args = [(target, mtu, 2, 4, 1, ip_type, True) for mtu in range(min, max + 1)]
 
         # Bisect will return argument, list, let's just return the MTU
         return bisection.bisect(ping, ping_args, allow_all_expected=True)[1]
