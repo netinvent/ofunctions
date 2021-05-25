@@ -406,7 +406,7 @@ def file_creation_date(path_to_file: str) -> float:  # COMPAT <0.7.8
     return get_file_time(path_to_file, 'ctime')
 
 
-def file_modification_date(path_to_file: str) -> float:
+def file_modification_date(path_to_file: str) -> float:  # COMPAT <0.7.8
     """
     Wrapper for get_file_time (kept for compatibility reasons)
     """
