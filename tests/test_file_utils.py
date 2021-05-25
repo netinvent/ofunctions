@@ -89,6 +89,12 @@ def test_get_files_recursive():
         if file.endswith('.py'):
             assert False, 'get_files_recursive failed with ext_exclude_list'
 
+    # Try f_include_list
+    files = get_paths_recursive(os.path.dirname(__file__), f_include_list=['test*utils.py'])
+    result_list = [os.path.basename(file) for file in files]
+    assert 'test_file_utils.py' in result_list, 'get_paths_recursive with f_include_list failed'
+    assert len(result_list) == 1, 'get_paths_recursive with f_include_list failed'
+
     # Try ext_include_list
     files = get_files_recursive(os.path.dirname(__file__), ext_include_list=['.py'])
     for file in files:

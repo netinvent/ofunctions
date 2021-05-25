@@ -262,6 +262,8 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
         f_exclude_list = []
     if ext_exclude_list is None:
         ext_exclude_list = []
+    if ext_include_list is None:
+        ext_include_list = []
     if f_include_list is None:
         f_include_list = []
 
@@ -546,4 +548,3 @@ def hide_windows_file(file: str, hidden: bool = True) -> None:
         result, _ = command_runner('attrib %sh "%s"' % (symbol, file))
         if result != 0:
             raise IOError(file)
-
