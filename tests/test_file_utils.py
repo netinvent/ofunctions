@@ -191,7 +191,6 @@ def test_hide_file():
     remove_file(path)
 
 
-
 if __name__ == '__main__':
     print('Example code for %s, %s' % (__intname__, __build__))
     test_check_path_access()
