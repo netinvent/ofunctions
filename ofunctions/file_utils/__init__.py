@@ -314,9 +314,8 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
                                                              primary_root=p_root,
                                                              fn_on_perm_error=fn_on_perm_error,
                                                              )
-                            if files_in_d:
-                                for file in files_in_d:
-                                    yield file
+                            for file in files_in_d:
+                                yield file
 
             except PermissionError:
                 pass
