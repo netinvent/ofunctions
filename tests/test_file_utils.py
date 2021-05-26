@@ -15,7 +15,7 @@ __intname__ = 'tests.ofunctions.file_utils'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__build__ = '2021051201'
+__build__ = '2021052601'
 
 import sys
 from time import sleep
@@ -53,53 +53,69 @@ def test_glob_path_match():
 
 def print_perm_error(file):
     """
-    This function solely exists for test_get_files_recursive
+    This function solely exists for test_get_paths_recursive
     """
     print('Perm error on: %s' % file)
 
 
-def test_get_files_recursive():
-    files = get_files_recursive(os.path.dirname(__file__), fn_on_perm_error=print_perm_error)
+def test_get_paths_recursive():
+    test_directory = os.path.dirname(__file__)
+    files = get_paths_recursive(test_directory, fn_on_perm_error=print_perm_error)
 
     assert isinstance(files, chain)
+    print('BEGIN FILE LIST IN "{}"'.format(test_directory))
     for file in files:
         print(file)
+    print('END FILE LIST')
 
-    files = get_files_recursive(os.path.dirname(__file__))
-    assert 'test_bisection.py' in [os.path.basename(file) for file in files], 'get_files_recursive test failed'
+    files = get_paths_recursive(test_directory)
+    result_list = [os.path.basename(file) for file in files]
+    assert 'test_bisection.py' in result_list, 'get_paths_recursive test failed to find test_bisection.py'
+    assert len(result_list) > 10, 'test dir file list should contain more than 10 entries for ofunctions package'
 
     # Include directories in output
-    files = get_files_recursive(os.path.dirname(__file__), include_dirs=True)
-    assert 'test_json_sanitize.py' in [os.path.basename(file) for file in files], 'get_files_recursive with dirs test failed'
+    files = get_paths_recursive(test_directory, exclude_dirs=False)
+    assert 'test_json_sanitize.py' in [os.path.basename(file) for file in files], 'get_paths_recursive with dirs test failed'
 
     # Try d_exclude_list on ..\tests
-    files = get_files_recursive(os.path.join(os.path.dirname(__file__), os.pardir),
-                                d_exclude_list=['tests'], include_dirs=True)
+    files = get_paths_recursive(os.path.join(test_directory, os.pardir),
+                                d_exclude_list=['tests'], exclude_dirs=False)
     assert 'tests' + os.sep + 'file_utils.py' not in [os.path.basename(file) for file in
-                                 files], 'get_files_recursive with d_exclude_list failed'
+                                 files], 'get_paths_recursive with d_exclude_list failed'
 
     # Try f_exclude_list
-    files = get_files_recursive(os.path.dirname(__file__), f_exclude_list=['test_file_utils.py'])
+    files = get_paths_recursive(test_directory, f_exclude_list=['test_file_utils.py'])
     assert 'test_file_utils.py' not in [os.path.basename(file) for file in
-                                   files], 'get_files_recursive with f_exclude_list failed'
+                                   files], 'get_paths_recursive with f_exclude_list failed'
 
     # Try ext_exclude_list
-    files = get_files_recursive(os.path.dirname(__file__), ext_exclude_list=['.py'])
+    files = get_paths_recursive(test_directory, ext_exclude_list=['.py'])
     for file in files:
         if file.endswith('.py'):
-            assert False, 'get_files_recursive failed with ext_exclude_list'
+            assert False, 'get_paths_recursive failed with ext_exclude_list'
 
     # Try f_include_list
-    files = get_paths_recursive(os.path.dirname(__file__), f_include_list=['test*utils.py'])
+    files = get_paths_recursive(test_directory, f_include_list=['test_fi*utils.py'], exclude_dirs=True)
     result_list = [os.path.basename(file) for file in files]
     assert 'test_file_utils.py' in result_list, 'get_paths_recursive with f_include_list failed'
     assert len(result_list) == 1, 'get_paths_recursive with f_include_list failed'
 
     # Try ext_include_list
-    files = get_files_recursive(os.path.dirname(__file__), ext_include_list=['.py'])
+    files = get_paths_recursive(test_directory, ext_include_list=['.py'], exclude_dirs=True)
     for file in files:
         if not file.endswith('.py'):
-            assert False, 'get_files_recursive failed with ext_include_list'
+            assert False, 'get_paths_recursive failed with ext_include_list'
+
+    # Try min_depth & max_depth
+    # We should see tests/file_utils.py but not ./__init__.py
+    files = get_paths_recursive(os.path.join(test_directory, os.pardir), min_depth=2, max_depth=2, exclude_dirs=True)
+    result_list = list(files)
+    if not os.path.normpath(r'tests\test_file_utils.py') in result_list:
+        assert False, 'get_paths_recursive failed with min & max depth, tests/file_utils.py not found'
+
+    if '__init__.py' in result_list:
+        assert False, 'get_paths_recursive failed with min & max depth, root __init__.py file found'
+
 
 
 def test_get_file_time():
@@ -136,6 +152,6 @@ if __name__ == '__main__':
     print('Example code for %s, %s' % (__intname__, __build__))
     test_check_path_access()
     test_glob_path_match()
-    test_get_files_recursive()
+    test_get_paths_recursive()
     test_get_file_time()
     test_check_file_timestamp_delta()
