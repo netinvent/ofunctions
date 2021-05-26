@@ -19,7 +19,7 @@ __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
 __version__ = '0.9.1'
-__build__ = '2021052401'
+__build__ = '2021052601'
 
 import json
 import logging
@@ -193,6 +193,14 @@ def glob_path_match(path: str, pattern_list: list) -> bool:
     return any(fnmatch(path, pattern) for pattern in pattern_list)
 
 
+def log_perm_error(path: str) -> None:
+    """
+    Default function that gets executed on get_paths_recursive permission error
+    """
+
+    logger.warning('Non handled permission error on "{}"'.format(path))
+
+
 def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: list = None,
                         d_include_list: list = None, f_include_list: list = None,
                         exclude_dirs: bool = False, exclude_files: bool = False,
@@ -200,18 +208,20 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
                         min_depth: int = 1, max_depth: int = 0,
                         primary_root: str = None, fn_on_perm_error: Callable = None,
                         ) -> Union[Iterable, str]:
-    # TODO rewrite this doc
     """
     Walk a path to recursively find files
-    Accepts glob style windcards for every list parameter
+    Accepts glob style windcards for every list parameter except file extension lists
 
     Examples:
 
-    for dirs in get_paths_recursive('/var', d_exclude_list=['/var/log', '/var/li*'], exclude_files=True, depth=4):
-        print(dirs)
+    for dir in get_paths_recursive('/var', d_exclude_list=['/var/log', '/var/li*'], exclude_files=True, max_depth=4):
+        print(dir)
 
-    for files in get_paths_recursive('/var', exclude_dirs=True, depth=2):
-        print(files)
+    for file in get_paths_recursive('/var', exclude_dirs=True, depth=2):
+        print(file)
+
+    for file in  get_paths_recursive(r'C:\Windows', ext_include_list=['.cmd'], exclude_dirs=True, max_depth=2)
+        print(file)
 
     :param root: (str) path to explore
     :param d_exclude_list: (list) list of root relative directory paths to exclude from path walking
@@ -220,14 +230,15 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
     :param f_include_list: (list) list of filenames without paths to only include from results (after exclusion processing)
     :param exclude_dirs: (bool) Exclude directories from results
     :param exclude_files: (bool) Exclude files from results
-    :param ext_exclude_list: list() list of file extensions to exclude, ex: ['.log', '.bak'],
-           takes precedence over ext_include_list
-    :param ext_include_list: (list) only include list of file extensions, ex: ['.py']
-    :param min_depth: (int) minimal depth of results to show, defaults to 1 being the root
-    :param max_depth: (int) depth of recursion to acheieve, 0 means unlimited, 1 is just the current dir...
+    :param ext_exclude_list: list() list of file extensions to exclude, ex: ['.log', '.bak']
+    :param ext_include_list: (list) list of file extensions to include (after exclusion processing) ex: ['.py']
+    :param min_depth: (int) minimal depth of results to show, defaults to 1 being the root and it's files
+    :param max_depth: (int) depth of recursion, 0 means unlimited, 1 is the root, 2 would be one subdirectory
     :param primary_root: (str) Only used for internal recursive exclusion lookup, don't pass an argument here
-    :param fn_on_perm_error: (function) Optional function to pass, which argument will be the file / directory that has permission errors
-    :return: list of files found in path
+    :param fn_on_perm_error: (function) Optional function to pass, which argument will be the file / directory that
+           has permission errors so it can be handled
+           If not given, permission errors are logged
+    :return: chained iterator of files found in path
     """
 
     # Make sure we don't get paths with antislashes on Windows
@@ -242,6 +253,8 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
     except PermissionError:
         if fn_on_perm_error is not None:
             fn_on_perm_error(root)
+        else:
+            log_perm_error(root)
 
     # Make sure we clean d_exclude_list only on first function call
     if primary_root is None:
@@ -262,10 +275,6 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
         f_exclude_list = []
     if ext_exclude_list is None:
         ext_exclude_list = []
-    if ext_include_list is None:
-        ext_include_list = []
-    if f_include_list is None:
-        f_include_list = []
 
     def _find_files(min_depth):
         if min_depth < 1:
