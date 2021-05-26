@@ -22,6 +22,10 @@ import os
 from ofunctions.service_control import *
 
 
+def running_on_github_actions():
+    return os.environ.get('RUNNING_ON_GITHUB_ACTIONS') == 'true'  # bash 'true'
+
+
 def test_system_service_handler():
     """
     This checks whether we can start / stop services
@@ -37,9 +41,12 @@ def test_system_service_handler():
     else:
         test_service = 'irqbalance'
 
-
     status = system_service_handler(test_service, 'status')
     assert status, '{} service is not started'.format(test_service)
+
+    # don't bother to test this on github runner since we don't have privileges set
+    if running_on_github_actions():
+        return
 
     try:
         result = system_service_handler(test_service, 'stop')
