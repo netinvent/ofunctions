@@ -59,7 +59,7 @@ def print_perm_error(file):
 
 
 def test_get_paths_recursive():
-    test_directory = os.path.dirname(__file__)
+    test_directory = os.path.abspath(os.path.dirname(__file__))
     files = get_paths_recursive(test_directory, fn_on_perm_error=print_perm_error)
 
     assert isinstance(files, chain)
