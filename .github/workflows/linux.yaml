@@ -37,6 +37,6 @@ jobs:
         # Make sure we don't try the ping checks since they fail on github runners that don't allow pings (WTF !)
         # See https://github.com/actions/virtual-environments/issues/1519
         # export RUNNING_ON_GITHUB_ACTIONS=true
-        python -m coverage run -m pytest -s tests
+        python -m coverage run --omit="*/test*" -m pytest -s tests
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v1
