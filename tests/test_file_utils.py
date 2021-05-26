@@ -155,15 +155,18 @@ def test_check_file_timestamp_delta():
     Hence we'll add some random string to the filename to make sure the tests will not fail
     """
     filename = "ofunctions.test_check_file_timestamp_delta." + random_string(16) + ".file"
-    remove_file(filename)
-    with open(filename, 'w') as file_handle:
+    test_directory = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(test_directory, filename)
+    remove_file(path)
+
+    with open(path, 'w') as file_handle:
         file_handle.write('test')
-    result = check_file_timestamp_delta(filename, years=0, days=0, hours=0, minutes=0, seconds=-2)
+    result = check_file_timestamp_delta(path, years=0, days=0, hours=0, minutes=0, seconds=-2)
     assert result is False, 'Just created file should not be older than 2 seconds'
     sleep(3)
-    result = check_file_timestamp_delta(filename, years=0, days=0, hours=0, minutes=0, seconds=-2)
+    result = check_file_timestamp_delta(path, years=0, days=0, hours=0, minutes=0, seconds=-2)
     assert result is True, 'Just created file should now be older than 2 seconds'
-    remove_file(filename)
+    remove_file(path)
 
     result = check_file_timestamp_delta(sys.argv[0], years=-200, days=0, hours=0, minutes=0, seconds=0)
     assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in the year 2221 ?'
@@ -175,15 +178,17 @@ def test_hide_file():
     We need to verifiy that attrib has been run on windows and that file begins with dot on unixes
     """
     filename = "ofunctions.test_hide_file." + random_string(16) + ".file"
-    remove_file(filename)
+    test_directory = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(test_directory, filename)
+    remove_file(path)
 
-    with open(filename, 'w') as fp:
+    with open(path, 'w') as fp:
         fp.write('TEST')
 
-    assert hide_file(filename), 'File is now hidden'
-    assert hide_file(filename, False), 'File is now visible'
+    assert hide_file(path), 'File is now hidden'
+    assert hide_file(path, False), 'File is now visible'
 
-    remove_file(filename)
+    remove_file(path)
 
 
 
