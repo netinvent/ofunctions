@@ -18,14 +18,14 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
 __description__ = 'SHA256 Checksumming functions, checksum manifest file creation and verification'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.2.2'
-__build__ = '2021041201'
+__version__ = '0.3.0'
+__build__ = '2021052601'
 
 
 import os
 import hashlib
 from datetime import datetime
-from ofunctions.file_utils import get_files_recursive
+from ofunctions.file_utils import get_paths_recursive
 
 
 def sha256sum(file: str) -> str:
@@ -82,7 +82,7 @@ def create_sha256sum_file(directory: str, sumfile: str = 'SHA256SUMS.TXT', depth
     """
 
     directory = os.path.normpath(directory)
-    files = get_files_recursive(directory, depth=depth)
+    files = get_paths_recursive(directory, exclude_dirs=True, max_depth=depth)
     try:
         sumfile = os.path.join(directory, sumfile)
         with open(sumfile, 'w', encoding='utf-8') as file_handle:
@@ -92,7 +92,7 @@ def create_sha256sum_file(directory: str, sumfile: str = 'SHA256SUMS.TXT', depth
                 for file in files:
                     if file != sumfile:
                         sha256 = sha256sum(file)
-                        yield '%s   %s\n' % (sha256, os.path.relpath(file, directory))
+                        yield '{}  {}\n'.format(sha256, os.path.relpath(file, directory))
 
             for line in _get_file_sum(files):
                 file_handle.write(line)
@@ -112,7 +112,7 @@ def create_manifest_from_dict(manifest_file: str, manifest_dict: dict) -> None:
     try:
         with open(manifest_file, 'w', encoding='utf-8') as file_handle:
             for key, value in manifest_dict.items():
-                file_handle.write('%s  %s\n' % (key, value))
+                file_handle.write('{}  {}\n'.format(key, value))
     except IOError:
         raise IOError('Cannot write manifest file "%s".' % manifest_file) from IOError
 
@@ -121,6 +121,7 @@ def create_manifest_from_dir(manifest_file: str, path: str, remove_prefixes: lis
                              f_exclude_list: list = None, d_exclude_list: list = None) -> None:
     """
     Creates a bash like file manifest with sha256sum and filenames
+    Just like create_sha256sum_file() except we keep full paths and may remove prefixes
 
 
     :param manifest_file: path of resulting manifest file
@@ -133,11 +134,11 @@ def create_manifest_from_dir(manifest_file: str, path: str, remove_prefixes: lis
     if not os.path.isdir(path):
         raise NotADirectoryError('Path [%s] does not exist.' % path)
 
-    files = get_files_recursive(path, f_exclude_list=f_exclude_list, d_exclude_list=d_exclude_list)
+    files = get_paths_recursive(path, f_exclude_list=f_exclude_list, d_exclude_list=d_exclude_list, exclude_dirs=True)
     with open(manifest_file, 'w', encoding='utf-8') as file_handle:
         for file in files:
             sha256 = sha256sum(file)
             for prefix in remove_prefixes if remove_prefixes is not None else []:
                 if file.startswith(prefix):
                     file = file[len(prefix):].lstrip(os.sep)
-            file_handle.write('%s  %s\n' % (sha256, file))
+            file_handle.write('{}  {}\n'.format(sha256, file))
