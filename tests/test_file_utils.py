@@ -125,6 +125,8 @@ def test_remove_bom():
     utf8_without_bom_data = b'\x13\x37\x00\x12\x05\x01\x12\x01\x05'
 
     filename = "ofunctions.test_remove_bom." + random_string(16) + ".file"
+    remove_file(filename)
+
     with open(filename, 'wb') as fp:
         fp.write(utf8_with_bom_data)
 
@@ -132,7 +134,7 @@ def test_remove_bom():
 
     with open(filename, 'rb') as fp:
         file_data = fp.read()
-    os.remove(filename)
+    remove_file(filename)
 
     assert file_data == utf8_without_bom_data, 'Test file does not look like it should'
 
@@ -167,6 +169,24 @@ def test_check_file_timestamp_delta():
     assert result is False, 'Ahh see... A file older than 200 years ? Is my code still running in the year 2221 ?'
 
 
+def test_hide_file():
+    """
+    Dumb checks, need to improve tests here
+    We need to verifiy that attrib has been run on windows and that file begins with dot on unixes
+    """
+    filename = "ofunctions.test_hide_file." + random_string(16) + ".file"
+    remove_file(filename)
+
+    with open(filename, 'w') as fp:
+        fp.write('TEST')
+
+    assert hide_file(filename), 'File is now hidden'
+    assert hide_file(filename, False), 'File is now visible'
+
+    remove_file(filename)
+
+
+
 if __name__ == '__main__':
     print('Example code for %s, %s' % (__intname__, __build__))
     test_check_path_access()
@@ -175,3 +195,4 @@ if __name__ == '__main__':
     test_remove_bom()
     test_get_file_time()
     test_check_file_timestamp_delta()
+    test_hide_file()

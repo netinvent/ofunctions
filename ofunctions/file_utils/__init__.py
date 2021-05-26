@@ -544,12 +544,31 @@ def grep(file: str, pattern: str) -> list:
     raise FileNotFoundError(file)
 
 
-def hide_windows_file(file: str, hidden: bool = True) -> None:
+def hide_windows_file(file: str, hidden: bool = True) -> bool:
+    result, _ = command_runner('attrib %sh "%s"' % ('+' if hidden else '-', file))
+    if result == 0:
+        return True
+    return False
+
+
+def hide_unix_file(file: str, hidden: bool = True) -> bool:
+    if (file.startswith('.') and hidden) or (not file.startswith('.') and not hidden):
+        return True
+
+    file_directory = os.path.dirname(file)
+    filename = os.path.basename(file)
+
+    try:
+        if file.startswith('.') and not hidden:
+            move_file(file, os.path.join(file_directory, '.{}'.format(filename)))
+        if not file.startswith('.') and hidden:
+            move_file(file, os.path.join(file_directory, filename.lstrip('.')))
+    except OSError:
+        return False
+
+
+def hide_file(file: str, hidden: bool = True) -> bool:
     if os.name == 'nt':
-        if hidden:
-            symbol = '+'
-        else:
-            symbol = '-'
-        result, _ = command_runner('attrib %sh "%s"' % (symbol, file))
-        if result != 0:
-            raise IOError(file)
+        return hide_windows_file(file, hidden)
+    else:
+        return hide_unix_file(file, hidden)
