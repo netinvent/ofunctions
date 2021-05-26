@@ -120,7 +120,21 @@ def test_get_paths_recursive():
         assert False, 'get_paths_recursive failed with min & max depth, file_utils.py not found'
 
 
+def test_remove_bom():
+    utf8_with_bom_data = b'\xef\xbb\xbf\x13\x37\x00\x12\x05\x01\x12\x01\x05'
+    utf8_without_bom_data = b'\x13\x37\x00\x12\x05\x01\x12\x01\x05'
 
+    filename = "ofunctions.test_remove_bom." + random_string(16) + ".file"
+    with open(filename, 'wb') as fp:
+        fp.write(utf8_with_bom_data)
+
+    remove_bom(filename)
+
+    with open(filename, 'rb') as fp:
+        file_data = fp.read()
+    os.remove(filename)
+
+    assert file_data == utf8_without_bom_data, 'Test file does not look like it should'
 
 
 def test_get_file_time():
@@ -138,7 +152,7 @@ def test_check_file_timestamp_delta():
     The following code will keep earlier file creation dates, even if file is removed
     Hence we'll add some random string to the filename to make sure the tests will not fail
     """
-    filename = "test" + random_string(8) + ".file"
+    filename = "ofunctions.test_check_file_timestamp_delta." + random_string(16) + ".file"
     remove_file(filename)
     with open(filename, 'w') as file_handle:
         file_handle.write('test')
@@ -158,5 +172,6 @@ if __name__ == '__main__':
     test_check_path_access()
     test_glob_path_match()
     test_get_paths_recursive()
+    test_remove_bom()
     test_get_file_time()
     test_check_file_timestamp_delta()

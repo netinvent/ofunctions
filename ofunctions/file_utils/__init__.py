@@ -483,23 +483,25 @@ def remove_files_older_than(directory: str, years: int = 0, days: int = 0, hours
 
 
 def remove_bom(file: str) -> None:
-    """Remove BOM from existing UTF-8 file"""
-    if os.path.isfile(file):
-        try:
-            with open(file, 'rb') as file_handle_in:
-                data = file_handle_in.read(3)
-                with open(file + '.tmp', 'wb') as file_handle_out:
-                    if data == b'\xef\xbb\xbf':
-                        data = file_handle_in.read(32768)
-                    while len(data) > 0:
-                        file_handle_out.write(data)
-                        data = file_handle_in.read(32768)
-        except Exception:
-            raise OSError
+    """
+    Remove BOM from existing UTF-8 file
+    We don't use any utf-8-sig codec magic here to avoid any UnicodeDecodeErrors
+    hence the function is uglier than it should, but less error prone
+    """
+    try:
+        with open(file, 'rb') as file_handle_in:
+            data = file_handle_in.read(3)
+            # Throw away the data if it's a BOM
+            if data == b'\xef\xbb\xbf':
+                data = file_handle_in.read(32768)
+            with open(file + '.tmp', 'wb') as file_handle_out:
+                while len(data) > 0:
+                    file_handle_out.write(data)
+                    data = file_handle_in.read(32768)
         if os.path.isfile(file + '.tmp'):
             os.replace(file + '.tmp', file)
-    else:
-        raise FileNotFoundError('[%s] not found.' % file)
+    except Exception:
+        raise OSError
 
 
 def write_json_to_file(file: str, data: Union[dict, list]):
