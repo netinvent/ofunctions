@@ -220,18 +220,21 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
     for file in get_paths_recursive('/var', exclude_dirs=True, depth=2):
         print(file)
 
-    for file in  get_paths_recursive(r'C:\Windows', ext_include_list=['.cmd'], exclude_dirs=True, max_depth=2)
+    for file in  get_paths_recursive('C:\\Windows', ext_include_list=['.cmd'], exclude_dirs=True, max_depth=2)
         print(file)
 
     :param root: (str) path to explore
     :param d_exclude_list: (list) list of root relative directory paths to exclude from path walking
     :param f_exclude_list: (list) list of filenames without paths to exclude from results
-    :param d_include_list: (list) list of root relative directory paths to only include from path walking (after exclusion processing)
-    :param f_include_list: (list) list of filenames without paths to only include from results (after exclusion processing)
+    :param d_include_list: (list) list of root relative directory paths to only include from path walking
+                           (d_include_list is processed after exclusion processing)
+    :param f_include_list: (list) list of filenames without paths to only include from results
+                           (f_include_list is processed after exclusion processing)
     :param exclude_dirs: (bool) Exclude directories from results
     :param exclude_files: (bool) Exclude files from results
     :param ext_exclude_list: list() list of file extensions to exclude, ex: ['.log', '.bak']
-    :param ext_include_list: (list) list of file extensions to include (after exclusion processing) ex: ['.py']
+    :param ext_include_list: (list) list of file extensions to include, ex: ['.py']
+                             (ext_include_list is processed after exclusion processing)
     :param min_depth: (int) minimal depth of results to show, defaults to 1 being the root and it's files
     :param max_depth: (int) depth of recursion, 0 means unlimited, 1 is the root, 2 would be one subdirectory
     :param primary_root: (str) Only used for internal recursive exclusion lookup, don't pass an argument here
