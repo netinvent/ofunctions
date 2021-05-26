@@ -61,33 +61,30 @@ def nt_service_action(service: str, action: str) -> bool:
     """
     Handle windows service
     """
-    loops = 0  # Number of seconds elapsed since we started Windows service
+    elapsed_time = 0  # Number of seconds elapsed since we started Windows service
     max_wait = 15  # Number of seconds we'll wait for Windows service to start
 
     is_running = nt_service_status(service)
 
-    if action == 'start':
-        try:
-            win32serviceutil.StartService(service)
-            while not is_running and loops < max_wait:
-                is_running = nt_service_status(service)
-                if is_running:
-                    return True
-                else:
-                    sleep(2)
-                    loops += 2
-            logger.warning('Starting service {} took longer than {} and may have failed'.format(service, max_wait))
-        except Exception:
-            logger.debug('Trace:', exc_info=True)
-        return False
 
-    if action == 'stop':
-        try:
+    try:
+        if action == 'stop':
             win32serviceutil.StopService(service)
-            return True
-        except Exception:
-            logger.debug('Trace:', exc_info=True)
-        return False
+            must_be_running = False
+        else:
+            win32serviceutil.StartService(service)
+            must_be_running = True
+        while is_running is not must_be_running and elapsed_time < max_wait:
+            is_running = nt_service_status(service)
+            if is_running is must_be_running:
+                return True
+            else:
+                sleep(2)
+                elapsed_time += 2
+        logger.warning('service {} {} took longer than {} and may have failed'.format(service, action, max_wait))
+    except Exception:
+        logger.debug('Trace:', exc_info=True)
+    return False
 
 
 def unix_service_action(service: str, action: str) -> bool:
@@ -129,11 +126,9 @@ def system_service_handler(service: str, action: str) -> bool:
             result = nt_service_action(service, action)
         else:
             result = unix_service_action(service, action)
-
         if result:
             logger.info('Action {} succeeded.'.format(service))
             return True
-
         logger.error('Action {} failed.'.format(service))
         raise OSError('Cannot {} service {}'.format(action, service))
 
