@@ -533,15 +533,14 @@ def read_json_from_file(file: str) -> dict:
 
 
 def grep(file: str, pattern: str) -> list:
-    if os.path.isfile(file):
-        result = []
-        with open(file, 'r') as file_handle:
-            for line in file_handle:
-                if re.search(pattern, line):
-                    result.append(line)
-        return result
-
-    raise FileNotFoundError(file)
+    if not os.path.isfile(file):
+        raise FileNotFoundError(file)
+    result = []
+    with open(file, 'r') as file_handle:
+        for line in file_handle:
+            if re.search(pattern, line):
+                result.append(line)
+    return result
 
 
 def hide_windows_file(file: str, hidden: bool = True) -> bool:
