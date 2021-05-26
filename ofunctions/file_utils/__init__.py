@@ -281,7 +281,7 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
                         if os.path.isfile(os.path.join(root, file)) and \
                                 (not f_exclude_list or not glob_path_match(file, f_exclude_list)) and \
                                 (not ext_exclude_list or file_ext not in ext_exclude_list) and \
-                                (not f_include_list or f_include_list and glob_path_match(file, f_include_list)) and \
+                                (not f_include_list or glob_path_match(file, f_include_list)) and \
                                 (not ext_include_list or file_ext in ext_include_list):
                             yield os.path.join(root, file)
             except PermissionError:
