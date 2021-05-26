@@ -261,20 +261,11 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
         if d_exclude_list is not None:
             # Make sure we use a valid os separator for exclusion lists
             d_exclude_list = [os.path.normpath(dir) for dir in d_exclude_list]
-        else:
-            d_exclude_list = []
         if d_include_list is not None:
             d_include_list = [os.path.normpath(dir) for dir in d_include_list]
-        else:
-            d_include_list = []
 
         # Let's also make sure that min_depth parameter is used as in gnu find
         min_depth = min_depth - 1
-
-    if f_exclude_list is None:
-        f_exclude_list = []
-    if ext_exclude_list is None:
-        ext_exclude_list = []
 
     def _find_files(min_depth):
         if min_depth < 1:
@@ -284,11 +275,12 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
                 if not exclude_files:
                     for file in os.listdir(root):
                         file_ext = os.path.splitext(file)[1]
-                        if os.path.isfile(os.path.join(root, file)) and not glob_path_match(file, f_exclude_list) \
-                                and file_ext not in ext_exclude_list \
-                                and (file_ext in ext_include_list if ext_include_list is not None else True):
-                            if not f_include_list or f_include_list and glob_path_match(file, f_include_list):
-                                yield os.path.join(root, file)
+                        if os.path.isfile(os.path.join(root, file)) and \
+                                (f_exclude_list and not glob_path_match(file, f_exclude_list)) and \
+                                (ext_exclude_list and file_ext not in ext_exclude_list) and \
+                                (not f_include_list or f_include_list and glob_path_match(file, f_include_list)) and \
+                                (not ext_include_list or file_ext in ext_include_list):
+                            yield os.path.join(root, file)
             except PermissionError:
                 pass
 
@@ -303,25 +295,25 @@ def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: 
                         # p_root is the relative root the function has been called with recursively
                         # Let's check if p_root + d is in d_exclude_list
                         p_root = os.path.join(primary_root, dir) if primary_root is not None else dir
-                        if not glob_path_match(p_root, d_exclude_list):
-                            if not d_include_list or glob_path_match(p_root, d_include_list):
-                                files_in_d = get_paths_recursive(d_full_path,
-                                                                 d_exclude_list=d_exclude_list,
-                                                                 f_exclude_list=f_exclude_list,
-                                                                 ext_exclude_list=ext_exclude_list,
-                                                                 ext_include_list=ext_include_list,
-                                                                 d_include_list=d_include_list,
-                                                                 f_include_list=f_include_list,
-                                                                 exclude_dirs=exclude_dirs,
-                                                                 exclude_files=exclude_files,
-                                                                 min_depth=min_depth,
-                                                                 max_depth=max_depth,
-                                                                 primary_root=p_root,
-                                                                 fn_on_perm_error=fn_on_perm_error,
-                                                                 )
-                                if files_in_d:
-                                    for file in files_in_d:
-                                        yield file
+                        if (d_exclude_list and not glob_path_match(p_root, d_exclude_list)) and \
+                           (not d_include_list or glob_path_match(p_root, d_include_list)):
+                            files_in_d = get_paths_recursive(d_full_path,
+                                                             d_exclude_list=d_exclude_list,
+                                                             f_exclude_list=f_exclude_list,
+                                                             ext_exclude_list=ext_exclude_list,
+                                                             ext_include_list=ext_include_list,
+                                                             d_include_list=d_include_list,
+                                                             f_include_list=f_include_list,
+                                                             exclude_dirs=exclude_dirs,
+                                                             exclude_files=exclude_files,
+                                                             min_depth=min_depth,
+                                                             max_depth=max_depth,
+                                                             primary_root=p_root,
+                                                             fn_on_perm_error=fn_on_perm_error,
+                                                             )
+                            if files_in_d:
+                                for file in files_in_d:
+                                    yield file
 
             except PermissionError:
                 pass
