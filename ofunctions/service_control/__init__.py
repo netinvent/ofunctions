@@ -93,7 +93,11 @@ def unix_service_action(service: str, action: str) -> bool:
     """
 
     if action in ['start', 'stop']:
-        result, output = command_runner('service "{}" {}}'.format(service, action))
+        result, output = command_runner('service "{}" {} >}'.format(service, action))
+        # exit codes are (for systemd)
+        # 0 = runs
+        # 3 = dead
+        # 4 = does not exist
         if result == 0:
             return True
         logger.error('Could not {} service, code [{}].'.format(action, result))

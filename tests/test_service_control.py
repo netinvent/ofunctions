@@ -31,11 +31,11 @@ def test_system_service_handler():
     """
     os_name = os.name
 
-    # Let's pick a default service to test (may fail depending on environment)
+    # Let's pick a default service to test (may fail depending on environment when services are not found)
     if os_name == 'nt':
         test_service = 'themes'
     else:
-        test_service = 'crond'
+        test_service = 'irqbalance'
 
 
     status = system_service_handler(test_service, 'status')
