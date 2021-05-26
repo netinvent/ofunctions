@@ -562,6 +562,7 @@ def hide_unix_file(file: str, hidden: bool = True) -> bool:
             move_file(file, os.path.join(file_directory, '.{}'.format(filename)))
         if not file.startswith('.') and hidden:
             move_file(file, os.path.join(file_directory, filename.lstrip('.')))
+        return True
     except OSError:
         return False
 
