@@ -110,11 +110,16 @@ def test_get_paths_recursive():
     # We should see tests/file_utils.py but not ./__init__.py
     files = get_paths_recursive(os.path.join(test_directory, os.pardir), min_depth=2, max_depth=2, exclude_dirs=True)
     result_list = list(files)
-    if not os.path.normpath(r'tests\test_file_utils.py') in result_list:
-        assert False, 'get_paths_recursive failed with min & max depth, tests/file_utils.py not found'
-
+    # Let's first check that we don't have a <root_dir>/__init__.py file
     if '__init__.py' in result_list:
         assert False, 'get_paths_recursive failed with min & max depth, root __init__.py file found'
+
+    # Now let's check for subdirectory test_file_utils file
+    basename_result_list = [os.path.basename(file) for file in result_list]
+    if not os.path.normpath('test_file_utils.py') in basename_result_list:
+        assert False, 'get_paths_recursive failed with min & max depth, file_utils.py not found'
+
+
 
 
 
