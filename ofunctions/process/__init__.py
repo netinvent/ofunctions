@@ -18,22 +18,24 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Shorthand for killing an entire process tree'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.1.1'
-__build__ = '2020102801'
+__version__ = '0.2.0'
+__build__ = '2021052801'
 
 
+import os
 import psutil
 
 
-def kill_childs(pid: int, itself: bool = False) -> None:
+def kill_childs(pid: int = None, itself: bool = False) -> None:
     """
-    Kills all childs of pid (current pid can be obtained with os.getpid()
+    Kills all childs of pid (current pid can be obtained with os.getpid())
+    If no pid given current pid is taken
     Good idea when using multiprocessing, is to call with atexit.register(ofunctions.kill_childs, os.getpid(),)
 
     :param pid: Which pid tree we'll kill
     :param itself: Should parent be killed too ?
     """
-    parent = psutil.Process(pid)
+    parent = psutil.Process(pid if pid is not None else os.getpid())
 
     for child in parent.children(recursive=True):
         child.kill()
