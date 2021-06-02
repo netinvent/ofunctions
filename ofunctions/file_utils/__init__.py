@@ -26,12 +26,13 @@ import logging
 import os
 import re
 import shutil
+from ofunctions import random
 from contextlib import contextmanager
 from datetime import datetime
 from fnmatch import fnmatch
 from itertools import chain
 from threading import Lock
-from typing import Callable, Iterable, Union
+from typing import Callable, Iterable, Union, Optional
 
 from command_runner import command_runner
 
@@ -572,3 +573,41 @@ def hide_file(file: str, hidden: bool = True) -> bool:
         return hide_windows_file(file, hidden)
     else:
         return hide_unix_file(file, hidden)
+
+
+def get_writable_temp_dir() -> Optional[str]:
+    """
+    Try to find a writable temporary directory
+    """
+    os_name = os.name
+
+    candidate_list = [
+        # POSIX correct variable
+        os.environ.get('TMPDIR', False) if os_name != 'nt' else None,
+        os.environ.get('TEMP', False),
+        os.environ.get('TMP', False),
+        os.path.join(os.environ.get('SYSTEMROOT'), 'Temp') if os_name == 'nt' else None,
+        '/tmp' if os_name != 'nt' else None,
+        '/var/tmp' if os_name != 'nt' else None,
+    ]
+
+    for candidate in candidate_list:
+        if candidate and check_path_access(candidate, 'W'):
+            return candidate
+    return None
+
+
+def get_writable_random_file(ident_str: str = 'tmp_file_utils') -> Optional[str]:
+    """
+    Try to return a path to a not yet existing random file
+    """
+
+    timestamp_format = '%Y-%m-%d.%H-%M-%S.%f'
+
+    tmp_dir = get_writable_temp_dir()
+    if tmp_dir:
+        return os.path.join(tmp_dir, '{}.{}.{}.tmp'.format(ident_str,
+                                                          datetime.utcnow().strftime(timestamp_format),
+                                                          random.random_string(16),
+                                                          ))
+    return None
