@@ -15,7 +15,13 @@ ofunctions is a set of various recurrent functions amongst
 - checksums: various SHA256 tools for checking and creating checksum files
 - csv: CSV file reader with various enhancements over generic reader
 - delayed_keyboardinterrupt: just a nifty tool to catch CTRL+C signals
-- file_utils: file handling functions of which get_files_recursive is the most advanced
+- file_utils: file handling functions of which
+  - get_paths_recursive: Walks a path for directories / files, can deal with permission errors, has include / exclude lists with wildcard support...
+  - check_path_access: Checks whether a path is writable, with fallback for read test, and splits path until it finds which part denies permissions
+  - check_file_timestamp_delta: Check a time delta (seconds, minutes, hours...) against file ctime, mtime or atime
+  - hide_file: Hides/unhides files under windows & linux
+  - get_writable_temp_dir: Returns a temporary dir in which we are allowed to write
+  - get_writable_random_file: Returns a filename of a not-yet existing file we can write into
 - json_sanitize: make sure json does not contain unsupported chars, yes I look at you Windows eventlog
 - logger_utils: basic no brain console + file log creation
 - mailer: send emails regardless of ssl/tls protocols, in batch or as single mail, with attachments
