@@ -18,7 +18,7 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.9.1'
+__version__ = '1.0.0'
 __build__ = '2021052601'
 
 import json
