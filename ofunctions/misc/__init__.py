@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Collection of various functions'
 __licence__ = 'BSD 3 Clause'
-__version__ = '1.1.0'
-__build__ = '2021050601'
+__version__ = '1.2.0'
+__build__ = '2021060301'
 
 from typing import Union, List
 
@@ -81,3 +81,11 @@ def get_key_from_value(haystack: dict, needle: str):
     Returns a dict key by it's value, ie get_key_from_value({key: value}, value) returns key
     """
     return next((k for k, v in haystack.items() if v == needle), None)
+
+
+def is_nan(var) -> bool:
+    """
+    Simple check if a variable is a numpy NaN
+    based on the simple check where (nan is nan) gives True but (nan == nan) gives False
+    """
+    return not var == var
