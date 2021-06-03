@@ -1,2 +1,5 @@
 pywin32>=222
+requests>=2.22.0
+psutil>=5.6.0
+command_runner>=0.6.4
 typing>=3.5.0
