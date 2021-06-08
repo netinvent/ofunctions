@@ -16,17 +16,19 @@ Versioning semantics:
 __intname__ = 'ofunctions.network'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
-__description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping'
+__description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ' \
+                  'ping, name resolution...'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.5.1'
-__build__ = '2021052501'
+__version__ = '1.0.0'
+__build__ = '2021060801'
 
 import os
 from ofunctions import bisection
 from typing import List, Tuple, Union, Iterable, Optional
-from ipaddress import IPv4Address, IPv6Address, AddressValueError
+from ipaddress import IPv6Address, AddressValueError
 from command_runner import command_runner
 from requests import get
+import socket
 import warnings
 import logging
 
@@ -123,6 +125,21 @@ def ping(targets: Union[Iterable[str], str] = None, mtu: int = 1200, retries: in
     return all_ping_results
 
 
+def resolve_hostname(host: str) -> Optional[list]:
+    """
+    Resolves a hostname
+    """
+    ip_list = []
+
+    try:
+        # Port is required
+        for result in socket.getaddrinfo(host=host, port=0, type=socket.SOCK_STREAM):
+            ip_list.append(str(result[4][0]))
+    except socket.gaierror:
+        logger.info('Cannot resolve hostname "{}"'.format(host))
+    return ip_list
+
+
 def proxy_dict(proxy: str) -> Union[dict, None]:
     if proxy is not None:
         if proxy.startswith('http'):
@@ -189,6 +206,7 @@ def test_http_internet(fqdn_servers: List[str] = None, ip_servers: List[str] = N
     else:
         fqdn_success = False
         ip_success = False
+    dns_resolver_works = False
 
     for fqdn_server in fqdn_servers:
         result, diag = _try_server(fqdn_server, proxy_dict(proxy))
@@ -198,6 +216,13 @@ def test_http_internet(fqdn_servers: List[str] = None, ip_servers: List[str] = N
                 fqdn_success = True
                 break
         else:
+            # Let's try to check whether DNS resolution works
+            try:
+                hostname = str(fqdn_server).split('//')[1]
+            except IndexError:
+                hostname = fqdn_server
+            if resolve_hostname(hostname):
+                dns_resolver_works = True
             if all_targets_must_succeed:
                 fqdn_success = False
                 break
@@ -216,9 +241,15 @@ def test_http_internet(fqdn_servers: List[str] = None, ip_servers: List[str] = N
 
     # Only ip servers succeed, but not fqdn servers
     if (not (fqdn_servers and fqdn_success)) and ip_success:
+
         # Don't bother with diag message when multiple fqdn_servers exist and all_targets_must_succeed is enabled
         if not all_targets_must_succeed or (all_targets_must_succeed and len(fqdn_servers) == 1):
-            diag_messages = diag_messages + '\nLooks like a DNS resolving issue. Internet works by IP surfing.'
+            diag_messages = diag_messages + '\nNo FQDN server test worked, but at least one IP server test worked. ' \
+                                            'Looks like a DNS resolving issue, or IP specific firewall rules.'
+        if not dns_resolver_works:
+            diag_messages = diag_messages + '\nIt seems that DNS resolution does not work.'
+        else:
+            diag_messages = diag_messages + '\nDNS resolution seems to work.'
         logger.info(diag_messages)
         return True
 
