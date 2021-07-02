@@ -14,11 +14,10 @@ __intname__ = 'tests.ofunctions.csv'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__build__ = '2021020901'
+__build__ = '2021070201'
 
 from ofunctions.csv import *
 from ofunctions.file_utils import remove_file, get_writable_random_file
-import csv
 
 
 def test_csv_dict_reader():
@@ -32,6 +31,7 @@ def test_csv_dict_reader():
     data = csv_dict_reader(file, skip_comment_char='#', delimiter=';',
                            fieldnames=None)
     for index, line in enumerate(data):
+        print(index, line)
         if index == 0:
             assert line['SOME'] == '1'
             assert line['CSV HEADER'] == '2'
@@ -44,7 +44,6 @@ def test_csv_dict_reader():
             assert line['SOME'] == '4'
             assert line['CSV HEADER'] == '5'
             assert line['WITH COLUMNS'] == '6'
-        print(index, line)
     remove_file(file)
 
 
