@@ -15,22 +15,23 @@ Versioning semantics:
 
 __intname__ = 'ofunctions.network'
 __author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
-__description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ' \
-                  'ping, name resolution...'
+__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
+__description__ = 'Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution...'
 __licence__ = 'BSD 3 Clause'
 __version__ = '1.0.0'
 __build__ = '2021060801'
 
+import logging
 import os
-from ofunctions import bisection
-from typing import List, Tuple, Union, Iterable, Optional
-from ipaddress import IPv6Address, AddressValueError
-from command_runner import command_runner
-from requests import get
 import socket
 import warnings
-import logging
+from ipaddress import IPv6Address, AddressValueError
+from typing import List, Tuple, Union, Iterable, Optional
+
+from command_runner import command_runner
+from requests import get
+
+from ofunctions import bisection
 
 logger = logging.getLogger()
 
