@@ -18,46 +18,45 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
 __description__ = 'CSV file reader with header management, fieldnames, delimiters and comment skipping'
 __licence__ = 'BSD 3 Clause'
-__version__ = '0.2.0'
-__build__ = '2020032701'
+__version__ = '0.4.0'
+__build__ = '2021070201'
 
 
 import csv
 from typing import Iterable
 
 
-def csv_dict_reader(file: str, has_header: bool = False, skip_comment_char: str = None, **kwargs) -> Iterable:
+def csv_dict_reader(file: str, skip_comment_char: str = None, encoding: str = 'utf-8',
+                    **kwargs) -> Iterable:
     """
-    Reads CSV file and provides a generator for every line in order to save memory
+    Reads CSV file and provides a generator for every line and skips commented out lines
+
+    ATTENTION, this gave me headaches:
+    Python < 3.6 returns unordered dicts, so it looks like results are random, but only the dict order is
+    Python == 3.7 returns OrderedDict instead of dict
+    Python >= 3.8 returns dict with ordered results
 
 
     :param file: (str) path to csv file to read
-    :param has_header: (bool) skip first line
     :param skip_comment_char: (str) optional character which, if found on first row, will skip row
     :param delimiter: (char) CSV delimiter char
-    :param fieldnames: (list) CSV field names for dictionnary creation
+    :param fieldnames: (list) CSV field names for dictionnary creation, implies that no header is present in file
+                              If not given, first line is used as header and skipped from results
+    :param encoding: Default file encoding
     :param kwargs:
     :return: csv object that can be iterated
     """
-    with open(file) as fp:
-        csv_data = csv.DictReader(fp, **kwargs)
-        # Skip header
-        if has_header:
-            next(csv_data)
 
-        fieldnames = kwargs.get('fieldnames')
+    delimiter = kwargs.pop('delimiter', ',')
+    fieldnames = kwargs.pop('fieldnames', None)
+
+    with open(file, encoding=encoding) as fp:
+        csv_data = csv.DictReader(fp, delimiter=delimiter, fieldnames=fieldnames)
+
         for row in csv_data:
-            # Skip commented out entries
-            if fieldnames is not None:
-                if skip_comment_char is not None:
-                    if not row[fieldnames[0]].startswith(skip_comment_char):
-                        yield row
-                else:
-                    yield row
-            else:
-                # list(row)[0] is key from row, works with Python 3.7+
-                if skip_comment_char is not None:
-                    if not row[list(row)[0]].startswith(skip_comment_char):
-                        yield row
-                else:
-                    yield row
+            row_name = list(row)[0]
+            if skip_comment_char:
+                if row[row_name].startswith(skip_comment_char):
+                    continue
+            yield row
+            continue

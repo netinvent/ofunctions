@@ -17,5 +17,37 @@ __licence__ = 'BSD 3 Clause'
 __build__ = '2021020901'
 
 from ofunctions.csv import *
+from ofunctions.file_utils import remove_file, get_writable_random_file
+import csv
 
-# TODO write tests
+
+def test_csv_dict_reader():
+    file = get_writable_random_file('csv_dict_reader')
+    # Prepare a basic CSV file
+
+    with open(file, 'wt', encoding='utf-8') as fp:
+        fp.write('SOME;CSV HEADER;WITH COLUMNS\n1;2;3\n#commented;out;line\nA;B;C\n4;5;6')
+        fp.flush()
+
+    data = csv_dict_reader(file, skip_comment_char='#', delimiter=';',
+                           fieldnames=None)
+    for index, line in enumerate(data):
+        if index == 0:
+            assert line['SOME'] == '1'
+            assert line['CSV HEADER'] == '2'
+            assert line['WITH COLUMNS'] == '3'
+        if index == 1:
+            assert line['SOME'] == 'A'
+            assert line['CSV HEADER'] == 'B'
+            assert line['WITH COLUMNS'] == 'C'
+        if index == 2:
+            assert line['SOME'] == '4'
+            assert line['CSV HEADER'] == '5'
+            assert line['WITH COLUMNS'] == '6'
+        print(index, line)
+    remove_file(file)
+
+
+if __name__ == '__main__':
+    print('Example code for %s, %s' % (__intname__, __build__))
+    test_csv_dict_reader()
