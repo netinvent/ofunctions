@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Shorthand for killing an entire process tree'
 __licence__ = 'BSD 3 Clause'
-__version__ = '1.0.0'
-__build__ = '2021092201'
+__version__ = '1.1.0'
+__build__ = '2021092202'
 
 
 import os
@@ -113,15 +113,43 @@ def kill_childs(
     return True
 
 
-def get_processes_by_name(name: str) -> Optional[List[psutil.Process]]:
+def get_processes_by_name(name: str, ignorecase: bool = None) -> Optional[List[psutil.Process]]:
     """
     Get a process by name
     """
 
+    if ignorecase is None:
+        if os.name == 'nt':
+            ignorecase = True
+        else:
+            ignorecase = False
+
     process_list = []
 
     for process in psutil.process_iter():
-        if process.name() == name:
-            process_list.append(process)
+        if ignorecase:
+            if process.name().upper() == name.upper():
+                process_list.append(process)
+        else:
+            if process.name() == name:
+                process_list.append(process)
 
     return process_list
+
+
+def get_absolute_path(executable):
+    # type: (str) -> str
+    """
+    Search for full executable path in preferred shell paths
+    This allows avoiding usage of shell=True with subprocess
+    """
+    executable_path = None
+
+    if os.name == "nt":
+        split_char = ";"
+    else:
+        split_char = ":"
+    for path in os.environ.get("PATH", "").split(split_char):
+        if os.path.isfile(os.path.join(path, executable)):
+            executable_path = os.path.join(path, executable)
+    return executable_path
