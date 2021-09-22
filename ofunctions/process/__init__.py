@@ -23,10 +23,9 @@ __build__ = '2021092202'
 
 
 import os
-import sys
 import psutil
 import signal
-from typing import Optional, Union, List
+from typing import Optional, List
 
 
 def kill_childs(
@@ -71,7 +70,7 @@ def kill_childs(
         sig = None
 
     def _process_killer(
-        process,  # type: Union[subprocess.Popen, psutil.Process]
+        process,  # type: psutil.Process
         sig,  # type: signal.valid_signals
         soft_kill,  # type: bool
     ):
@@ -115,7 +114,7 @@ def kill_childs(
 
 def get_processes_by_name(name: str, ignorecase: bool = None) -> Optional[List[psutil.Process]]:
     """
-    Get a process by name
+    Get a list of processes by name
     """
 
     if ignorecase is None:
