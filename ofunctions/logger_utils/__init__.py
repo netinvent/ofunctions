@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = 'ofunctions.logger_utils'
 __author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2020 Orsiris de Jong'
+__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Shorthand for logger initialization, recording worst called loglevel and handling nice console output'
 __licence__ = 'BSD 3 Clause'
-__version__ = '2.0.1'
-__build__ = '2021032901'
+__version__ = '2.0.2'
+__build__ = '2021080201'
 
 import logging
 import os
@@ -124,14 +124,14 @@ def logger_get_file_handler(log_file: str, multiprocessing_formatter: bool = Fal
         formatter = FORMATTER
     err_output = None
     try:
-        file_handler = RotatingFileHandler(log_file, mode='a', encoding='utf-8', maxBytes=1024000, backupCount=3)
+        file_handler = RotatingFileHandler(log_file, mode='a', encoding='utf-8', maxBytes=1048576, backupCount=3)
     except OSError as exc:
         try:
             print('Cannot create logfile. Trying to obtain temporary log file.\nMessage: %s' % exc)
             err_output = str(exc)
             temp_log_file = tempfile.gettempdir() + os.sep + __name__ + '.log'
             print('Trying temporary log file in ' + temp_log_file)
-            file_handler = RotatingFileHandler(temp_log_file, mode='a', encoding='utf-8', maxBytes=1000000,
+            file_handler = RotatingFileHandler(temp_log_file, mode='a', encoding='utf-8', maxBytes=1048576,
                                                backupCount=1)
             file_handler.setFormatter(formatter)
             err_output += '\nUsing [%s]' % temp_log_file
