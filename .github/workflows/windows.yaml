@@ -15,7 +15,7 @@ jobs:
       matrix:
         os: [windows-latest]
         # Don't use pypy on windows since it does not have pywin32 module
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@v2
@@ -26,22 +26,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pylint pytest
         if (Test-Path "ofunctions/requirements.txt") { pip install -r ofunctions/requirements.txt }
         # Add additional windows requirements
         if (Test-Path "ofunctions/requirements-win.txt") { pip install -r ofunctions/requirements-win.txt }
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        python -m flake8 --count --select=E9,F63,F7,F82 --show-source --statistics ofunctions
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        python -m flake8 --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics ofunctions
-    #
     - name: Execute tests and generate coverage report
       env:
         RUNNING_ON_GITHUB_ACTIONS: true
       run: |
-        pip install coverage
+        pip install pytest coverage
         # $Env:RUNNING_ON_GITHUB_ACTIONS = true
         python -m coverage run -m pytest -s tests
     - name: Upload Coverage to Codecov
