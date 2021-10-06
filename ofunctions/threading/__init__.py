@@ -28,13 +28,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.threading'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
-__description__ = 'Threading decorator to run functions as threads'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.1.0'
-__build__ = '2019081101'
+__intname__ = "ofunctions.threading"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2021 Orsiris de Jong"
+__description__ = "Threading decorator to run functions as threads"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.1.0"
+__build__ = "2019081101"
 
 
 from threading import Thread
@@ -63,9 +63,11 @@ def threaded(fn):
     instead of 'wrapper'
 
     """
+
     @wraps(fn)
     def wrapper(*args, **kwargs):
         future = Future()
         Thread(target=call_with_future, args=(fn, future, args, kwargs)).start()
         return future
+
     return wrapper

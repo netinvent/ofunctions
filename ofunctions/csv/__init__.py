@@ -13,13 +13,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.csv'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
-__description__ = 'CSV file reader with header management, fieldnames, delimiters and comment skipping'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.4.0'
-__build__ = '2021070201'
+__intname__ = "ofunctions.csv"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2021 Orsiris de Jong"
+__description__ = "CSV file reader with header management, fieldnames, delimiters and comment skipping"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.4.0"
+__build__ = "2021070201"
 
 
 import sys
@@ -30,8 +30,10 @@ from typing import Iterable
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 6):
     from collections import OrderedDict
 
-def csv_dict_reader(file: str, skip_comment_char: str = None, encoding: str = 'utf-8',
-                    **kwargs) -> Iterable:
+
+def csv_dict_reader(
+    file: str, skip_comment_char: str = None, encoding: str = "utf-8", **kwargs
+) -> Iterable:
     """
     Reads CSV file and provides a generator for every line and skips commented out lines
 
@@ -51,15 +53,21 @@ def csv_dict_reader(file: str, skip_comment_char: str = None, encoding: str = 'u
     :return: csv object that can be iterated
     """
 
-    delimiter = kwargs.pop('delimiter', ',')
-    fieldnames = kwargs.pop('fieldnames', None)
+    delimiter = kwargs.pop("delimiter", ",")
+    fieldnames = kwargs.pop("fieldnames", None)
 
     with open(file, encoding=encoding) as fp:
         csv_data = csv.DictReader(fp, delimiter=delimiter, fieldnames=fieldnames)
 
         for row in csv_data:
-            if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 6):
-                row = OrderedDict(sorted(row.items(), key=lambda item: csv_data.fieldnames.index(item[0])))
+            if sys.version_info[0] < 3 or (
+                sys.version_info[0] == 3 and sys.version_info[1] < 6
+            ):
+                row = OrderedDict(
+                    sorted(
+                        row.items(), key=lambda item: csv_data.fieldnames.index(item[0])
+                    )
+                )
             row_name = list(row)[0]
             if skip_comment_char:
                 if row[row_name].startswith(skip_comment_char):

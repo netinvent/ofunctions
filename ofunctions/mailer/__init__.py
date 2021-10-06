@@ -13,13 +13,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.mailer'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
-__description__ = 'Mail sending function that handles encryption, authentication, bulk and split mail sending'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.3.5'
-__build__ = '2021020902'
+__intname__ = "ofunctions.mailer"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__description__ = "Mail sending function that handles encryption, authentication, bulk and split mail sending"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.3.5"
+__build__ = "2021020902"
 
 import logging
 import os
@@ -33,15 +33,27 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Union, List
 
-logger = logging.getLogger('__intname__')
+logger = logging.getLogger("__intname__")
 
 
-def send_email(source_mail: str = None, destination_mails: Union[str, List[str]] = None, split_mails: bool = False,
-               smtp_server: str = 'localhost', smtp_port: int = 25,
-               smtp_user: str = None, smtp_password: str = None, security: Union[str, None] = None, subject: str = None,
-               body: str = None, attachment: str = None,
-               filename: str = None, html_enabled: bool = False, bcc_mails: str = None,
-               priority: bool = False, debug: bool = False) -> Union[bool, str]:
+def send_email(
+    source_mail: str = None,
+    destination_mails: Union[str, List[str]] = None,
+    split_mails: bool = False,
+    smtp_server: str = "localhost",
+    smtp_port: int = 25,
+    smtp_user: str = None,
+    smtp_password: str = None,
+    security: Union[str, None] = None,
+    subject: str = None,
+    body: str = None,
+    attachment: str = None,
+    filename: str = None,
+    html_enabled: bool = False,
+    bcc_mails: str = None,
+    priority: bool = False,
+    debug: bool = False,
+) -> Union[bool, str]:
     """
 
     :param source_mail:
@@ -64,7 +76,7 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
     """
 
     if subject is None:
-        raise ValueError('No subject set')
+        raise ValueError("No subject set")
 
     # Fix for empty passed auth strings
     if smtp_user is not None and len(smtp_user) == 0:
@@ -73,7 +85,7 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
         smtp_password = None
 
     if destination_mails is None:
-        raise ValueError('No destination mails set')
+        raise ValueError("No destination mails set")
 
     def _send_email(destination_mail: str) -> bool:
         """
@@ -91,8 +103,8 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
             message["Bcc"] = bcc_mails  # Recommended for mass emails
 
         if priority:
-            message["X-Priority"] = '2'
-            message['X-MSMail-Priority'] = 'High'
+            message["X-Priority"] = "2"
+            message["X-MSMail-Priority"] = "High"
 
         # Add body to email
         if body is not None:
@@ -106,7 +118,7 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
                 # Let's suppose we directly attach binary data
                 payload = attachment
             else:
-                with open(attachment, 'rb') as f_attachment:
+                with open(attachment, "rb") as f_attachment:
                     payload = f_attachment.read()
                     filename = os.path.basename(attachment)
 
@@ -130,9 +142,11 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
         text = message.as_string()
 
         try:
-            if security == 'ssl':
+            if security == "ssl":
                 context = ssl.create_default_context()
-                with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as remote_server:
+                with smtplib.SMTP_SSL(
+                    smtp_server, smtp_port, context=context
+                ) as remote_server:
                     if debug:
                         remote_server.set_debuglevel(True)
                     remote_server.ehlo()
@@ -140,7 +154,7 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
                         remote_server.login(smtp_user, smtp_password)
                     remote_server.sendmail(source_mail, destination_mails, text)
 
-            elif security == 'tls':
+            elif security == "tls":
                 # TLS
                 context = ssl.create_default_context()
                 with smtplib.SMTP(smtp_server, smtp_port) as remote_server:
@@ -162,19 +176,31 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
                         remote_server.login(smtp_user, smtp_password)
                     remote_server.sendmail(source_mail, destination_mails, text)
         # SMTPNotSupportedError = Server does not support STARTTLS
-        except (smtplib.SMTPAuthenticationError, smtplib.SMTPSenderRefused, smtplib.SMTPRecipientsRefused,
-                smtplib.SMTPDataError, ConnectionRefusedError, ConnectionAbortedError, ConnectionResetError,
-                ConnectionError, socket.gaierror, smtplib.SMTPNotSupportedError, ssl.SSLError) as exc:
-            logger.error('Cannot send email: %s', exc, exc_info=True)
+        except (
+            smtplib.SMTPAuthenticationError,
+            smtplib.SMTPSenderRefused,
+            smtplib.SMTPRecipientsRefused,
+            smtplib.SMTPDataError,
+            ConnectionRefusedError,
+            ConnectionAbortedError,
+            ConnectionResetError,
+            ConnectionError,
+            socket.gaierror,
+            smtplib.SMTPNotSupportedError,
+            ssl.SSLError,
+        ) as exc:
+            logger.error("Cannot send email: %s", exc, exc_info=True)
             return False
         return True
 
     if not isinstance(destination_mails, list):
         # Make sure destination mails is a list
-        destination_mails = re.split(r',|;| ', destination_mails)
+        destination_mails = re.split(r",|;| ", destination_mails)
 
     rfc822_addresses = [mail for mail in destination_mails if is_mail_address(mail)]
-    non_rfc822_addresses = [mail for mail in destination_mails if mail not in rfc822_addresses]
+    non_rfc822_addresses = [
+        mail for mail in destination_mails if mail not in rfc822_addresses
+    ]
 
     result = True
 
@@ -184,12 +210,12 @@ def send_email(source_mail: str = None, destination_mails: Union[str, List[str]]
             if not _result:
                 result = _result
     else:
-        _result = _send_email(','.join(rfc822_addresses))
+        _result = _send_email(",".join(rfc822_addresses))
         if not _result:
             result = _result
 
     if non_rfc822_addresses == []:
-        logger.error('Refused non RFC 822 mails: %s', format(non_rfc822_addresses))
+        logger.error("Refused non RFC 822 mails: %s", format(non_rfc822_addresses))
         result = False
 
     return result
@@ -199,6 +225,6 @@ def is_mail_address(string: str) -> bool:
     """
     Check email address validity against simpler than RFC822 regex
     """
-    if re.match(r'[^@\s]+@[^@\s]+\.[a-zA-Z0-9][a-zA-Z0-9]+$', string):
+    if re.match(r"[^@\s]+@[^@\s]+\.[a-zA-Z0-9][a-zA-Z0-9]+$", string):
         return True
     return False

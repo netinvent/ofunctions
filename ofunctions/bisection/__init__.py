@@ -15,18 +15,23 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.bisection'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
-__description__ = 'Bisection function that allows callable to be tested with any list of arguments'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.2.1'
-__build__ = '2021020901'
+__intname__ = "ofunctions.bisection"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2021 Orsiris de Jong"
+__description__ = "Bisection that allows callables to be tested with arguments"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.2.1"
+__build__ = "2021020901"
 
 from typing import Callable, Any, Iterable
 
 
-def bisect(func: Callable, args_list: Iterable, expected_result: Any = True, allow_all_expected: bool = False) -> Any:
+def bisect(
+    func: Callable,
+    args_list: Iterable,
+    expected_result: Any = True,
+    allow_all_expected: bool = False,
+) -> Any:
     """
     Finds which is the last argument in list that made func return the expected_result (True/False/Whatever)
 
@@ -57,14 +62,14 @@ def bisect(func: Callable, args_list: Iterable, expected_result: Any = True, all
 
     if left_result == expected_result and right_result == expected_result:
         if not allow_all_expected:
-            raise ValueError('Both sides of the argument list are expected results')
+            raise ValueError("Both sides of the argument list are expected results")
         # if all valid results are allowed, we'll consider that any ordering is ascending, hence return right index
         # This is allowed in order to use bisection for min=x, max=y schemas where result could be max
         if fixed_args is None:
             return args_list[index_right]
         return args_list[index_right][0]
     elif left_result != expected_result and right_result != expected_result:
-        raise ValueError('Both sides of the argument list are unexpected results')
+        raise ValueError("Both sides of the argument list are unexpected results")
     elif left_result == expected_result and right_result != expected_result:
         # The argument list is supposed to provide the expected result left, and not expected result right
         left_to_right_ordered = True
@@ -73,8 +78,12 @@ def bisect(func: Callable, args_list: Iterable, expected_result: Any = True, all
         left_to_right_ordered = False
         index_last_expected_result = index_right
     else:
-        raise ValueError('Argument list extremities give results different than expected results.'
-                         ' Most left result = {}, Most right result = {}'.format(left_result, right_result))
+        raise ValueError(
+            "Argument list extremities give results different than expected results."
+            " Most left result = {}, Most right result = {}".format(
+                left_result, right_result
+            )
+        )
 
     # count = 0
     while index_left < index_right:
@@ -83,13 +92,15 @@ def bisect(func: Callable, args_list: Iterable, expected_result: Any = True, all
         if result == expected_result:
             index_last_expected_result = index_middle
         if (result == expected_result and left_to_right_ordered) or (
-                result != expected_result and not left_to_right_ordered):
+            result != expected_result and not left_to_right_ordered
+        ):
             if index_middle > index_left:
                 index_left = index_middle
             else:
                 index_left = index_middle + 1
         if (result == expected_result and not left_to_right_ordered) or (
-                result != expected_result and left_to_right_ordered):
+            result != expected_result and left_to_right_ordered
+        ):
             if index_middle < index_right:
                 index_right = index_middle
             else:

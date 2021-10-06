@@ -13,13 +13,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.process'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
-__description__ = 'Shorthand for killing an entire process tree'
-__licence__ = 'BSD 3 Clause'
-__version__ = '1.2.0'
-__build__ = '2021100601'
+__intname__ = "ofunctions.process"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__description__ = "Shorthand for killing an entire process tree"
+__licence__ = "BSD 3 Clause"
+__version__ = "1.2.0"
+__build__ = "2021100601"
 
 
 import os
@@ -56,7 +56,6 @@ def kill_childs(
     sig = None
     if not pid and itself:
         pid = os.getpid()
-
 
     try:
         if not soft_kill and hasattr(signal, "SIGKILL"):
@@ -113,13 +112,15 @@ def kill_childs(
     return True
 
 
-def get_processes_by_name(name: str, ignorecase: bool = None) -> Optional[List[psutil.Process]]:
+def get_processes_by_name(
+    name: str, ignorecase: bool = None
+) -> Optional[List[psutil.Process]]:
     """
     Get a list of processes by name
     """
 
     if ignorecase is None:
-        if os.name == 'nt':
+        if os.name == "nt":
             ignorecase = True
         else:
             ignorecase = False

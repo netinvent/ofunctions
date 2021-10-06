@@ -13,13 +13,13 @@ Versioning semantics:
     
 """
 
-__intname__ = 'ofunctions.delayed_keyboardinterrupt'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2019-2021 Orsiris de Jong'
-__description__ = 'Intercept CTRL+C signal in your Python code'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.1.0'
-__build__ = '2020032701'
+__intname__ = "ofunctions.delayed_keyboardinterrupt"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2021 Orsiris de Jong"
+__description__ = "Intercept CTRL+C signal in your Python code"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.1.0"
+__build__ = "2020032701"
 
 import signal
 
@@ -39,7 +39,7 @@ class DelayedKeyboardInterrupt(object):
 
     def handler(self, sig, frame):
         self.signal_received = (sig, frame)
-        print('SIGINT received. Delaying KeyboardInterrupt.')
+        print("SIGINT received. Delaying KeyboardInterrupt.")
 
     def __exit__(self, _type, value, traceback):
         signal.signal(signal.SIGINT, self.old_handler)
@@ -47,4 +47,4 @@ class DelayedKeyboardInterrupt(object):
             try:
                 self.old_handler(*self.signal_received)
             except KeyboardInterrupt:
-                raise KeyboardInterrupt('Now initiating delayed KeyboardInterrupt.')
+                raise KeyboardInterrupt("Now initiating delayed KeyboardInterrupt.")

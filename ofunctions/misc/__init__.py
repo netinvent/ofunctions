@@ -13,13 +13,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.misc'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
-__description__ = 'Collection of various functions'
-__licence__ = 'BSD 3 Clause'
-__version__ = '1.2.0'
-__build__ = '2021060301'
+__intname__ = "ofunctions.misc"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__description__ = "Collection of various functions"
+__licence__ = "BSD 3 Clause"
+__version__ = "1.2.0"
+__build__ = "2021060301"
 
 from typing import Union, List
 
@@ -32,24 +32,30 @@ def rot13(string: str) -> Union[str, None]:
     Rot13 for only A-Z and a-z characters
     """
     try:
-        return ''.join(
-            [chr(ord(n) + (13 if 'Z' < n < 'n' or n < 'N' else -13)) if ('a' <= n <= 'z' or 'A' <= n <= 'Z') else n for
-             n in
-             string])
+        return "".join(
+            [
+                chr(ord(n) + (13 if "Z" < n < "n" or n < "N" else -13))
+                if ("a" <= n <= "z" or "A" <= n <= "Z")
+                else n
+                for n in string
+            ]
+        )
     except TypeError:
         return None
 
 
-def bytes_to_string(bytes_to_convert: List[int], strip_null: bool = False) -> Union[str, None]:
+def bytes_to_string(
+    bytes_to_convert: List[int], strip_null: bool = False
+) -> Union[str, None]:
     """
     Litteral bytes to string
     :param bytes_to_convert: list of bytes in integer format
     :return: resulting string
     """
     try:
-        value = ''.join(chr(i) for i in bytes_to_convert)
+        value = "".join(chr(i) for i in bytes_to_convert)
         if strip_null:
-            return value.strip('\x00')
+            return value.strip("\x00")
         return value
     # AttributeError when None object has no strip attribute
     except (ValueError, TypeError, AttributeError):

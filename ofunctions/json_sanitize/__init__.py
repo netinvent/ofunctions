@@ -13,19 +13,21 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.json_sanitize'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
-__description__ = 'Simple tool that filters unwanted characters including non printable from JSON objects'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.1.1'
-__build__ = '2020102801'
+__intname__ = "ofunctions.json_sanitize"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2021 Orsiris de Jong"
+__description__ = "Simple tool that filters unwanted characters including non printable from JSON objects"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.1.1"
+__build__ = "2020102801"
 
 import re
 from typing import Union
 
 
-def json_sanitize(value: Union[str, dict, list], is_value=True) -> Union[str, dict, list]:
+def json_sanitize(
+    value: Union[str, dict, list], is_value=True
+) -> Union[str, dict, list]:
     """
     Modified version of https://stackoverflow.com/a/45526935/2635443
 
@@ -33,7 +35,9 @@ def json_sanitize(value: Union[str, dict, list], is_value=True) -> Union[str, di
     especially unknown control characters
     """
     if isinstance(value, dict):
-        value = {json_sanitize(k, False): json_sanitize(v, True) for k, v in value.items()}
+        value = {
+            json_sanitize(k, False): json_sanitize(v, True) for k, v in value.items()
+        }
     elif isinstance(value, list):
         value = [json_sanitize(v, True) for v in value]
     elif isinstance(value, str):
@@ -46,5 +50,5 @@ def json_sanitize(value: Union[str, dict, list], is_value=True) -> Union[str, di
             # value = re.sub(r"\r\n", "\\\\n", value)
             # value = re.sub(r"\t", "\\\\t", value)
             # Finally we remove all control characters
-            value = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', value)
+            value = re.sub(r"[\x00-\x1f\x7f-\x9f]", " ", value)
     return value

@@ -13,18 +13,19 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
-__description__ = 'Toolset with various file logging / network / checksumming / process functions'
-__licence__ = 'BSD 3 Clause'
-__version__ = '2.2.0'
-__build__ = '2021100601'
+__intname__ = "ofunctions"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__description__ = "Toolset for files/logging/network/checksumming/process handling"
+__licence__ = "BSD 3 Clause"
+__version__ = "2.2.0"
+__build__ = "2021100601"
 
 
 # Make sure we declare this file as namespace holder
 try:
-    __import__('pkg_resources').declare_namespace(__name__)
+    __import__("pkg_resources").declare_namespace(__name__)
 except ImportError:
     from pkgutil import extend_path
+
     __path__ = extend_path(__path__, __name__)

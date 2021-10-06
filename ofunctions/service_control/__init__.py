@@ -13,13 +13,13 @@ Versioning semantics:
 
 """
 
-__intname__ = 'ofunctions.service_control'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
-__description__ = 'Windows & Linux service control functions'
-__licence__ = 'BSD 3 Clause'
-__version__ = '0.2.0'
-__build__ = '2021052601'
+__intname__ = "ofunctions.service_control"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__description__ = "Windows & Linux service control functions"
+__licence__ = "BSD 3 Clause"
+__version__ = "0.2.0"
+__build__ = "2021052601"
 
 import logging
 import os
@@ -28,7 +28,7 @@ from time import sleep
 from command_runner import command_runner
 
 # Module pywin32
-if os.name == 'nt':
+if os.name == "nt":
     import win32serviceutil
 
 
@@ -51,7 +51,9 @@ def unix_service_status(service: str) -> bool:
     Handle unix service using standard lsb commands
     Valid exit code are 0 and 3 (because of systemctl using a service redirect)
     """
-    service_status, _ = command_runner('service "{}" status'.format(service), timeout=15)
+    service_status, _ = command_runner(
+        'service "{}" status'.format(service), timeout=15
+    )
     if service_status in [0, 3]:
         return True
     return False
@@ -66,9 +68,8 @@ def nt_service_action(service: str, action: str) -> bool:
 
     is_running = nt_service_status(service)
 
-
     try:
-        if action == 'stop':
+        if action == "stop":
             win32serviceutil.StopService(service)
             must_be_running = False
         else:
@@ -81,9 +82,13 @@ def nt_service_action(service: str, action: str) -> bool:
             else:
                 sleep(2)
                 elapsed_time += 2
-        logger.warning('service {} {} took longer than {} and may have failed'.format(service, action, max_wait))
+        logger.warning(
+            "service {} {} took longer than {} and may have failed".format(
+                service, action, max_wait
+            )
+        )
     except Exception:
-        logger.debug('Trace:', exc_info=True)
+        logger.debug("Trace:", exc_info=True)
     return False
 
 
@@ -92,7 +97,7 @@ def unix_service_action(service: str, action: str) -> bool:
     Using lsb service X command on Unix variants, hopefully the most portable
     """
 
-    if action in ['start', 'stop']:
+    if action in ["start", "stop"]:
         result, output = command_runner('service "{}" {}'.format(service, action))
         # exit codes are (for systemd)
         # 0 = runs
@@ -100,8 +105,8 @@ def unix_service_action(service: str, action: str) -> bool:
         # 4 = does not exist
         if result == 0:
             return True
-        logger.error('Could not {} service, code [{}].'.format(action, result))
-        logger.error('Output:\n{}'.format(output))
+        logger.error("Could not {} service, code [{}].".format(action, result))
+        logger.error("Output:\n{}".format(output))
     return False
 
 
@@ -113,35 +118,33 @@ def system_service_handler(service: str, action: str) -> bool:
     """
 
     os_name = os.name
-    if os_name == 'nt':
+    if os_name == "nt":
         is_running = nt_service_status(service)
     else:
         is_running = unix_service_status(service)
 
-    if action in ['start', 'stop']:
-        if action == 'start' and is_running:
-            logger.info('Service {} already running.'.format(service))
+    if action in ["start", "stop"]:
+        if action == "start" and is_running:
+            logger.info("Service {} already running.".format(service))
             return True
-        if action == 'stop' and not is_running:
-            logger.info('Service {} is not running.'.format(service))
+        if action == "stop" and not is_running:
+            logger.info("Service {} is not running.".format(service))
             return True
-        logger.info('Action {} for service {}.'.format(action, service))
-        if os_name == 'nt':
+        logger.info("Action {} for service {}.".format(action, service))
+        if os_name == "nt":
             result = nt_service_action(service, action)
         else:
             result = unix_service_action(service, action)
         if result:
-            logger.info('Action {} succeeded.'.format(service))
+            logger.info("Action {} succeeded.".format(service))
             return True
-        logger.error('Action {} failed.'.format(service))
-        raise OSError('Cannot {} service {}'.format(action, service))
+        logger.error("Action {} failed.".format(service))
+        raise OSError("Cannot {} service {}".format(action, service))
 
     elif action == "restart":
-        system_service_handler(service, 'stop')
+        system_service_handler(service, "stop")
         sleep(1)  # arbitrary sleep between stop and start actions
-        return system_service_handler(service, 'start')
+        return system_service_handler(service, "start")
 
     elif action == "status":
         return is_running
-
-
