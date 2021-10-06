@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2014-2021 Orsiris de Jong'
 __description__ = 'Shorthand for killing an entire process tree'
 __licence__ = 'BSD 3 Clause'
-__version__ = '1.1.0'
-__build__ = '2021092202'
+__version__ = '1.2.0'
+__build__ = '2021100601'
 
 
 import os
@@ -31,13 +31,12 @@ from typing import Optional, List
 def kill_childs(
     pid=None,  # type: int
     itself=False,  # type: bool
+    children=True,  # type: bool
     soft_kill=False,  # type: bool
 ):
     # type: (...) -> bool
     """
-    Inline version of ofunctions.kill_childs that has no hard dependency on psutil
-
-    Kills all childs of pid (current pid can be obtained with os.getpid())
+    Kills pid or all childs of pid (current pid can be obtained with os.getpid())
     If no pid given current pid is taken
     Good idea when using multiprocessing, is to call with atexit.register(ofunctions.kill_childs, os.getpid(),)
 
@@ -48,15 +47,16 @@ def kill_childs(
 
     :param pid: Which pid tree we'll kill
     :param itself: Should parent be killed too ?
-    """
-    sig = None
 
-    """
     Extract from Python3 doc
     On Windows, signal() can only be called with SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM, or SIGBREAK.
     A ValueError will be raised in any other case. Note that not all systems define the same set of signal names;
     an AttributeError will be raised if a signal name is not defined as SIG* module level constant.
     """
+    sig = None
+    if not pid and itself:
+        pid = os.getpid()
+
 
     try:
         if not soft_kill and hasattr(signal, "SIGKILL"):
@@ -94,7 +94,7 @@ def kill_childs(
 
     # If we cannot identify current process using psutil, fallback to os.kill()
     try:
-        current_process = psutil.Process(pid if pid is not None else os.getpid())
+        current_process = psutil.Process(pid)
     # psutil.NoSuchProcess might not be available, let's be broad
     # pylint: disable=W0703
     except Exception:
@@ -104,8 +104,9 @@ def kill_childs(
             )  # 15 being signal.SIGTERM or SIGKILL depending on the platform
         return False
 
-    for child in current_process.children(recursive=True):
-        _process_killer(child, sig, soft_kill)
+    if children:
+        for child in current_process.children(recursive=True):
+            _process_killer(child, sig, soft_kill)
 
     if itself:
         _process_killer(current_process, sig, soft_kill)
