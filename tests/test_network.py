@@ -24,7 +24,13 @@ from ofunctions.network import *
 
 
 def running_on_github_actions():
+    """
+    This is set in github actions workflow with
+          env:
+        RUNNING_ON_GITHUB_ACTIONS: true
+    """
     return os.environ.get('RUNNING_ON_GITHUB_ACTIONS') == 'true'  # bash 'true'
+
 
 def test_ping():
     # ping does not work on GH
@@ -74,6 +80,7 @@ def test_ping():
     assert result is True, 'Cannot check http internet. This test may fail if the host' \
                            'does not have internet indeed.'
 
+
 def test_test_http_internet():
     # Hopefully these adresses don't exist
     result = test_http_internet(['http://example.not.existing'], ['http://192.168.90.256'])
@@ -100,10 +107,12 @@ def test_test_http_internet():
     assert result is False, 'With all_targets_must_succeed=True, this test should fail.' \
                             'This test may fail if the host does not have internet indeed.'
 
+
 def test_get_public_ip():
     result = get_public_ip()
     print('Public IP: {}'.format(result))
     assert result is not None, 'Cannot get public IP'
+
 
 def test_probe_mtu():
     # ping does not work on GH
