@@ -1,4 +1,4 @@
 requests>=2.22.0
-command_runner>=0.6.4
+command_runner>=1.2.1
 ofunctions.bisection>=0.2.1
 typing>=3.5.0

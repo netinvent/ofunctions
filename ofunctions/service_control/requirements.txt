@@ -1,1 +1,1 @@
-command_runner>=0.6.4
+command_runner>=1.2.1
