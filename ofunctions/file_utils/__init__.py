@@ -18,8 +18,8 @@ __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2017-2021 Orsiris de Jong'
 __description__ = 'Various file handling of which get_files_recursive is the most advanced'
 __licence__ = 'BSD 3 Clause'
-__version__ = '1.0.1'
-__build__ = '2021070101'
+__version__ = '1.0.2'
+__build__ = '2021100601'
 
 import json
 import logging
@@ -199,7 +199,8 @@ def log_perm_error(path: str) -> None:
     Default function that gets executed on get_paths_recursive permission error
     """
 
-    logger.warning('Non handled permission error on "{}"'.format(path))
+    logger.warning('Got permission error on "{}"'.format(path))
+    check_path_access(path, 'W')
 
 
 def get_paths_recursive(root: str, d_exclude_list: list = None, f_exclude_list: list = None,
