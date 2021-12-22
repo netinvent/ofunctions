@@ -18,20 +18,18 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.0"
-__build__ = "2021060801"
+__version__ = "1.0.1"
+__build__ = "2021122201"
 
-import logging
 import os
-import socket
-import warnings
-from ipaddress import IPv6Address, AddressValueError
+from ofunctions import bisection
 from typing import List, Tuple, Union, Iterable, Optional
-
+from ipaddress import IPv6Address, AddressValueError
 from command_runner import command_runner
 from requests import get
-
-from ofunctions import bisection
+import socket
+import warnings
+import logging
 
 logger = logging.getLogger()
 
@@ -364,6 +362,20 @@ def probe_mtu(target: str, method: str = "ICMP", min: int = 1100, max: int = 900
         ]
 
         # Bisect will return argument, list, let's just return the MTU
-        return bisection.bisect(ping, ping_args, allow_all_expected=True)[1]
+        try:
+            return bisection.bisect(ping, ping_args, allow_all_expected=True)[1]
+        except ValueError as exc:
+            # Bisection failed, let's check if at least ping works to target
+            result = ping(target, 28, 2, 4, 1, ip_type)
+            if not result:
+                raise OSError(
+                    'ICMP request on target "{}" failed. Cannot determine MTU.'.format(
+                        target
+                    )
+                )
+            else:
+                raise ValueError(
+                    "Unable to determine MTU via defined method: {}".format(exc)
+                )
     else:
-        raise ValueError("Method {} not implemented yet".format(method))
+        raise ValueError("Method {} not implemented yet.".format(method))
