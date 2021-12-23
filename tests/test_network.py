@@ -15,7 +15,7 @@ __intname__ = 'tests.ofunctions.network'
 __author__ = 'Orsiris de Jong'
 __copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
 __licence__ = 'BSD 3 Clause'
-__build__ = '2021020901'
+__build__ = '2021122301'
 
 
 # Use logging so we se actual output of probe_mtu
@@ -126,6 +126,25 @@ def test_probe_mtu():
     result = probe_mtu('1.1.1.1')
     print('Internet MTU: %s' % result)
     assert 1492 < result < 1501, 'Internet MTU should be 1492<=mtu<=1500'
+
+    # Should return an OSError
+    try:
+        probe_mtu('1.2.3.4.5.6.7.8.')
+    except OSError:
+        assert True, 'Non IP entry cannot be probed, obviously'
+
+    # Should return a ValueError
+    try:
+        probe_mtu('127.0.0.1', min=2)
+    except ValueError:
+        assert True, 'MTU should not be lower than 28'
+
+    # Should return a ValueError
+    try:
+        probe_mtu('127.0.0.1', method='TCP')
+    except ValueError:
+        assert True, 'Unknown method'
+
 
 
 if __name__ == '__main__':
