@@ -18,8 +18,9 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2017-2021 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.2"
-__build__ = "2021100601"
+__version__ = "1.1.0"
+__build__ = "2022041401"
+__compat__ = "python2.7+"
 
 import json
 import logging
@@ -32,7 +33,12 @@ from datetime import datetime
 from fnmatch import fnmatch
 from itertools import chain
 from threading import Lock
-from typing import Callable, Iterable, Union, Optional
+
+# Python 2.7 compat fixes
+try:
+    from typing import Callable, Iterable, Union, Optional
+except ImportError:
+    pass
 
 from command_runner import command_runner
 
@@ -59,7 +65,11 @@ def _file_lock():
         FILE_LOCK.release()
 
 
-def check_path_access(path: str, check: str = "R") -> bool:
+def check_path_access(
+        path,  # type: str
+        check = "R"  # type: str
+):
+    # type: (...) -> bool
     """
     Check if a path is accessible, if not, decompose path until we know which part isn't writable / readable
     when writable checks fail, we automatically fallback to readable tests
@@ -80,7 +90,10 @@ def check_path_access(path: str, check: str = "R") -> bool:
 
     logger.debug('Checking access to path "{0}"'.format(path))
 
-    def _check_path_access(sub_path: str):
+    def _check_path_access(
+            sub_path  # type: str
+    ):
+    # type: (...) -> bool
         if os.path.exists(sub_path):
             obj = "file" if os.path.isfile(sub_path) else "directory"
             if obj == "file":
@@ -138,7 +151,10 @@ def check_path_access(path: str, check: str = "R") -> bool:
             )
         return False
 
-    def _split_path(path):
+    def _split_path(
+        path  # type: str
+    ):
+        # type: (...) -> bool
         split_path = (path, "")
         can_split = True
         failed_once = False
@@ -164,21 +180,30 @@ def check_path_access(path: str, check: str = "R") -> bool:
     return not result
 
 
-def make_path(path: str):
+def make_path(
+    path  # type: str
+):
+    # type: (...) -> None
     with _file_lock():
         # May be false even if dir exists but ACLs deny
         if not os.path.isdir(path):
             os.makedirs(path)
 
 
-def remove_file(path: str):
+def remove_file(
+    path  # type: str
+):
+    # type: (...) -> None
     with _file_lock():
         # May be false even if dir exists but ACLs deny
         if os.path.isfile(path):
             os.remove(path)
 
 
-def remove_dir(path: str):
+def remove_dir(
+    path  # type: str
+):
+    # type: (...) -> None
     with _file_lock():
         # May be false even if dir exists but ACLs deny
 
@@ -189,14 +214,22 @@ def remove_dir(path: str):
             shutil.rmtree(path)
 
 
-def move_file(source: str, dest: str):
+def move_file(
+    source,  # type: str
+    dest  # type: str
+):
+    # type: (...) -> None
     make_path(os.path.dirname(dest))
     with _file_lock():
         # Using copy function because we don't want metadata, permissions, buffer nor anything else
         shutil.move(source, dest, copy_function=shutil.copy)
 
 
-def glob_path_match(path: str, pattern_list: list) -> bool:
+def glob_path_match(
+    path,  # type: str
+    pattern_list  # type: list
+):
+    # type: (...) -> bool
     """
     Checks if path is in a list of glob style wildcard paths
     :param path: path of file / directory
@@ -206,7 +239,10 @@ def glob_path_match(path: str, pattern_list: list) -> bool:
     return any(fnmatch(path, pattern) for pattern in pattern_list)
 
 
-def log_perm_error(path: str) -> None:
+def log_perm_error(
+    path  # type: str
+):
+    # type: (...) -> None
     """
     Default function that gets executed on get_paths_recursive permission error
     """
@@ -216,20 +252,21 @@ def log_perm_error(path: str) -> None:
 
 
 def get_paths_recursive(
-    root: str,
-    d_exclude_list: list = None,
-    f_exclude_list: list = None,
-    d_include_list: list = None,
-    f_include_list: list = None,
-    exclude_dirs: bool = False,
-    exclude_files: bool = False,
-    ext_exclude_list: list = None,
-    ext_include_list: list = None,
-    min_depth: int = 1,
-    max_depth: int = 0,
-    primary_root: str = None,
-    fn_on_perm_error: Callable = None,
-) -> Union[Iterable, str]:
+    root,  # type: str
+    d_exclude_list=None,  # type: list
+    f_exclude_list=None,  # type: list
+    d_include_list=None,  # type: list
+    f_include_list=None,  # type: list
+    exclude_dirs=False,  # type: bool
+    exclude_files=False,  # type: bool
+    ext_exclude_list=None,  # type: list
+    ext_include_list=None,  # type: list
+    min_depth=1,  # type: int
+    max_depth=0,  # type: int
+    primary_root=None,  # type: str
+    fn_on_perm_error=None,  # type: Callable
+):
+    # type: (...) -> Union[Iterable, str]
     """
     Walk a path to recursively find files
     Accepts glob style windcards for every list parameter except file extension lists
@@ -292,7 +329,10 @@ def get_paths_recursive(
         # Let's also make sure that min_depth parameter is used as in gnu find
         min_depth = min_depth - 1
 
-    def _find_files(min_depth):
+    def _find_files(
+        min_depth  # type: int
+    ):
+        # type: (...) -> Iterable
         if min_depth < 1:
             try:
                 if not exclude_dirs:
@@ -319,7 +359,11 @@ def get_paths_recursive(
             except PermissionError:
                 pass
 
-    def _find_files_in_dirs(min_depth, max_depth):
+    def _find_files_in_dirs(
+        min_depth,  # type: int
+        max_depth  # type: int
+    ):
+        # type: (...) -> Iterable
         min_depth = min_depth - 1
         if max_depth == 0 or max_depth > 1:
             max_depth = max_depth - 1 if max_depth > 1 else 0
@@ -367,16 +411,17 @@ def get_paths_recursive(
 
 
 def get_files_recursive(
-    root: str,
-    d_exclude_list: list = None,
-    f_exclude_list: list = None,
-    ext_exclude_list: list = None,
-    ext_include_list: list = None,
-    depth: int = 0,
-    primary_root: str = None,
-    fn_on_perm_error: Callable = None,
-    include_dirs: bool = False,
-) -> Union[Iterable, str]:
+    root, # type: str
+    d_exclude_list=None,  # type: list
+    f_exclude_list=None,  # type: list
+    ext_exclude_list=None,  # type: list
+    ext_include_list=None,  # type: list
+    depth=0,  # type: int
+    primary_root=None,  # type: str
+    fn_on_perm_error=None,  # type: Callable
+    include_dirs=False  # type: bool
+):
+    # type: (...) -> Union[Iterable, str]
     """
     Wrapper for ofunctions.file_utils < 0.9.0 code
     """
@@ -396,12 +441,13 @@ def get_files_recursive(
 
 
 def replace_in_file(
-    source_file: str,
-    text_to_search: str,
-    replacement_text: str,
-    dest_file: str = None,
-    backup_ext: str = None,
-) -> None:
+    source_file,  # type: str
+    text_to_search,  # type: str
+    replacement_text, # type: str
+    dest_file=None, # type: str
+    backup_ext=None,  # type: str
+):
+    # type: (...) -> None
     """
 
     :param source_file: source file to replace text in
@@ -430,7 +476,11 @@ def replace_in_file(
         fp.write(data)
 
 
-def get_file_time(path_to_file: str, mac_type: str = "ctime") -> float:
+def get_file_time(
+    path_to_file,  # type: str
+    mac_type="ctime"  # type: str
+):
+    # type: (...) -> float
     """
     Returns file ctime/mtime/atime
 
@@ -458,14 +508,20 @@ def get_file_time(path_to_file: str, mac_type: str = "ctime") -> float:
             return stat.st_mtime
 
 
-def file_creation_date(path_to_file: str) -> float:  # COMPAT <0.7.8
+def file_creation_date(
+    path_to_file  # type: str
+):  # COMPAT <0.7.8
+    # type: (...) -> float
     """
     Wrapper for get_file_time (kept for compatibility reasons)
     """
     return get_file_time(path_to_file, "ctime")
 
 
-def file_modification_date(path_to_file: str) -> float:  # COMPAT <0.7.8
+def file_modification_date(
+    path_to_file  # type: str
+):  # COMPAT <0.7.8
+    # type: (...) -> float
     """
     Wrapper for get_file_time (kept for compatibility reasons)
     """
@@ -473,14 +529,15 @@ def file_modification_date(path_to_file: str) -> float:  # COMPAT <0.7.8
 
 
 def check_file_timestamp_delta(
-    file: str,
-    mac_type: str = "ctime",
-    years: int = 0,
-    days: int = 0,
-    hours: int = 0,
-    minutes: int = 0,
-    seconds: int = 0,
-) -> bool:
+    file,  # type: str,
+    mac_type="ctime",  # type: str
+    years=0,  # type: int
+    days=0,  # type: int
+    hours=0,  # type: int
+    minutes=0,  # type: int
+    seconds=0,  # type: int
+):
+    # type: (...) -> bool
     """
     mac_type can be ctime, mtime, or atime for comparison purposes
 
@@ -505,13 +562,14 @@ def check_file_timestamp_delta(
 
 
 def is_file_older_than(
-    file: str,
-    years: int = 0,
-    days: int = 0,
-    hours: int = 0,
-    minutes: int = 0,
-    seconds: int = 0,
-) -> bool:  # COMPAT <0.7.8
+    file,  # type: str,
+    years = 0,  # type: int
+    days = 0,  # type: int
+    hours = 0,  # type: int
+    minutes = 0,  # type: int
+    seconds = 0,  # type: int
+):  # COMPAT <0.7.8
+    # type: (...) -> bool
     """
     Wrapper for check_file_times kept for compatibility
     """
@@ -528,14 +586,15 @@ def is_file_older_than(
 
 
 def remove_files_on_timestamp_delta(
-    directory: str,
-    mac_type: str = "ctime",
-    years: int = 0,
-    days: int = 0,
-    hours: int = 0,
-    minutes: int = 0,
-    seconds: int = 0,
-) -> None:
+    directory,  # type: str,
+    mac_type="ctime",  # type: str
+    years = 0,  # type: int
+    days = 0,  # type: int
+    hours = 0,  # type: int
+    minutes = 0,  # type: int
+    seconds = 0,  # type: int
+):
+# type: (...) -> None
     """
     Remove files older than given delta from now
     """
@@ -564,13 +623,14 @@ def remove_files_on_timestamp_delta(
 
 
 def remove_files_older_than(
-    directory: str,
-    years: int = 0,
-    days: int = 0,
-    hours: int = 0,
-    minutes: int = 0,
-    seconds: int = 0,
-) -> None:  # COMPAT <0.7.8
+    directory,  # type: str,
+    years=0,  # type: int
+    days=0,  # type: int
+    hours=0,  # type: int
+    minutes=0,  # type: int
+    seconds=0,  # type: int
+):  # COMPAT <0.7.8
+    # type: (...) -> None
     """
     Wrapper for remove_files_on_timestamp_delta for compatibility
     """
@@ -586,31 +646,41 @@ def remove_files_older_than(
     )
 
 
-def remove_bom(file: str) -> None:
+def remove_bom(
+    file  # type: str
+):
+    # type: (...) -> None
     """
     Remove BOM from existing UTF-8 file
     We don't use any utf-8-sig codec magic here to avoid any UnicodeDecodeErrors
     hence the function is uglier than it should, but less error prone
     """
+
+    buffer = 32768
+
     try:
         with open(file, "rb") as file_handle_in:
             data = file_handle_in.read(3)
             # Throw away the data if it's a BOM
             if data == b"\xef\xbb\xbf":
-                data = file_handle_in.read(32768)
+                data = file_handle_in.read(buffer)
             else:
                 return
             with open(file + ".tmp", "wb") as file_handle_out:
                 while len(data) > 0:
                     file_handle_out.write(data)
-                    data = file_handle_in.read(32768)
+                    data = file_handle_in.read(buffer)
         if os.path.isfile(file + ".tmp"):
             os.replace(file + ".tmp", file)
     except Exception:
         raise OSError
 
 
-def write_json_to_file(file: str, data: Union[dict, list]):
+def write_json_to_file(
+    file, # type: str
+    data  # type: Union[dict, list]
+):
+    # type: (...) -> None
     """
     Creates a manifest to the file containing it's sha256sum and the installation result
 
@@ -623,7 +693,10 @@ def write_json_to_file(file: str, data: Union[dict, list]):
         json.dump(data, file_handle, ensure_ascii=False)
 
 
-def read_json_from_file(file: str) -> dict:
+def read_json_from_file(
+    file  # type: str
+):
+    # type: (...) -> dict
     """
     Verifies exit code of the file manifest and returns True if installed successfully
     :param file: (str) path to file
@@ -638,25 +711,52 @@ def read_json_from_file(file: str) -> dict:
         return {}
 
 
-def grep(file: str, pattern: str) -> list:
+def grep(
+    file,  # type: str
+    pattern,  # type: str
+    ignorecase=False  # type bool
+):
+    # type: (...) -> list
+    """
+    Grep emulation
+    """
     if not os.path.isfile(file):
         raise FileNotFoundError(file)
     result = []
+
     with open(file, "r") as file_handle:
         for line in file_handle:
-            if re.search(pattern, line):
-                result.append(line)
+            if ignorecase:
+                if re.search(pattern, line, re.IGNORECASE):
+                    result.append(line)
+            else:
+                if re.search(pattern, line):
+                    result.append(line)
     return result
 
 
-def hide_windows_file(file: str, hidden: bool = True) -> bool:
+def hide_windows_file(
+        file,  # type: str
+        hidden=True  # type: bool
+):
+    # type: (...) -> bool
+    """
+    Hides / unhides a file under windows by using attrib command
+    """
     result, _ = command_runner('attrib %sh "%s"' % ("+" if hidden else "-", file))
     if result == 0:
         return True
     return False
 
 
-def hide_unix_file(file: str, hidden: bool = True) -> bool:
+def hide_unix_file(
+    file,  # type: str
+    hidden=True  # type: bool
+):
+    # type: (...) -> bool
+    """
+    Hides / unhides a file under unix by prepending a dot
+    """
     if (file.startswith(".") and hidden) or (not file.startswith(".") and not hidden):
         return True
 
@@ -673,14 +773,22 @@ def hide_unix_file(file: str, hidden: bool = True) -> bool:
         return False
 
 
-def hide_file(file: str, hidden: bool = True) -> bool:
+def hide_file(
+    file,  # type: str
+    hidden=True  # type: bool
+):
+    # type: (...) -> bool
+    """
+    Hides/unhindes a file under Windows / Unix platforms
+    """
     if os.name == "nt":
         return hide_windows_file(file, hidden)
     else:
         return hide_unix_file(file, hidden)
 
 
-def get_writable_temp_dir() -> Optional[str]:
+def get_writable_temp_dir():
+    # type: (...) -> Optional[str]
     """
     Try to find a writable temporary directory
     """
@@ -702,7 +810,10 @@ def get_writable_temp_dir() -> Optional[str]:
     return None
 
 
-def get_writable_random_file(ident_str: str = "tmp_file_utils") -> Optional[str]:
+def get_writable_random_file(
+    ident_str="tmp_file_utils"  # type: str
+):
+    # type: (...) -> Optional[str]
     """
     Try to return a path to a not yet existing random file
     """

@@ -18,14 +18,16 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.1"
-__build__ = "2021031501"
+__version__ = "1.1.0"
+__build__ = "2022041401"
+__compat__ = "python2.7+"
 
 import os
 import sys
 
 
-def get_os() -> str:
+def get_os():
+    # type: (None) -> str
     """
     Simple windows / linux identification that handles msys too
     """
@@ -43,7 +45,8 @@ def get_os() -> str:
     raise OSError("Cannot get os, os.name=[%s]." % os.name)
 
 
-def python_arch() -> str:
+def python_arch():
+    # type: (None) -> str
     """
     Get current python interpreter architecture,
     """
@@ -57,7 +60,8 @@ def python_arch() -> str:
     return os.uname()[4]
 
 
-def is_64bit_python() -> bool:
+def is_64bit_python():
+    # type: (None) -> bool
     """
     Detect if python is 64 bit but stay OS agnostic
     """

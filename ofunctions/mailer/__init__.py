@@ -49,8 +49,7 @@ except AttributeError:
         pass
 
 
-if sys.version_info[0] == 2:
-
+if sys.version_info[0] < 3:
     class ConnectionError(OSError):
         pass
 

@@ -15,24 +15,30 @@ Versioning semantics:
 
 __intname__ = "ofunctions.logger_utils"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.0.2"
-__build__ = "2021080201"
+__version__ = "2.1.0"
+__build__ = "2022041401"
+__compat__ = "python3.3+"
 
 import logging
 import os
 import sys
 import tempfile
 from logging.handlers import RotatingFileHandler
-from typing import Union, Tuple
+
+# python 2.7 compat fixes
+try:
+    from typing import Union, Tuple
+except ImportError:
+    pass
 
 # Logging functions ########################################################
 
-FORMATTER = logging.Formatter(u"%(asctime)s :: %(levelname)s :: %(message)s")
+FORMATTER = logging.Formatter("u%(asctime)s :: %(levelname)s :: %(message)s")
 MP_FORMATTER = logging.Formatter(
-    u"%(asctime)s :: %(levelname)s :: %(processName)s :: %(message)s"
+    "u%(asctime)s :: %(levelname)s :: %(processName)s :: %(message)s"
 )
 
 
@@ -44,7 +50,10 @@ class ContextFilterWorstLevel(logging.Filter):
 
     def __init__(self):
         self._worst_level = logging.INFO
-        super().__init__()
+        if sys.version_info[0] < 3:
+            super(logging.Filter, self).__init__()
+        else:
+            super().__init__()
 
     @property
     def worst_level(self):
@@ -54,11 +63,13 @@ class ContextFilterWorstLevel(logging.Filter):
         return self._worst_level
 
     @worst_level.setter
-    def worst_level(self, value: int):
+    def worst_level(self, value):
+        # type: (int) -> None
         if isinstance(value, int):
             self._worst_level = value
 
-    def filter(self, record) -> bool:
+    def filter(self, record):
+        # type: (str) -> bool
         """
         A filter can change the default log output
         This one simply records the worst log level called
@@ -73,8 +84,9 @@ class ContextFilterWorstLevel(logging.Filter):
 
 
 def logger_get_console_handler(
-    multiprocessing_formatter: bool = False,
-) -> Union[logging.StreamHandler, None]:
+    multiprocessing_formatter= False,
+):
+    # type: (bool) -> Union[logging.StreamHandler, None]
     """
     Returns a console handler that outputs as UTF-8 regardless of the platform
     """
@@ -118,8 +130,9 @@ def logger_get_console_handler(
 
 
 def logger_get_file_handler(
-    log_file: str, multiprocessing_formatter: bool = False
-) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]:
+    log_file, multiprocessing_formatter=False
+):
+    # type: (str, bool) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
     """
     Returns a log file handler
     On failire, will return a temporary file log handler
@@ -165,12 +178,13 @@ def logger_get_file_handler(
 
 
 def logger_get_logger(
-    log_file: str = None,
-    temp_log_file: str = None,
-    console: bool = True,
-    debug: bool = False,
-    multiprocessing_formatter: bool = False,
-) -> logging.Logger:
+    log_file=None,  # type: str
+    temp_log_file=None,  # type: str
+    console=True,  # type: bool
+    debug=False, # type: bool
+    multiprocessing_formatter=False  # type: bool
+):
+    # type: (...) -> logging.Logger
     """
     Returns a logger instance, just as logger.getLogger(), configured for console and/or file
     """
@@ -230,3 +244,17 @@ def logger_get_logger(
                 )
     _logger.propagate = True
     return _logger
+
+
+def safe_string_convert(string):
+    """
+    Allows to encode strings for hacky UTF-8 logging in python 2.7
+    """
+
+    try:
+        return string.decode('utf8')
+    except UnicodeDecodeError:
+        try:
+            return string.decode('latin1')
+        except Exception:
+            return("String cannot be decoded. String is lost")
