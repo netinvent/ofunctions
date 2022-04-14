@@ -36,9 +36,9 @@ except ImportError:
 
 # Logging functions ########################################################
 
-FORMATTER = logging.Formatter("u%(asctime)s :: %(levelname)s :: %(message)s")
+FORMATTER = logging.Formatter(u"%(asctime)s :: %(levelname)s :: %(message)s")
 MP_FORMATTER = logging.Formatter(
-    "u%(asctime)s :: %(levelname)s :: %(processName)s :: %(message)s"
+    u"%(asctime)s :: %(levelname)s :: %(processName)s :: %(message)s"
 )
 
 
