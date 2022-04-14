@@ -25,6 +25,7 @@ __compat__ = "python2.7+"
 import json
 import logging
 import os
+import sys
 import re
 import shutil
 from ofunctions import random
@@ -39,6 +40,9 @@ try:
     from typing import Callable, Iterable, Union, Optional
 except ImportError:
     pass
+if sys.version_info[0] < 3:
+    class FileNotFoundError(OSError):
+        pass
 
 from command_runner import command_runner
 
