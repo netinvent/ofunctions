@@ -24,7 +24,7 @@ ofunctions is a set of various recurrent functions amongst
   - get_writable_random_file: Returns a filename of a not-yet existing file we can write into
 - json_sanitize: make sure json does not contain unsupported chars, yes I look at you Windows eventlog
 - logger_utils: basic no brain console + file log creation
-- mailer: send emails regardless of ssl/tls protocols, in batch or as single mail, with attachments
+- mailer: A class to deal with email sending, regardless of ssl/tls protocols, in batch or as single mail, with attachments
 - network: various tools like ping, internet check, MTU probing and public IP discovery
 - platform: nothing special here, just check what arch we are running on
 - process: simple kill-them-all function to terminate subprocesses
@@ -33,11 +33,59 @@ ofunctions is a set of various recurrent functions amongst
 - string_handling: remove accents / special chars from strings
 - threading: threading decorator for functions
 
-It is compatible with Python 3.5+ and is tested on both Linux and Windows.
+ofunctions is compatible with Python 3.5+ and is tested on both Linux and Windows.
+Except ofunctions.mailer which was also backported for Python 2.7+ compatibility.
 
 ## Setup
 
 ```
 pip install ofunctions.<subpackage>
 
+```
+
+
+## Mailer example
+
+```
+pip install ofunctions.mailer
+```
+
+Quick usage:
+```
+from ofunctions.mailer import Mailer
+
+mailer = Mailer()  # Uses localhost:25
+mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails='them@example.com', body='some body just told me')
+```
+
+SmartRelay usage:
+```
+from ofunctions.mailer import Mailer
+
+mailer = Mailer(smtp_server='mail.example.com', smtp_port=587, security='tls', smtp_user='me', smtp_password='secure_p@$$w0rd_lol')
+mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails='them@example.com ; another_recipient@example.com', body='some body just told me')
+```
+
+Bulk mailer usage:
+```
+from ofunctions.mailer import Mailer
+
+recipients = ['me@example.com', 'them@example.com', 'anyone@example.com', 'malformed_address_at_example.com']
+
+mailer = Mailer(smtp_server='mail.example.com', smtp_port=465, security='ssl', debug=True, verify_certificates=False)
+
+# split_mails=True will send one email per recipient
+# split_mails=False will send one email for all recipients, which will be limited to the number of recipients the destination SMTP server allows
+mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails=recipients, body='some body just told me', split_mails=True)
+```
+
+Attachment usage:
+```
+from ofunctions.mailer import Mailer
+
+mailer = Mailer()  # Uses localhost:25
+
+# attachment can be a binary blob or a file path
+# filename is optional, and will rename a binary blob to something more meaningful
+mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails='them@example.com', body='some body just told me', attachment=attachment, filename='My Attachment File.txt')
 ```
