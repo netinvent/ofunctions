@@ -30,11 +30,12 @@ Versioning semantics:
 
 __intname__ = "ofunctions.threading"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "Threading decorator to run functions as threads"
 __licence__ = "BSD 3 Clause"
 __version__ = "0.1.0"
 __build__ = "2019081101"
+__compat__ = "python3.5+"
 
 
 from threading import Thread
