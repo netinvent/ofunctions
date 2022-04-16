@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.2"
-__build__ = "2022041602"
+__version__ = "1.2.0"
+__build__ = "2022041603"
 __compat__ = "python2.7+"
 
 import logging
@@ -30,6 +30,7 @@ import socket
 import ssl
 import sys
 from email import encoders
+from email.header import Header
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -97,6 +98,7 @@ class Mailer:
         security=None,  # type: Optional[str]
         verify_certificates=True,  # type: bool
         hostname=None,  # type: Optional[str]
+        encoding="utf-8",  # type: str
         debug=False,  # type: bool
     ):
         # type: (...) -> None
@@ -107,6 +109,7 @@ class Mailer:
         self.security = security
         self.verify_certificates = verify_certificates
         self.hostname = hostname
+        self.encoding = encoding
         self.debug = debug
 
         # Fix for empty passed auth strings
@@ -154,6 +157,7 @@ class Mailer:
             message["Date"] = formatdate(localtime=False)
             message["LocalDate"] = formatdate(localtime=True)
             message["Message-Id"] = make_msgid()
+            message["Subject"] = Header(subject, self.encoding)
             message["Subject"] = subject
 
             if bcc_mails is not None:
@@ -166,9 +170,9 @@ class Mailer:
             # Add body to email
             if body is not None:
                 if html_enabled:
-                    message.attach(MIMEText(body, "html"))
+                    message.attach(MIMEText(body, "html", self.encoding))
                 else:
-                    message.attach(MIMEText(body, "plain"))
+                    message.attach(MIMEText(body, "plain", self.encoding))
 
             if attachment is not None:
                 att_filename = filename
