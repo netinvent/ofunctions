@@ -15,20 +15,27 @@ Versioning semantics:
 
 __intname__ = "ofunctions.checksums"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "SHA256 Checksumming, manifest file creation and verification"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.3.0"
-__build__ = "2021052601"
+__version__ = "1.0.1"
+__build__ = "2022041501"
+__compat__ = "python2.7+"
 
 
 import os
+import sys
 import hashlib
 from datetime import datetime
 from ofunctions.file_utils import get_paths_recursive
 
+# python 2.7 compat fixes
+if sys.version_info[0] < 3:
+    from io import open as open
 
-def sha256sum(file: str) -> str:
+
+def sha256sum(file):
+    # type: (str) -> str
     """
     Returns the sha256 sum of a file
 
@@ -45,11 +52,12 @@ def sha256sum(file: str) -> str:
                     break
                 sha256.update(data)
         return sha256.hexdigest()
-    except IOError:
-        raise IOError('Cannot create SHA256 sum for file "%s"' % file) from IOError
+    except IOError as exc:
+        raise IOError('Cannot create SHA256 sum for file "%s": %s' % (file, exc))
 
 
-def check_file_hash(file: str, hashsum: str) -> bool:
+def check_file_hash(file, hashsum):
+    # type: (str, str) -> bool
     """
     Checks a file against given sha256sum
 
@@ -72,9 +80,8 @@ def check_file_hash(file: str, hashsum: str) -> bool:
     return False
 
 
-def create_sha256sum_file(
-    directory: str, sumfile: str = "SHA256SUMS.TXT", depth: int = 1
-) -> None:
+def create_sha256sum_file(directory, sumfile="SHA256SUMS.TXT", depth=1):
+    # type: (str, str, int) -> None
     """
     Create a checksum file for a given directory
     This function creates the file on the fly bacause we yield results
@@ -90,7 +97,13 @@ def create_sha256sum_file(
     try:
         sumfile = os.path.join(directory, sumfile)
         with open(sumfile, "w", encoding="utf-8") as file_handle:
-            file_handle.write("# Generated on %s UTC\n\n" % datetime.utcnow())
+            # python 2.7 compat
+            if sys.version_info[0] < 3:
+                file_content = u"# Generated on %s UTC\n\n" % datetime.utcnow()
+            else:
+                file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
+
+            file_handle.write(file_content)
 
             def _get_file_sum(files):
                 for file in files:
@@ -101,13 +114,18 @@ def create_sha256sum_file(
                         )
 
             for line in _get_file_sum(files):
-                file_handle.write(line)
+                # python 2.7 compat
+                if sys.version_info[0] < 3:
+                    file_handle.write(line.decode("unicode-escape"))
+                else:
+                    file_handle.write(line)
                 file_handle.flush()
     except (IOError, OSError):
         raise OSError('Cannot create sum file in "%s".' % directory)
 
 
-def create_manifest_from_dict(manifest_file: str, manifest_dict: dict) -> None:
+def create_manifest_from_dict(manifest_file, manifest_dict):
+    # type: (str, dict) -> None
     """
     Creates a manifest file in the way sha256sum would do under linux
 
@@ -119,17 +137,18 @@ def create_manifest_from_dict(manifest_file: str, manifest_dict: dict) -> None:
         with open(manifest_file, "w", encoding="utf-8") as file_handle:
             for key, value in manifest_dict.items():
                 file_handle.write("{}  {}\n".format(key, value))
-    except IOError:
-        raise IOError('Cannot write manifest file "%s".' % manifest_file) from IOError
+    except IOError as exc:
+        raise IOError('Cannot write manifest file "%s": %s' % (manifest_file, exc))
 
 
 def create_manifest_from_dir(
-    manifest_file: str,
-    path: str,
-    remove_prefixes: list = None,
-    f_exclude_list: list = None,
-    d_exclude_list: list = None,
-) -> None:
+    manifest_file,  # type: str
+    path,  # type: str
+    remove_prefixes=None,  # type: list
+    f_exclude_list=None,  # type: list
+    d_exclude_list=None,  # type: list
+):
+    # type: (...) -> None
     """
     Creates a bash like file manifest with sha256sum and filenames
     Just like create_sha256sum_file() except we keep full paths and may remove prefixes
@@ -157,4 +176,8 @@ def create_manifest_from_dir(
             for prefix in remove_prefixes if remove_prefixes is not None else []:
                 if file.startswith(prefix):
                     file = file[len(prefix) :].lstrip(os.sep)
-            file_handle.write("{}  {}\n".format(sha256, file))
+            if sys.version_info[0] < 3:
+                file_content = u"{}  {}\n".format(sha256, file)
+            else:
+                file_content = "{}  {}\n".format(sha256, file)
+            file_handle.write(file_content)
