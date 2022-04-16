@@ -34,7 +34,13 @@ ofunctions is a set of various recurrent functions amongst
 - threading: threading decorator for functions
 
 ofunctions is compatible with Python 3.5+ and is tested on both Linux and Windows.
-Except ofunctions.mailer which was also backported for Python 2.7+ compatibility.
+Still, most packages will work with Python 2.7+, but are only manually tested sometimes (it's a real pain to get python 2.7 CI to work).
+Here's a list of notorious bad packages that won't play well with Python 2.7:
+- delayed_keyboardinterrupt (signal handling is different)
+- threading (we don't have concurrent_futures in python 2.7)
+
+All other packages should play fairly nice even with Python 2.7.
+
 
 ## Setup
 
@@ -43,8 +49,31 @@ pip install ofunctions.<subpackage>
 
 ```
 
+## bisection Usage
 
-## Mailer example
+## checksums Usage
+
+## csv Usage
+
+## delayed_keyboardinterrupt Usage
+
+## file_utils Usage
+
+ofuntions.file_utils is a collection of tools to handle:
+- listing of paths
+
+
+```
+pip install ofunctions.file_utils
+```
+
+## json_sanitize Usage
+
+## logger_utils Usage
+
+## mailer Usage
+
+ofunctions.mailer is a simple mailing class and a rfc822 email validation function.
 
 ```
 pip install ofunctions.mailer
@@ -89,3 +118,17 @@ mailer = Mailer()  # Uses localhost:25
 # filename is optional, and will rename a binary blob to something more meaningful
 mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails='them@example.com', body='some body just told me', attachment=attachment, filename='My Attachment File.txt')
 ```
+
+## network Usage
+
+## platform Usage
+
+## process Usage
+
+## random Usage
+
+## service_control Usage
+
+## string_handling Usage
+
+## threading Usage
