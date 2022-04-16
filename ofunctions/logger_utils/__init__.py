@@ -18,9 +18,9 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.1.0"
-__build__ = "2022041401"
-__compat__ = "python3.3+"
+__version__ = "2.2.0"
+__build__ = "2022041601"
+__compat__ = "python2.7+"
 
 import logging
 import os
@@ -42,10 +42,26 @@ MP_FORMATTER = logging.Formatter(
 )
 
 
-# Allows to change default logging output or record events
+class FixPython2Logging(logging.Filter):
+    def __init__(self):
+        self._worst_level = logging.INFO
+        if sys.version_info[0] < 3:
+            super(logging.Filter, self).__init__()
+        else:
+            super().__init__()
+
+    def filter(self, record):
+        # type: (str) -> bool
+        # Fix python2 unicodedecodeerrors when non unicode strings are sent to logger
+        if sys.version_info[0] < 3:
+            record.msg = safe_string_convert(record.msg)
+        return True
+
+
 class ContextFilterWorstLevel(logging.Filter):
     """
     This class records the worst loglevel that was called by logger
+    Allows to change default logging output or record events
     """
 
     def __init__(self):
@@ -107,7 +123,9 @@ def logger_get_console_handler(
             # import codecs
             # sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
         except AttributeError:
-            print("Cannot force console encoding.")
+            pass
+            # print("Cannot force console encoding.")
+            # Python2 does not have ssys.stdout.reconfigure
             # IPython interpreter does not know about sys.stdout.reconfigure function
             # Neither does it now detach or fileno()
             # sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', errors='backslashreplace', buffering=1)
@@ -189,7 +207,6 @@ def logger_get_logger(
     Returns a logger instance, just as logger.getLogger(), configured for console and/or file
     """
     # If a name is given to getLogger, than modules can't log to the root logger
-    log_filter = ContextFilterWorstLevel()
     _logger = logging.getLogger()
 
     # Remove earlier handlers if exist
@@ -197,7 +214,8 @@ def logger_get_logger(
         _logger.handlers.pop()
 
     # Add context filter
-    _logger.addFilter(log_filter)
+    _logger.addFilter(FixPython2Logging())
+    _logger.addFilter(ContextFilterWorstLevel())
 
     if debug:
         _logger.setLevel(logging.DEBUG)
@@ -253,8 +271,28 @@ def safe_string_convert(string):
 
     try:
         return string.decode('utf8')
-    except UnicodeDecodeError:
+    except Exception:  # noqa
         try:
-            return string.decode('latin1')
-        except Exception:
-            return("String cannot be decoded. String is lost")
+            return string.decode('unicode-escape')
+        except Exception:  # noqa
+            try:
+                return string.decode('latin1')
+            except Exception:  # noqa
+                if sys.version_info[0] < 3:
+                    if isinstance(string, unicode):  # noqa
+                        return string
+                try:
+                    return(b"Cannot convert logged string. Passing it as binary blob: " + bytes(string))
+                except Exception:  # noqa
+                    return string
+
+
+def get_worst_logger_level(_logger):
+    # type (logging.Logger) -> int
+    """
+    Return the worst log level called
+    """
+    for flt in _logger.filters:
+        if isinstance(flt, ContextFilterWorstLevel):
+            return flt.worst_level
+    return 0
