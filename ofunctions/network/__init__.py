@@ -15,35 +15,44 @@ Versioning semantics:
 
 __intname__ = "ofunctions.network"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.1"
-__build__ = "2021122201"
+__version__ = "1.1.1"
+__build__ = "2022041501"
+__compat__ = "python2.7+"
 
+import logging
 import os
-from ofunctions import bisection
-from typing import List, Tuple, Union, Iterable, Optional
-from ipaddress import IPv6Address, AddressValueError
-from command_runner import command_runner
-from requests import get
 import socket
 import warnings
-import logging
+from ipaddress import IPv6Address, AddressValueError
+
+from command_runner import command_runner
+from requests import get
+
+from ofunctions import bisection
+
+# python 2.7 compat fixes
+try:
+    from typing import List, Tuple, Union, Iterable, Optional
+except ImportError:
+    pass
 
 logger = logging.getLogger()
 
 
 def ping(
-    targets: Union[Iterable[str], str] = None,
-    mtu: int = 1200,
-    retries: int = 2,
-    timeout: float = 4,
-    interval: float = 1,
-    ip_type: int = None,
-    do_not_fragment: bool = False,
-    all_targets_must_succeed: bool = False,
-) -> bool:
+    targets=None,  # type: Union[Iterable[str], str]
+    mtu=1200,  # type: int
+    retries=2,  # type: int
+    timeout=4,  # type: float
+    interval=1,  # type: float
+    ip_type=None,  # type : int
+    do_not_fragment=False,  # type: bool
+    all_targets_must_succeed=False,  # type: bool
+):
+    # type: (...) -> bool
     """
     Tests if ICMP ping works
     IF all targets_must_succeed is False, at least one good result gives a positive result
@@ -70,9 +79,7 @@ def ping(
         # Cloudflare, Google and OpenDNS dns servers
         targets = ["1.1.1.1", "8.8.8.8", "208.67.222.222"]
 
-    def _try_server(target):
-        nonlocal retries
-
+    def _try_server(target, retries):
         if os.name == "nt":
             # -4/-6: IPType
             # -n ...: number of packets to send
@@ -123,7 +130,7 @@ def ping(
 
     # Handle the case when a user gives a single target instead of a list
     for target in targets if isinstance(targets, list) else [targets]:
-        if _try_server(target):
+        if _try_server(target, retries):
             if not all_targets_must_succeed:
                 all_ping_results = True
                 break
@@ -135,7 +142,8 @@ def ping(
     return all_ping_results
 
 
-def resolve_hostname(host: str) -> Optional[list]:
+def resolve_hostname(host):
+    # type: (str) -> Optional[list]
     """
     Resolves a hostname
     """
@@ -143,14 +151,20 @@ def resolve_hostname(host: str) -> Optional[list]:
 
     try:
         # Port is required
-        for result in socket.getaddrinfo(host=host, port=0, type=socket.SOCK_STREAM):
+        # python 2.7 getaddrinfo does not take keyword arguments
+        # for result in socket.getaddrinfo(host=host, port=0, type=socket.SOCK_STREAM):
+        for result in socket.getaddrinfo(host, 0, socket.SOCK_STREAM):
             ip_list.append(str(result[4][0]))
     except socket.gaierror:
         logger.info('Cannot resolve hostname "{}"'.format(host))
     return ip_list
 
 
-def proxy_dict(proxy: str) -> Union[dict, None]:
+def proxy_dict(proxy):
+    # type: (str) -> Optional[dict]
+    """
+    Transform a simple proxy URL into a dict
+    """
     if proxy is not None:
         if proxy.startswith("http"):
             return {"http": proxy.strip("http://")}
@@ -160,12 +174,13 @@ def proxy_dict(proxy: str) -> Union[dict, None]:
 
 
 def test_http_internet(
-    fqdn_servers: List[str] = None,
-    ip_servers: List[str] = None,
-    proxy: str = None,
-    timeout: int = 5,
-    all_targets_must_succeed: bool = False,
-) -> bool:
+    fqdn_servers=None,  # type: List[str]
+    ip_servers=None,  # type: List[str]
+    proxy=None,  # type: str
+    timeout=5,  # type: int
+    all_targets_must_succeed=False,  # type: bool
+):
+    # type: (...) -> bool
     """
     Tests if http(s) internet works
     At least one good result gives a positive result
@@ -187,7 +202,8 @@ def test_http_internet(
 
     diag_messages = ""
 
-    def _try_server(server: str, proxy_dict: dict) -> Tuple[bool, str]:
+    def _try_server(server, proxy_dict):
+        # type: (str, dict) -> Tuple[bool, str]
         diag_messages = ""
 
         # With optional proxy
@@ -288,9 +304,8 @@ def test_http_internet(
     return True
 
 
-def get_public_ip(
-    check_services=None, proxy: str = None, timeout: int = 5
-) -> Optional[str]:
+def get_public_ip(check_services=None, proxy=None, timeout=5):
+    # type: (list, str, int) -> Optional[str]
     """
     Get public IP address from one of the various web services
     """
@@ -302,7 +317,8 @@ def get_public_ip(
             "http://ifconfig.me/ip",
         ]
 
-    def _try_server(server: str, proxy_dict: dict) -> Optional[str]:
+    def _try_server(server, proxy_dict):
+        # type: (str, dict) -> Optional[str]
         # With optional proxy
         try:
             with warnings.catch_warnings():
@@ -333,7 +349,8 @@ def get_public_ip(
             return result
 
 
-def probe_mtu(target: str, method: str = "ICMP", min: int = 1100, max: int = 9000):
+def probe_mtu(target, method="ICMP", min=1100, max=9000):
+    # type: (str, str, int, int) -> int
     """
     Detects MTU to target
     Probing can take up to 15-20 seconds
