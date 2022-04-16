@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.1"
-__build__ = "2022041601"
+__version__ = "1.1.2"
+__build__ = "2022041602"
 __compat__ = "python2.7+"
 
 import logging
@@ -166,9 +166,9 @@ class Mailer:
             # Add body to email
             if body is not None:
                 if html_enabled:
-                    message.attach(MIMEText(body, "html"))
+                    message.attach(MIMEText(body, "html", 'utf-8'))
                 else:
-                    message.attach(MIMEText(body, "plain"))
+                    message.attach(MIMEText(body, "plain", 'utf-8'))
 
             if attachment is not None:
                 att_filename = filename
