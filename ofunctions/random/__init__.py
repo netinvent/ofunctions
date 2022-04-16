@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.random"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Simple random string generator including password generator"
 __licence__ = "BSD 3 Clause"
 __version__ = "0.2.0"
@@ -27,9 +27,7 @@ import string
 import random
 
 
-def random_string(
-    size=8, chars=string.ascii_letters + string.digits
-):
+def random_string(size=8, chars=string.ascii_letters + string.digits):
     # type: (int, list) -> str
     """
     Simple password generator function
