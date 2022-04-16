@@ -13,6 +13,9 @@ Versioning semantics:
 
 """
 
+# python 2.7 compat fixes
+from __future__ import unicode_literals
+
 __intname__ = "ofunctions.checksums"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
@@ -97,12 +100,8 @@ def create_sha256sum_file(directory, sumfile="SHA256SUMS.TXT", depth=1):
     try:
         sumfile = os.path.join(directory, sumfile)
         with open(sumfile, "w", encoding="utf-8") as file_handle:
-            # python 2.7 compat
-            if sys.version_info[0] < 3:
-                file_content = u"# Generated on %s UTC\n\n" % datetime.utcnow()
-            else:
-                file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
-
+            # python 2.7 compat 'u' replaced by unicode_literals
+            file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
             file_handle.write(file_content)
 
             def _get_file_sum(files):
@@ -114,7 +113,6 @@ def create_sha256sum_file(directory, sumfile="SHA256SUMS.TXT", depth=1):
                         )
 
             for line in _get_file_sum(files):
-                # python 2.7 compat
                 if sys.version_info[0] < 3:
                     file_handle.write(line.decode("unicode-escape"))
                 else:
@@ -136,10 +134,8 @@ def create_manifest_from_dict(manifest_file, manifest_dict):
     try:
         with open(manifest_file, "w", encoding="utf-8") as file_handle:
             for key, value in manifest_dict.items():
-                if sys.version_info[0] < 3:
-                    content = u"{}  {}\n".format(key, value)
-                else:
-                    content = "{}  {}\n".format(key, value)
+                # python 2.7 compat 'u' replaced by unicode_literals
+                content = "{}  {}\n".format(key, value)
                 file_handle.write(content)
     except IOError as exc:
         raise IOError('Cannot write manifest file "%s": %s' % (manifest_file, exc))
@@ -180,8 +176,6 @@ def create_manifest_from_dir(
             for prefix in remove_prefixes if remove_prefixes is not None else []:
                 if file.startswith(prefix):
                     file = file[len(prefix) :].lstrip(os.sep)
-            if sys.version_info[0] < 3:
-                file_content = u"{}  {}\n".format(sha256, file)
-            else:
-                file_content = "{}  {}\n".format(sha256, file)
+            # python 2.7 compat 'u' replaced by unicode_literals
+            file_content = "{}  {}\n".format(sha256, file)
             file_handle.write(file_content)
