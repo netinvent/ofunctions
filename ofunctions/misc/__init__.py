@@ -15,19 +15,27 @@ Versioning semantics:
 
 __intname__ = "ofunctions.misc"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.2.0"
 __build__ = "2021060301"
+__compat__ = "python2.7+"
 
-from typing import Union, List
+
+# python 2.7 compat fixes
+try:
+    from typing import Optional, List, Any
+except ImportError:
+    pass
+
 
 # Restrict number n between minimum and maximum
 restrict_numbers = lambda n, n_min, n_max: max(min(n_max, n), n_min)
 
 
-def rot13(string: str) -> Union[str, None]:
+def rot13(string):
+    # type: (str) -> Optional[str]
     """
     Rot13 for only A-Z and a-z characters
     """
@@ -44,12 +52,12 @@ def rot13(string: str) -> Union[str, None]:
         return None
 
 
-def bytes_to_string(
-    bytes_to_convert: List[int], strip_null: bool = False
-) -> Union[str, None]:
+def bytes_to_string(bytes_to_convert, strip_null=False):
+    # type: (List[int], bool) -> Optional[str]
     """
     Litteral bytes to string
     :param bytes_to_convert: list of bytes in integer format
+    :param strip_null: Remove trailing and ending null bytes
     :return: resulting string
     """
     try:
@@ -62,7 +70,8 @@ def bytes_to_string(
         return None
 
 
-def time_is_between(current_time: str, time_range: tuple) -> bool:
+def time_is_between(current_time, time_range):
+    # type: (str, tuple) -> bool
     """
     https://stackoverflow.com/a/45265202/2635443
     print(is_between("11:00", ("09:00", "16:00")))  # True
@@ -75,21 +84,24 @@ def time_is_between(current_time: str, time_range: tuple) -> bool:
     return time_range[0] <= current_time <= time_range[1]
 
 
-def reverse_dict(dictionary: dict) -> dict:
+def reverse_dict(dictionary):
+    # type: (dict) -> dict
     """
     Return a reversed dictionary ie {value: key}
     """
     return {value: key for key, value in dictionary.items()}
 
 
-def get_key_from_value(haystack: dict, needle: str):
+def get_key_from_value(haystack, needle):
+    # type: (dict, str) -> str
     """
     Returns a dict key by it's value, ie get_key_from_value({key: value}, value) returns key
     """
     return next((k for k, v in haystack.items() if v == needle), None)
 
 
-def is_nan(var) -> bool:
+def is_nan(var):
+    # type: (Any) -> bool
     """
     Simple check if a variable is a numpy NaN
     based on the simple check where (nan is nan) gives True but (nan == nan) gives False
