@@ -201,13 +201,13 @@ class Mailer:
             text = message.as_string()
 
             try:
-                if self.security.lower() in ['ssl', 'tls']:
+                if self.security and self.security.lower() in ['ssl', 'tls']:
                     context = ssl.create_default_context()
                     if not self.verify_certificates:
                         context.check_hostname = False
                         context.verify_mode = False
 
-                if self.security.lower() == "ssl":
+                if self.security and self.security.lower() == "ssl":
                     remote_server = smtplib.SMTP_SSL(
                         self.smtp_server,
                         self.smtp_port,
