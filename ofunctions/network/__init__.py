@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.1"
-__build__ = "2022041501"
+__version__ = "1.2.0"
+__build__ = "2022041601"
 __compat__ = "python2.7+"
 
 import logging
@@ -79,7 +79,7 @@ def ping(
         # Cloudflare, Google and OpenDNS dns servers
         targets = ["1.1.1.1", "8.8.8.8", "208.67.222.222"]
 
-    def _try_server(target, retries):
+    def _ping_host(target, retries):
         if os.name == "nt":
             # -4/-6: IPType
             # -n ...: number of packets to send
@@ -130,7 +130,7 @@ def ping(
 
     # Handle the case when a user gives a single target instead of a list
     for target in targets if isinstance(targets, list) else [targets]:
-        if _try_server(target, retries):
+        if _ping_host(target, retries):
             if not all_targets_must_succeed:
                 all_ping_results = True
                 break
@@ -173,6 +173,40 @@ def proxy_dict(proxy):
     return None
 
 
+def _try_server(server, proxy_dict, timeout):
+    # (str, dict, int, bool) -> Tuple[bool, str]
+    diag_messages = ""
+
+    # With optional proxy
+    try:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=Warning)
+            r = get(server, proxies=proxy_dict, verify=False, timeout=timeout)
+        status_code = r.status_code
+    except Exception as exc:
+        diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
+        status_code = -1
+    if status_code == 200:
+        return (True, r.text)
+    else:
+        # Check without proxy (if set)
+        if proxy_dict is not None:
+            try:
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=Warning)
+                    r = get(server, verify=False, timeout=timeout)
+                status_code = r.status_code
+            except Exception as exc:
+                diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
+                status_code = -2
+            if status_code == 200:
+                return (True, r.text)
+        diag_messages = "{0}\nCould not connect to [{1}], http error {2}.".format(
+            diag_messages, server, status_code
+        )
+        return (False, diag_messages)
+
+
 def test_http_internet(
     fqdn_servers=None,  # type: List[str]
     ip_servers=None,  # type: List[str]
@@ -202,40 +236,6 @@ def test_http_internet(
 
     diag_messages = ""
 
-    def _try_server(server, proxy_dict):
-        # type: (str, dict) -> Tuple[bool, str]
-        diag_messages = ""
-
-        # With optional proxy
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=Warning)
-                r = get(server, proxies=proxy_dict, verify=False, timeout=timeout)
-            status_code = r.status_code
-        except Exception as exc:
-            diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
-            status_code = -1
-        if status_code == 200:
-            return True, diag_messages
-        else:
-            # Check without proxy (if set)
-            if proxy_dict is not None:
-                try:
-                    with warnings.catch_warnings():
-                        warnings.filterwarnings("ignore", category=Warning)
-                        r = get(server, verify=False, timeout=timeout)
-                    status_code = r.status_code
-                except Exception as exc:
-                    diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
-                    status_code = -2
-                if status_code == 200:
-                    # diag_messages = diag_messages + f'\nCould connect to [{server}].'
-                    return True, diag_messages
-            diag_messages = "{0}\nCould not connect to [{1}], http error {2}.".format(
-                diag_messages, server, status_code
-            )
-            return False, diag_messages
-
     if all_targets_must_succeed:
         fqdn_success = True
         ip_success = True
@@ -245,7 +245,7 @@ def test_http_internet(
     dns_resolver_works = False
 
     for fqdn_server in fqdn_servers:
-        result, diag = _try_server(fqdn_server, proxy_dict(proxy))
+        result, diag = _try_server(fqdn_server, proxy_dict(proxy), timeout)
         diag_messages = diag_messages + diag
         if result:
             if not all_targets_must_succeed:
@@ -264,7 +264,7 @@ def test_http_internet(
                 break
 
     for ip_server in ip_servers:
-        result, diag = _try_server(ip_server, proxy_dict(proxy))
+        result, diag = _try_server(ip_server, proxy_dict(proxy), timeout)
         diag_messages = diag_messages + diag
         if result:
             if not all_targets_must_succeed:
@@ -312,41 +312,18 @@ def get_public_ip(check_services=None, proxy=None, timeout=5):
     if check_services is None:
         check_services = [
             "https://ident.me",
-            "https://api.ipify.org",
             "http://ipinfo.io/ip",
             "http://ifconfig.me/ip",
+            "https://ifconfig.me/ip",
+            "http://api.ipify.org",
+            "https://api.ipify.org",
         ]
 
-    def _try_server(server, proxy_dict):
-        # type: (str, dict) -> Optional[str]
-        # With optional proxy
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=Warning)
-                r = get(server, proxies=proxy_dict, verify=False, timeout=timeout)
-            status_code = r.status_code
-        except Exception as exc:
-            status_code = -1
-        if status_code == 200:
-            return r.text
-        else:
-            # Check without proxy (if set)
-            if proxy_dict is not None:
-                try:
-                    with warnings.catch_warnings():
-                        warnings.filterwarnings("ignore", category=Warning)
-                        r = get(server, verify=False, timeout=timeout)
-                    status_code = r.status_code
-                except Exception as exc:
-                    status_code = -2
-                if status_code == 200:
-                    return r.text
-        return None
-
     for check_service in check_services:
-        result = _try_server(check_service, proxy_dict=proxy_dict(proxy))
+        result, content = _try_server(check_service, proxy_dict=proxy_dict(proxy), timeout=timeout)
         if result:
-            return result
+            return content
+    return None
 
 
 def probe_mtu(target, method="ICMP", min=1100, max=9000):
@@ -385,7 +362,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000):
             # Bisection failed, let's check if at least ping works to target
             result = ping(target, 28, 2, 4, 1, ip_type)
             if not result:
-                raise OSError(
+                raise ValueError(
                     'ICMP request on target "{}" failed. Cannot determine MTU.'.format(
                         target
                     )
