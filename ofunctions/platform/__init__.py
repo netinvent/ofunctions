@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.0"
-__build__ = "2022041401"
+__version__ = "1.1.1"
+__build__ = "2022041601"
 __compat__ = "python2.7+"
 
 import os
@@ -48,7 +48,7 @@ def get_os():
 def python_arch():
     # type: (None) -> str
     """
-    Get current python interpreter architecture,
+    Get current python interpreter architecture
     """
     if get_os() == "Windows":
         if "AMD64" in sys.version:
@@ -57,7 +57,10 @@ def python_arch():
 
     # uname property does not exist under windows
     # pylint: disable=E1101
-    return os.uname()[4]
+    arch = os.uname()[4]
+    if 'x64' in arch.lower():
+        return "x64"
+    return "x86"
 
 
 def is_64bit_python():
