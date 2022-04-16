@@ -14,11 +14,12 @@ __intname__ = "tests.ofunctions.logger_utils"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2022041601"
+__build__ = "2022041602"
 
 import logging
 
 from ofunctions.logger_utils import *
+from ofunctions.file_utils import get_writable_random_file
 
 
 def test_worst_logged_level():
@@ -70,7 +71,12 @@ def test_logger_ger_logger():
     """
     Should be tested on Python 2.7
     """
-    logger = logger_get_logger(console=True)
+    logger = logger_get_logger(log_file=get_writable_random_file())
+    logger.info("Café unicode accent")
+
+
+def test_logger_nonwritable_logger():
+    logger = logger_get_logger(log_file="/abc/def/nonexistent/filepath")
     logger.info("Café unicode accent")
 
 
