@@ -320,7 +320,9 @@ def get_public_ip(check_services=None, proxy=None, timeout=5):
         ]
 
     for check_service in check_services:
-        result, content = _try_server(check_service, proxy_dict=proxy_dict(proxy), timeout=timeout)
+        result, content = _try_server(
+            check_service, proxy_dict=proxy_dict(proxy), timeout=timeout
+        )
         if result:
             return content
     return None

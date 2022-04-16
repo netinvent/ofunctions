@@ -65,4 +65,4 @@ def is_64bit_python():
     """
     Detect if python is 64 bit but stay OS agnostic
     """
-    return sys.maxsize > 2 ** 32
+    return sys.maxsize > 2**32

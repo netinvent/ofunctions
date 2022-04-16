@@ -39,6 +39,7 @@ if sys.version_info[0] < 3:
 # Use OrderedDict for Python < 3.6 since csv.DictReader won't have ordered output
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 6):
     from collections import OrderedDict
+
     use_OrderedDict = True
 else:
     use_OrderedDict = False

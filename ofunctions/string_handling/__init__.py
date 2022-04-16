@@ -66,7 +66,7 @@ def strip_non_alnum_characters(string, keep_accents=True):
     """
     if keep_accents:
         if sys.version_info[0] < 3:
-            regex = u"[^a-zA-Z0-9À-ÖØ-öø-ÿ]"
+            regex = "[^a-zA-Z0-9À-ÖØ-öø-ÿ]"
         else:
             regex = "[^a-zA-Z0-9À-ÖØ-öø-ÿ]"
     else:

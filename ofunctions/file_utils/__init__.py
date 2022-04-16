@@ -54,7 +54,6 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 4:
     def timestamp(date):
         return time.mktime(date.timetuple())
 
-
 else:
 
     def timestamp(date):

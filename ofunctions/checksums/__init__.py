@@ -99,7 +99,7 @@ def create_sha256sum_file(directory, sumfile="SHA256SUMS.TXT", depth=1):
         with open(sumfile, "w", encoding="utf-8") as file_handle:
             # python 2.7 compat
             if sys.version_info[0] < 3:
-                file_content = u"# Generated on %s UTC\n\n" % datetime.utcnow()
+                file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
             else:
                 file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
 
@@ -177,7 +177,7 @@ def create_manifest_from_dir(
                 if file.startswith(prefix):
                     file = file[len(prefix) :].lstrip(os.sep)
             if sys.version_info[0] < 3:
-                file_content = u"{}  {}\n".format(sha256, file)
+                file_content = "{}  {}\n".format(sha256, file)
             else:
                 file_content = "{}  {}\n".format(sha256, file)
             file_handle.write(file_content)

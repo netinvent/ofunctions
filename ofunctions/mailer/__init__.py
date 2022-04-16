@@ -166,9 +166,9 @@ class Mailer:
             # Add body to email
             if body is not None:
                 if html_enabled:
-                    message.attach(MIMEText(body, "html", 'utf-8'))
+                    message.attach(MIMEText(body, "html", "utf-8"))
                 else:
-                    message.attach(MIMEText(body, "plain", 'utf-8'))
+                    message.attach(MIMEText(body, "plain", "utf-8"))
 
             if attachment is not None:
                 att_filename = filename
@@ -201,7 +201,7 @@ class Mailer:
             text = message.as_string()
 
             try:
-                if self.security and self.security.lower() in ['ssl', 'tls']:
+                if self.security and self.security.lower() in ["ssl", "tls"]:
                     context = ssl.create_default_context()
                     if not self.verify_certificates:
                         context.check_hostname = False
