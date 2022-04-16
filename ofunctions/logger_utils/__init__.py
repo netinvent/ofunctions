@@ -100,7 +100,7 @@ class ContextFilterWorstLevel(logging.Filter):
 
 
 def logger_get_console_handler(
-    multiprocessing_formatter= False,
+    multiprocessing_formatter=False,
 ):
     # type: (bool) -> Union[logging.StreamHandler, None]
     """
@@ -147,9 +147,7 @@ def logger_get_console_handler(
         return console_handler
 
 
-def logger_get_file_handler(
-    log_file, multiprocessing_formatter=False
-):
+def logger_get_file_handler(log_file, multiprocessing_formatter=False):
     # type: (str, bool) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
     """
     Returns a log file handler
@@ -199,8 +197,8 @@ def logger_get_logger(
     log_file=None,  # type: str
     temp_log_file=None,  # type: str
     console=True,  # type: bool
-    debug=False, # type: bool
-    multiprocessing_formatter=False  # type: bool
+    debug=False,  # type: bool
+    multiprocessing_formatter=False,  # type: bool
 ):
     # type: (...) -> logging.Logger
     """
@@ -270,19 +268,22 @@ def safe_string_convert(string):
     """
 
     try:
-        return string.decode('utf8')
+        return string.decode("utf8")
     except Exception:  # noqa
         try:
-            return string.decode('unicode-escape')
+            return string.decode("unicode-escape")
         except Exception:  # noqa
             try:
-                return string.decode('latin1')
+                return string.decode("latin1")
             except Exception:  # noqa
                 if sys.version_info[0] < 3:
                     if isinstance(string, unicode):  # noqa
                         return string
                 try:
-                    return(b"Cannot convert logged string. Passing it as binary blob: " + bytes(string))
+                    return (
+                        b"Cannot convert logged string. Passing it as binary blob: "
+                        + bytes(string)
+                    )
                 except Exception:  # noqa
                     return string
 
