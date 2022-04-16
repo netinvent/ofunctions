@@ -15,19 +15,25 @@ Versioning semantics:
 
 __intname__ = "ofunctions.json_sanitize"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
 __description__ = "Simple tool that filters unwanted characters including non printable from JSON objects"
 __licence__ = "BSD 3 Clause"
 __version__ = "0.1.1"
 __build__ = "2020102801"
+__compat__ = "python2.7+"
+
 
 import re
-from typing import Union
+
+# python 2.7 compat fixes
+try:
+    from typing import Union
+except ImportError:
+    pass
 
 
-def json_sanitize(
-    value: Union[str, dict, list], is_value=True
-) -> Union[str, dict, list]:
+def json_sanitize(value, is_value=True):
+    # type: (Union[str, dict, dict], bool) -> Union[str, dict, list]
     """
     Modified version of https://stackoverflow.com/a/45526935/2635443
 
