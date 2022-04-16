@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "SHA256 Checksumming, manifest file creation and verification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.1"
-__build__ = "2022041501"
+__version__ = "1.0.2"
+__build__ = "2022041601"
 __compat__ = "python2.7+"
 
 
@@ -99,7 +99,7 @@ def create_sha256sum_file(directory, sumfile="SHA256SUMS.TXT", depth=1):
         with open(sumfile, "w", encoding="utf-8") as file_handle:
             # python 2.7 compat
             if sys.version_info[0] < 3:
-                file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
+                file_content = u"# Generated on %s UTC\n\n" % datetime.utcnow()
             else:
                 file_content = "# Generated on %s UTC\n\n" % datetime.utcnow()
 
@@ -136,7 +136,11 @@ def create_manifest_from_dict(manifest_file, manifest_dict):
     try:
         with open(manifest_file, "w", encoding="utf-8") as file_handle:
             for key, value in manifest_dict.items():
-                file_handle.write("{}  {}\n".format(key, value))
+                if sys.version_info[0] < 3:
+                    content = u"{}  {}\n".format(key, value)
+                else:
+                    content = "{}  {}\n".format(key, value)
+                file_handle.write(content)
     except IOError as exc:
         raise IOError('Cannot write manifest file "%s": %s' % (manifest_file, exc))
 
@@ -177,7 +181,7 @@ def create_manifest_from_dir(
                 if file.startswith(prefix):
                     file = file[len(prefix) :].lstrip(os.sep)
             if sys.version_info[0] < 3:
-                file_content = "{}  {}\n".format(sha256, file)
+                file_content = u"{}  {}\n".format(sha256, file)
             else:
                 file_content = "{}  {}\n".format(sha256, file)
             file_handle.write(file_content)
