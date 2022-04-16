@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.1.1"
-__build__ = "2022041501"
+__build__ = "2022041601"
 __compat__ = "python2.7+"
 
 import logging
@@ -201,22 +201,17 @@ class Mailer:
             text = message.as_string()
 
             try:
-                if self.security == "ssl":
+                if self.security.lower() in ['ssl', 'tls']:
                     context = ssl.create_default_context()
                     if not self.verify_certificates:
                         context.check_hostname = False
                         context.verify_mode = False
+
+                if self.security.lower() == "ssl":
                     remote_server = smtplib.SMTP_SSL(
                         self.smtp_server,
                         self.smtp_port,
                     )
-
-                elif self.security == "tls":
-                    context = ssl.create_default_context()
-                    if not self.verify_certificates:
-                        context.check_hostname = False
-                        context.verify_mode = False
-                    remote_server = smtplib.SMTP(self.smtp_server, self.smtp_port)
                 else:
                     # Standard SMTP transaction without security
                     remote_server = smtplib.SMTP(self.smtp_server, self.smtp_port)
