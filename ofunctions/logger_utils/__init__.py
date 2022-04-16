@@ -164,7 +164,7 @@ def logger_get_file_handler(log_file, multiprocessing_formatter=False):
         file_handler = RotatingFileHandler(
             log_file, mode="a", encoding="utf-8", maxBytes=1048576, backupCount=3
         )
-    except OSError as exc:
+    except (OSError, IOError) as exc:
         try:
             print(
                 "Cannot create logfile. Trying to obtain temporary log file.\nMessage: %s"
