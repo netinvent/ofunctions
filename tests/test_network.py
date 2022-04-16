@@ -13,9 +13,9 @@ Versioning semantics:
 
 __intname__ = "tests.ofunctions.network"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2021122301"
+__build__ = "2022041601"
 
 
 # Use logging so we se actual output of probe_mtu
@@ -91,13 +91,6 @@ def test_ping():
         result is False
     ), "Failing hosts should make all_targets_must_succeed=True ping fail"
 
-    # Make sure http://1.1.1.1 or http://1.0.0.1 (or whatever you want to test) works, at least one of those two
-    result = test_http_internet(ip_servers=["http://1.1.1.1", "http://1.0.0.1"])
-    print("HTTP result: %s" % result)
-    assert result is True, (
-        "Cannot check http internet. This test may fail if the host"
-        "does not have internet indeed."
-    )
 
 
 def test_test_http_internet():
@@ -140,6 +133,14 @@ def test_test_http_internet():
         "This test may fail if the host does not have internet indeed."
     )
 
+    # Make sure http://1.1.1.1 or http://1.0.0.1 (or whatever you want to test) works, at least one of those two
+    result = test_http_internet(ip_servers=["http://1.1.1.1", "http://1.0.0.1"])
+    print("HTTP result: %s" % result)
+    assert result is True, (
+        "Cannot check http internet. This test may fail if the host"
+        "does not have internet indeed."
+    )
+
 
 def test_get_public_ip():
     result = get_public_ip()
@@ -162,23 +163,29 @@ def test_probe_mtu():
     print("Internet MTU: %s" % result)
     assert 1492 < result < 1501, "Internet MTU should be 1492<=mtu<=1500"
 
-    # Should return an OSError
+    # Should return a ValueError
     try:
         probe_mtu("1.2.3.4.5.6.7.8.")
-    except OSError:
+    except ValueError:
         assert True, "Non IP entry cannot be probed, obviously"
+    else:
+        assert False, "Non IP entry was probed !"
 
     # Should return a ValueError
     try:
         probe_mtu("127.0.0.1", min=2)
     except ValueError:
         assert True, "MTU should not be lower than 28"
+    else:
+        assert False, "MTU lower than 28 did not raise an exception"
 
     # Should return a ValueError
     try:
         probe_mtu("127.0.0.1", method="TCP")
     except ValueError:
         assert True, "Unknown method"
+    else:
+        assert False, "Unknown MTU probe method did not raise an exception"
 
 
 if __name__ == "__main__":
