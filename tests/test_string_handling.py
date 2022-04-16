@@ -15,9 +15,11 @@ __intname__ = "tests.ofunctions.string_handling"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2022041601"
+__build__ = "2022041602"
+
 
 import sys
+import os
 from ofunctions.string_handling import *
 
 
