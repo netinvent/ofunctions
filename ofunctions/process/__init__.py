@@ -15,17 +15,24 @@ Versioning semantics:
 
 __intname__ = "ofunctions.process"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Shorthand for killing an entire process tree"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.0"
-__build__ = "2021100601"
+__version__ = "1.3.0"
+__build__ = "2022041501"
+__compat__ = "python2.7+"
 
 
 import os
 import psutil
 import signal
-from typing import Optional, List
+
+
+# python 2.7 compat fixes
+try:
+    from typing import Optional, List
+except ImportError:
+    pass
 
 
 def kill_childs(
@@ -112,9 +119,8 @@ def kill_childs(
     return True
 
 
-def get_processes_by_name(
-    name: str, ignorecase: bool = None
-) -> Optional[List[psutil.Process]]:
+def get_processes_by_name(name, ignorecase=None):
+    # type: (str, bool) -> Optional[List[psutil.Process]]
     """
     Get a list of processes by name
     """

@@ -10,11 +10,11 @@ Versioning semantics:
     Patch version: Backwards compatible bug fixes
 """
 
-__intname__ = 'tests.ofunctions.process'
-__author__ = 'Orsiris de Jong'
-__copyright__ = 'Copyright (C) 2020-2021 Orsiris de Jong'
-__licence__ = 'BSD 3 Clause'
-__build__ = '2021092201'
+__intname__ = "tests.ofunctions.process"
+__author__ = "Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2021 Orsiris de Jong"
+__licence__ = "BSD 3 Clause"
+__build__ = "2021092201"
 
 import multiprocessing
 from datetime import datetime
@@ -43,7 +43,7 @@ def test_kill_childs():
         workers -= 1
 
     running_workers = len(process_list)
-    print('Running {} workers'.format(running_workers))
+    print("Running {} workers".format(running_workers))
 
     childs_still_run = True
     while childs_still_run:
@@ -54,13 +54,15 @@ def test_kill_childs():
             # Now let's kill the childs if at least 3 seconds elapsed
             if (datetime.utcnow() - start_time).total_seconds() >= 3:
                 kill_childs()
-            sleep(.1)
+            sleep(0.1)
 
     stop_time = datetime.utcnow()
 
     exec_time = stop_time - start_time
-    print('Executed for {} seconds'.format(exec_time))
-    assert exec_time.total_seconds() < 10, 'Execution should have been halted before workers got to finished their job'
+    print("Executed for {} seconds".format(exec_time))
+    assert (
+        exec_time.total_seconds() < 10
+    ), "Execution should have been halted before workers got to finished their job"
 
 
 def test_get_processes_by_name():
@@ -68,24 +70,29 @@ def test_get_processes_by_name():
     Test that we can identify processes by name
     """
     import subprocess
-    if os.name == 'nt':
-        proc_name = 'ping.exe'
+
+    if os.name == "nt":
+        proc_name = "ping.exe"
         exe_path = get_absolute_path(proc_name)
-        command = '{} -n 4 127.0.0.1'.format(exe_path)
+        command = "{} -n 4 127.0.0.1".format(exe_path)
     else:
-        proc_name = 'ping'
+        proc_name = "ping"
         exe_path = get_absolute_path(proc_name)
-        command = ['{}'.format(exe_path), '-c', '1', '127.0.0.1']
+        command = ["{}".format(exe_path), "-c", "1", "127.0.0.1"]
 
     # Don't create process with shell=True or else it will delay creation
     # Create with subprocess.PIPE redir so we don't wait for execution
     created_processes = []
     for i in range(0, 2):
-        print('Running command ', command)
-        created_processes.append(subprocess.Popen(command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+        print("Running command ", command)
+        created_processes.append(
+            subprocess.Popen(
+                command, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        )
 
     for process in created_processes:
-        print('Created process {} with pid {}'.format(process, process.pid))
+        print("Created process {} with pid {}".format(process, process.pid))
 
     found_processes = get_processes_by_name(proc_name)
 
@@ -98,10 +105,10 @@ def test_get_processes_by_name():
             if found_process.pid == created_process.pid:
                 found = True
         if not found:
-            assert False, 'Did not find process'
+            assert False, "Did not find process"
 
 
-if __name__ == '__main__':
-    print('Example code for %s, %s' % (__intname__, __build__))
+if __name__ == "__main__":
+    print("Example code for %s, %s" % (__intname__, __build__))
     test_kill_childs()
     test_get_processes_by_name()
