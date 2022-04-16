@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
 __version__ = "2.2.0"
-__build__ = "2022041601"
+__build__ = "2022041602"
 __compat__ = "python2.7+"
 
 import logging
@@ -46,6 +46,7 @@ class FixPython2Logging(logging.Filter):
     def __init__(self):
         self._worst_level = logging.INFO
         if sys.version_info[0] < 3:
+            # pylint: disable=E1003: Bad first argument 'Filter' given to super() (bad-super-call)
             super(logging.Filter, self).__init__()
         else:
             super().__init__()
@@ -67,6 +68,7 @@ class ContextFilterWorstLevel(logging.Filter):
     def __init__(self):
         self._worst_level = logging.INFO
         if sys.version_info[0] < 3:
+            # pylint: disable=E1003: Bad first argument 'Filter' given to super() (bad-super-call)
             super(logging.Filter, self).__init__()
         else:
             super().__init__()
@@ -277,6 +279,7 @@ def safe_string_convert(string):
                 return string.decode("latin1")
             except Exception:  # noqa
                 if sys.version_info[0] < 3:
+                    # pylint: disable=E0602: Undefined variable 'unicode' (undefined-variable)
                     if isinstance(string, unicode):  # noqa
                         return string
                 try:
