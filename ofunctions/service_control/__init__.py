@@ -15,11 +15,12 @@ Versioning semantics:
 
 __intname__ = "ofunctions.service_control"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Windows & Linux service control functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.2.0"
-__build__ = "2021052601"
+__version__ = "1.0.0"
+__build__ = "2022041501"
+__compat__ = "python2.7+"
 
 import logging
 import os
@@ -35,7 +36,8 @@ if os.name == "nt":
 logger = logging.getLogger(__intname__)
 
 
-def nt_service_status(service: str) -> bool:
+def nt_service_status(service):
+    # type: (str) -> bool
     """
     #  win32serviceutil.QueryServiceStatus(service) returns a list. If second entry = 4, service is running
     # TODO: handle other service states than 4
@@ -46,7 +48,8 @@ def nt_service_status(service: str) -> bool:
     return False
 
 
-def unix_service_status(service: str) -> bool:
+def unix_service_status(service):
+    # type: (str) -> bool
     """
     Handle unix service using standard lsb commands
     Valid exit code are 0 and 3 (because of systemctl using a service redirect)
@@ -59,7 +62,8 @@ def unix_service_status(service: str) -> bool:
     return False
 
 
-def nt_service_action(service: str, action: str) -> bool:
+def nt_service_action(service, action):
+    # type: (str, str) -> bool
     """
     Handle windows service
     """
@@ -92,7 +96,8 @@ def nt_service_action(service: str, action: str) -> bool:
     return False
 
 
-def unix_service_action(service: str, action: str) -> bool:
+def unix_service_action(service, action):
+    # type: (str, str) -> bool
     """
     Using lsb service X command on Unix variants, hopefully the most portable
     """
@@ -110,7 +115,8 @@ def unix_service_action(service: str, action: str) -> bool:
     return False
 
 
-def system_service_handler(service: str, action: str) -> bool:
+def system_service_handler(service, action):
+    # type (str, str) -> bool
     """
     Handle Windows / Unix services
     Valid actions are start, stop, restart, status
