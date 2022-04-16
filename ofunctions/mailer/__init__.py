@@ -18,17 +18,17 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.0"
-__build__ = "2022041401"
+__version__ = "1.1.1"
+__build__ = "2022041501"
 __compat__ = "python2.7+"
 
 import logging
 import os
-import sys
 import re
 import smtplib
 import socket
 import ssl
+import sys
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -50,6 +50,7 @@ except AttributeError:
 
 
 if sys.version_info[0] < 3:
+
     class ConnectionError(OSError):
         pass
 
@@ -229,7 +230,7 @@ class Mailer:
                     remote_server.ehlo(self.hostname)
                 if self.smtp_user is not None and self.smtp_password is not None:
                     remote_server.login(self.smtp_user, self.smtp_password)
-                remote_server.sendmail(sender_mail, recipient_mails, text)
+                remote_server.sendmail(sender_mail, recipient_mail, text)
 
             # SMTPNotSupportedError = Server does not support STARTTLS
             # SMTPNotSupportedError does not exist in Python 2.x
@@ -265,7 +266,7 @@ class Mailer:
 
         result = True
 
-        if not split_mails:
+        if split_mails:
             for recipient in rfc822_addresses:
                 _result = _send_email(recipient)
                 if not _result:
