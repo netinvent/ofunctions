@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.file_utils"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2017-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2017-2022 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.0"
-__build__ = "2022041401"
+__version__ = "1.2.1"
+__build__ = "2022041501"
 __compat__ = "python2.7+"
 
 import json
@@ -41,8 +41,25 @@ try:
 except ImportError:
     pass
 if sys.version_info[0] < 3:
+
     class FileNotFoundError(OSError):
         pass
+
+
+# Python 2.7 compat where datetime.now() does not have .timestamp() method
+if sys.version_info[0] < 3 or sys.version_info[1] < 4:
+    # python version < 3.3
+    import time
+
+    def timestamp(date):
+        return time.mktime(date.timetuple())
+
+
+else:
+
+    def timestamp(date):
+        return date.timestamp()
+
 
 from command_runner import command_runner
 
@@ -70,8 +87,8 @@ def _file_lock():
 
 
 def check_path_access(
-        path,  # type: str
-        check = "R"  # type: str
+    path,  # type: str
+    check="R",  # type: str
 ):
     # type: (...) -> bool
     """
@@ -95,9 +112,9 @@ def check_path_access(
     logger.debug('Checking access to path "{0}"'.format(path))
 
     def _check_path_access(
-            sub_path  # type: str
+        sub_path,  # type: str
     ):
-    # type: (...) -> bool
+        # type: (...) -> bool
         if os.path.exists(sub_path):
             obj = "file" if os.path.isfile(sub_path) else "directory"
             if obj == "file":
@@ -123,7 +140,7 @@ def check_path_access(
                         test_file = (
                             sub_path
                             + "/.somehopefullyunexistenttestfile"
-                            + str(datetime.now().timestamp())
+                            + str(timestamp(datetime.now()))
                         )
                         open(test_file, "w")
                         remove_file(test_file)
@@ -156,7 +173,7 @@ def check_path_access(
         return False
 
     def _split_path(
-        path  # type: str
+        path,  # type: str
     ):
         # type: (...) -> bool
         split_path = (path, "")
@@ -185,7 +202,7 @@ def check_path_access(
 
 
 def make_path(
-    path  # type: str
+    path,  # type: str
 ):
     # type: (...) -> None
     with _file_lock():
@@ -195,7 +212,7 @@ def make_path(
 
 
 def remove_file(
-    path  # type: str
+    path,  # type: str
 ):
     # type: (...) -> None
     with _file_lock():
@@ -205,7 +222,7 @@ def remove_file(
 
 
 def remove_dir(
-    path  # type: str
+    path,  # type: str
 ):
     # type: (...) -> None
     with _file_lock():
@@ -220,7 +237,7 @@ def remove_dir(
 
 def move_file(
     source,  # type: str
-    dest  # type: str
+    dest,  # type: str
 ):
     # type: (...) -> None
     make_path(os.path.dirname(dest))
@@ -231,7 +248,7 @@ def move_file(
 
 def glob_path_match(
     path,  # type: str
-    pattern_list  # type: list
+    pattern_list,  # type: list
 ):
     # type: (...) -> bool
     """
@@ -244,7 +261,7 @@ def glob_path_match(
 
 
 def log_perm_error(
-    path  # type: str
+    path,  # type: str
 ):
     # type: (...) -> None
     """
@@ -334,7 +351,7 @@ def get_paths_recursive(
         min_depth = min_depth - 1
 
     def _find_files(
-        min_depth  # type: int
+        min_depth,  # type: int
     ):
         # type: (...) -> Iterable
         if min_depth < 1:
@@ -365,7 +382,7 @@ def get_paths_recursive(
 
     def _find_files_in_dirs(
         min_depth,  # type: int
-        max_depth  # type: int
+        max_depth,  # type: int
     ):
         # type: (...) -> Iterable
         min_depth = min_depth - 1
@@ -415,7 +432,7 @@ def get_paths_recursive(
 
 
 def get_files_recursive(
-    root, # type: str
+    root,  # type: str
     d_exclude_list=None,  # type: list
     f_exclude_list=None,  # type: list
     ext_exclude_list=None,  # type: list
@@ -423,7 +440,7 @@ def get_files_recursive(
     depth=0,  # type: int
     primary_root=None,  # type: str
     fn_on_perm_error=None,  # type: Callable
-    include_dirs=False  # type: bool
+    include_dirs=False,  # type: bool
 ):
     # type: (...) -> Union[Iterable, str]
     """
@@ -447,8 +464,8 @@ def get_files_recursive(
 def replace_in_file(
     source_file,  # type: str
     text_to_search,  # type: str
-    replacement_text, # type: str
-    dest_file=None, # type: str
+    replacement_text,  # type: str
+    dest_file=None,  # type: str
     backup_ext=None,  # type: str
 ):
     # type: (...) -> None
@@ -482,7 +499,7 @@ def replace_in_file(
 
 def get_file_time(
     path_to_file,  # type: str
-    mac_type="ctime"  # type: str
+    mac_type="ctime",  # type: str
 ):
     # type: (...) -> float
     """
@@ -513,7 +530,7 @@ def get_file_time(
 
 
 def file_creation_date(
-    path_to_file  # type: str
+    path_to_file,  # type: str
 ):  # COMPAT <0.7.8
     # type: (...) -> float
     """
@@ -523,7 +540,7 @@ def file_creation_date(
 
 
 def file_modification_date(
-    path_to_file  # type: str
+    path_to_file,  # type: str
 ):  # COMPAT <0.7.8
     # type: (...) -> float
     """
@@ -559,19 +576,19 @@ def check_file_timestamp_delta(
     )
     # file creation date is UTC for Linux, TZ for Windows
     if os.name == "nt":
-        now = datetime.now().timestamp()
+        now = timestamp(datetime.now())
     else:
-        now = datetime.utcnow().timestamp()
+        now = timestamp(datetime.utcnow())
     return bool((now + delta - get_file_time(file, mac_type)) > 0)
 
 
 def is_file_older_than(
     file,  # type: str,
-    years = 0,  # type: int
-    days = 0,  # type: int
-    hours = 0,  # type: int
-    minutes = 0,  # type: int
-    seconds = 0,  # type: int
+    years=0,  # type: int
+    days=0,  # type: int
+    hours=0,  # type: int
+    minutes=0,  # type: int
+    seconds=0,  # type: int
 ):  # COMPAT <0.7.8
     # type: (...) -> bool
     """
@@ -592,13 +609,13 @@ def is_file_older_than(
 def remove_files_on_timestamp_delta(
     directory,  # type: str,
     mac_type="ctime",  # type: str
-    years = 0,  # type: int
-    days = 0,  # type: int
-    hours = 0,  # type: int
-    minutes = 0,  # type: int
-    seconds = 0,  # type: int
+    years=0,  # type: int
+    days=0,  # type: int
+    hours=0,  # type: int
+    minutes=0,  # type: int
+    seconds=0,  # type: int
 ):
-# type: (...) -> None
+    # type: (...) -> None
     """
     Remove files older than given delta from now
     """
@@ -651,7 +668,7 @@ def remove_files_older_than(
 
 
 def remove_bom(
-    file  # type: str
+    file,  # type: str
 ):
     # type: (...) -> None
     """
@@ -675,14 +692,22 @@ def remove_bom(
                     file_handle_out.write(data)
                     data = file_handle_in.read(buffer)
         if os.path.isfile(file + ".tmp"):
-            os.replace(file + ".tmp", file)
-    except Exception:
-        raise OSError
+            # Python 2.7 does not have os.replace()
+            try:
+                os.replace(file + ".tmp", file)
+            except AttributeError:  # Python 2 workaround
+                try:
+                    os.remove(file)
+                except:
+                    pass
+                os.rename(file + ".tmp", file)
+    except Exception as exc:
+        raise OSError(exc)
 
 
 def write_json_to_file(
-    file, # type: str
-    data  # type: Union[dict, list]
+    file,  # type: str
+    data,  # type: Union[dict, list]
 ):
     # type: (...) -> None
     """
@@ -698,7 +723,7 @@ def write_json_to_file(
 
 
 def read_json_from_file(
-    file  # type: str
+    file,  # type: str
 ):
     # type: (...) -> dict
     """
@@ -718,7 +743,7 @@ def read_json_from_file(
 def grep(
     file,  # type: str
     pattern,  # type: str
-    ignorecase=False  # type bool
+    ignorecase=False,  # type bool
 ):
     # type: (...) -> list
     """
@@ -740,8 +765,8 @@ def grep(
 
 
 def hide_windows_file(
-        file,  # type: str
-        hidden=True  # type: bool
+    file,  # type: str
+    hidden=True,  # type: bool
 ):
     # type: (...) -> bool
     """
@@ -755,7 +780,7 @@ def hide_windows_file(
 
 def hide_unix_file(
     file,  # type: str
-    hidden=True  # type: bool
+    hidden=True,  # type: bool
 ):
     # type: (...) -> bool
     """
@@ -779,7 +804,7 @@ def hide_unix_file(
 
 def hide_file(
     file,  # type: str
-    hidden=True  # type: bool
+    hidden=True,  # type: bool
 ):
     # type: (...) -> bool
     """
@@ -815,7 +840,7 @@ def get_writable_temp_dir():
 
 
 def get_writable_random_file(
-    ident_str="tmp_file_utils"  # type: str
+    ident_str="tmp_file_utils",  # type: str
 ):
     # type: (...) -> Optional[str]
     """
