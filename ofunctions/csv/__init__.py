@@ -15,25 +15,34 @@ Versioning semantics:
 
 __intname__ = "ofunctions.csv"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "CSV file reader with header management, fieldnames, delimiters and comment skipping"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.4.0"
-__build__ = "2021070201"
+__version__ = "1.0.0"
+__build__ = "2022041501"
+__compat__ = "python2.7+"
 
 
 import sys
 import csv
-from typing import Iterable
+
+# python 2.7 compat fixes
+try:
+    from typing import Iterable
+except ImportError:
+    pass
+
+if sys.version_info[0] < 3:
+    from io import open as open
+
 
 # Use OrderedDict for Python < 3.6 since csv.DictReader won't have ordered output
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 6):
     from collections import OrderedDict
 
 
-def csv_dict_reader(
-    file: str, skip_comment_char: str = None, encoding: str = "utf-8", **kwargs
-) -> Iterable:
+def csv_dict_reader(file, skip_comment_char=None, encoding="utf-8", **kwargs):
+    # type: (str, str, str, dict) -> Iterable
     """
     Reads CSV file and provides a generator for every line and skips commented out lines
 
