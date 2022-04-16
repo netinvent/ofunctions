@@ -17,21 +17,28 @@ Versioning semantics:
 
 __intname__ = "ofunctions.bisection"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
 __description__ = "Bisection that allows callables to be tested with arguments"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.2.1"
-__build__ = "2021020901"
+__version__ = "1.0.0"
+__build__ = "2022041401"
+__compat__ = "python2.7+"
 
-from typing import Callable, Any, Iterable
+
+# python 2.7 compat fixes
+try:
+    from typing import Callable, Any, Iterable
+except ImportError:
+    pass
 
 
 def bisect(
-    func: Callable,
-    args_list: Iterable,
-    expected_result: Any = True,
-    allow_all_expected: bool = False,
-) -> Any:
+    func,
+    args_list,
+    expected_result=True,
+    allow_all_expected=False,
+):
+    # type: (Callable, Iterable, Any, bool) -> Any
     """
     Finds which is the last argument in list that made func return the expected_result (True/False/Whatever)
 
