@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.platform"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2021 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.1.0"
