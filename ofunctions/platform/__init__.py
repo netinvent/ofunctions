@@ -58,7 +58,7 @@ def python_arch():
     # uname property does not exist under windows
     # pylint: disable=E1101
     arch = os.uname()[4]
-    if 'x64' in arch.lower():
+    if "x64" in arch.lower():
         return "x64"
     return "x86"
 
