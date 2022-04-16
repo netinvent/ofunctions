@@ -28,7 +28,7 @@ def test_get_os():
 def test_python_arch():
     arch = python_arch()
     print(arch)
-    assert arch in ["x86", "x64"], "Undefined arch"
+    assert arch in ["x86", "x86_64"], "Undefined arch"
 
 
 def test_is_64bit_python():
