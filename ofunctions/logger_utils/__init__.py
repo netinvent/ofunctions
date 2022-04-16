@@ -46,7 +46,7 @@ class FixPython2Logging(logging.Filter):
     def __init__(self):
         self._worst_level = logging.INFO
         if sys.version_info[0] < 3:
-            # pylint: disable=E1003: Bad first argument 'Filter' given to super() (bad-super-call)
+            # pylint: disable=E1003 (bad-super-call)
             super(logging.Filter, self).__init__()
         else:
             super().__init__()
@@ -68,7 +68,7 @@ class ContextFilterWorstLevel(logging.Filter):
     def __init__(self):
         self._worst_level = logging.INFO
         if sys.version_info[0] < 3:
-            # pylint: disable=E1003: Bad first argument 'Filter' given to super() (bad-super-call)
+            # pylint: disable=E1003 (bad-super-call)
             super(logging.Filter, self).__init__()
         else:
             super().__init__()
@@ -279,7 +279,7 @@ def safe_string_convert(string):
                 return string.decode("latin1")
             except Exception:  # noqa
                 if sys.version_info[0] < 3:
-                    # pylint: disable=E0602: Undefined variable 'unicode' (undefined-variable)
+                    # pylint: disable=E0602 (undefined-variable)
                     if isinstance(string, unicode):  # noqa
                         return string
                 try:
