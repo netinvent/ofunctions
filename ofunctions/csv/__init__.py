@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "CSV file reader with header management, fieldnames, delimiters and comment skipping"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.0"
-__build__ = "2022041501"
+__version__ = "1.0.1"
+__build__ = "2022041601"
 __compat__ = "python2.7+"
 
 
@@ -39,6 +39,9 @@ if sys.version_info[0] < 3:
 # Use OrderedDict for Python < 3.6 since csv.DictReader won't have ordered output
 if sys.version_info[0] < 3 or (sys.version_info[0] == 3 and sys.version_info[1] < 6):
     from collections import OrderedDict
+    use_OrderedDict = True
+else:
+    use_OrderedDict = False
 
 
 def csv_dict_reader(file, skip_comment_char=None, encoding="utf-8", **kwargs):
@@ -69,9 +72,7 @@ def csv_dict_reader(file, skip_comment_char=None, encoding="utf-8", **kwargs):
         csv_data = csv.DictReader(fp, delimiter=delimiter, fieldnames=fieldnames)
 
         for row in csv_data:
-            if sys.version_info[0] < 3 or (
-                sys.version_info[0] == 3 and sys.version_info[1] < 6
-            ):
+            if use_OrderedDict:
                 row = OrderedDict(
                     sorted(
                         row.items(), key=lambda item: csv_data.fieldnames.index(item[0])
