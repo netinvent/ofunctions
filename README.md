@@ -33,13 +33,10 @@ ofunctions is a set of various recurrent functions amongst
 - string_handling: remove accents / special chars from strings
 - threading: threading decorator for functions
 
-ofunctions is compatible with Python 3.5+ and is tested on both Linux and Windows.
-Still, most packages will work with Python 2.7+, but are only manually tested sometimes (it's a real pain to get python 2.7 CI to work).
-Here's a list of notorious bad packages that won't play well with Python 2.7:
-- delayed_keyboardinterrupt (signal handling is different)
+ofunctions is compatible with Python 2.7 and 3.5+ and is tested on both Linux and Windows.
+There are still two subpackages that will only work with Python 3.5+
+- delayed_keyboardinterrupt (signal handling is different in Python 2.7)
 - threading (we don't have concurrent_futures in python 2.7)
-
-All other packages should play fairly nice even with Python 2.7.
 
 
 ## Setup
@@ -51,23 +48,78 @@ pip install ofunctions.<subpackage>
 
 ## bisection Usage
 
+ofunctions.bisection is a dichotomy algorithm that can be used for all kind of bisections, mathematical operations, kernel bisections...
+Let's imagine we have a function foo that takes argument x.
+x might be between 0 and 999, and for a given value of x above 712, foo(x) returns "gotcha".
+In order to find at which x value foo(x) becomes "gotcha", we could run foo(x) for every possible value of x until the result becomes what we expect.
+The above solution works, but takes time (up to 1000 foo(x) runs).
+We can achieve the same result in max 10 steps by checking foo(x) where x will be the middle of all possible values.
+Looking at the result from that middle value, we'll know if the expected result should be a lower or higher value of x. We can repeat this action until we'll get the precise result.
+
+Now let's code the above example in less abstract:
+```
+def foo(x):
+	# We'll need to find value 712 te quickest way possible
+	if x >= 712:
+		return "gotcha"
+	return False
+
+from ofunctions.bisection import bisect
+
+value = bisect(foo, range(0, 1000), expected_result="gotcha")
+print('Value is %s' % value)
+```
+
+The above concept can be adapted in order to compute ethernet MTU values or whatever other values need to be calculated.
+See ofunctions.network code for MTU probing example.
+
+
 ## checksums Usage
 
 ## csv Usage
 
 ## delayed_keyboardinterrupt Usage
 
+The DelayedKeyboardInterrupt class allows to intercept a CTRL+C call in order to finish atomic operations without interruption.
+Easy to use, we use a pythonic syntax as follows:
+
+Setup:
+```
+pip install ofunctions.mailer
+```
+
+Usage:
+```
+with DelayedKeyboardInterrupt():
+	<your code that should not be interrupted>
+```
 ## file_utils Usage
 
 ofuntions.file_utils is a collection of tools to handle:
 - listing of paths
 
-
+Setup
 ```
 pip install ofunctions.file_utils
 ```
 
 ## json_sanitize Usage
+
+json_sanitize will remove any control characters from json content (0x00-0x1F and 0x7F-0x9F) of which some are usually non printable and non visible.
+This is especially useful when dealing with various log files (ex: windows event logs) that need to be passed as json.
+It will also remove dots from value names, since those are prohibited in json standard.
+
+Setup:
+```
+pip install ofunctions.json_sanitize
+```
+
+Usage:
+```
+my_json = {'some.name': 'some\tvalue'}
+my_santized_json = json_sanitize(my_json)
+```
+my_santized_json will contain `{'somename': 'somevalue'}`
 
 ## logger_utils Usage
 
@@ -75,6 +127,7 @@ pip install ofunctions.file_utils
 
 ofunctions.mailer is a simple mailing class and a rfc822 email validation function.
 
+Setup:
 ```
 pip install ofunctions.mailer
 ```
