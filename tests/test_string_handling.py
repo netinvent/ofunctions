@@ -10,7 +10,7 @@ Versioning semantics:
     Patch version: Backwards compatible bug fixes
 """
 
-# python 2.7 compat fixes
+# python 2.7 compat fixes so all strings are considered unicode
 from __future__ import unicode_literals
 
 __intname__ = "tests.ofunctions.string_handling"
