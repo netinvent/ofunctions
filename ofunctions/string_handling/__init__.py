@@ -13,12 +13,15 @@ Versioning semantics:
 
 """
 
+# python 2.7 compat fixes so all strings are considered unicode
+from __future__ import unicode_literals
+
 __intname__ = "ofunctions.string_handling"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Simple string sanitization functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 __build__ = "2022041601"
 __compat__ = "python2.7+"
 
