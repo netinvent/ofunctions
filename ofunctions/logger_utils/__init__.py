@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.2.0"
-__build__ = "2022041602"
+__version__ = "2.2.1"
+__build__ = "2022052301"
 __compat__ = "python2.7+"
 
 import logging
@@ -268,7 +268,6 @@ def safe_string_convert(string):
     """
     Allows to encode strings for hacky UTF-8 logging in python 2.7
     """
-
     try:
         return string.decode("utf8")
     except Exception:  # noqa
@@ -284,7 +283,7 @@ def safe_string_convert(string):
                         return string
                 try:
                     return (
-                        b"Cannot convert logged string. Passing it as binary blob: "
+                        b"logger_utils: Cannot convert logged string. Passing it as binary blob: "
                         + bytes(string)
                     )
                 except Exception:  # noqa
