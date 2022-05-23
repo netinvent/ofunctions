@@ -14,7 +14,7 @@ __intname__ = "tests.ofunctions.logger_utils"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2022041602"
+__build__ = "2022052301"
 
 import logging
 
@@ -80,7 +80,17 @@ def test_logger_nonwritable_logger():
     logger.info("Café unicode accent")
 
 
+def test_logger_exception():
+    logger = logger_get_logger(console=True)
+    try:
+        # Log some unicode character which should throw an unhandled UnicodedecodeError exception in Python 2.7
+        raise Exception('jörn')
+    except Exception as exc:
+        logger.exception(exc)
+
+
 if __name__ == "__main__":
     print("Example code for %s, %s" % (__intname__, __build__))
     test_worst_logged_level()
     test_logger_ger_logger()
+    test_logger_exception()
