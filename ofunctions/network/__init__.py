@@ -18,15 +18,15 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.0"
-__build__ = "2022041601"
+__version__ = "1.2.1"
+__build__ = "2022060901"
 __compat__ = "python2.7+"
 
 import logging
 import os
 import socket
 import warnings
-from ipaddress import IPv6Address, AddressValueError
+from ipaddress import IPv4Address, IPv6Address, AddressValueError
 
 from command_runner import command_runner
 from requests import get
@@ -43,7 +43,7 @@ logger = logging.getLogger()
 
 
 def ping(
-    targets=None,  # type: Union[Iterable[str], str]
+    targets=None,  # type: Union[Iterable[Union[str, IPv4Address, IPv6Address], Union[str, IPv4Address, IPv6Address]
     mtu=1200,  # type: int
     retries=2,  # type: int
     timeout=4,  # type: float
@@ -329,7 +329,7 @@ def get_public_ip(check_services=None, proxy=None, timeout=5):
 
 
 def probe_mtu(target, method="ICMP", min=1100, max=9000):
-    # type: (str, str, int, int) -> int
+    # type: (Union[str, IPv4Address, IPv6Address], str, int, int) -> int
     """
     Detects MTU to target
     Probing can take up to 15-20 seconds

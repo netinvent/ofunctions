@@ -21,8 +21,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Simple string sanitization functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.1.1"
-__build__ = "2022041601"
+__version__ = "1.2.0"
+__build__ = "2022060901"
 __compat__ = "python2.7+"
 
 
@@ -47,7 +47,7 @@ def strip_characters(string, regex=r"[]"):
     # type: (str, str) -> str
     """
     Remove everything that is not in the list of allowed chars
-    Basically just a regex shortcut
+    Basically just a regex shorthand
     """
     return re.sub(regex, "", string, re.UNICODE)
 
@@ -56,7 +56,7 @@ def strip_special_characters(string, regex=r"[^a-zA-Z0-9 \n\._]"):
     # type: (str, str) -> str
     """
     Remove special characters except the ones allowed in the regex
-    Basically just a regex shortcut
+    Basically just a regex shorthand
     """
     return strip_characters(string, regex)
 
@@ -65,14 +65,19 @@ def strip_non_alnum_characters(string, keep_accents=True):
     # type: (str, bool) -> str
     """
     Return only alphanumeric strings
-    Another regex shortcut
+    Another regex shorthand
     """
     if keep_accents:
-        if sys.version_info[0] < 3:
-            regex = "[^a-zA-Z0-9À-ÖØ-öø-ÿ]"
-        else:
-            regex = "[^a-zA-Z0-9À-ÖØ-öø-ÿ]"
+        regex = "[^a-zA-Z0-9À-ÖØ-öø-ÿ]"
     else:
         regex = r"[^a-zA-Z0-9]"
 
     return strip_characters(string, regex)
+
+
+def sanitize_filename(string):
+    # type: (str) -> str
+    """
+    Another shorthand for some regex that allows to make filenames windows/linux compatible
+    """
+    return strip_characters(string, regex=r"[:\\/\*&{}#\$<>@`'\"\|!]")
