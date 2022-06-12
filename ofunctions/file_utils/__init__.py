@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2017-2022 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.1"
-__build__ = "2022041501"
+__version__ = "1.2.2"
+__build__ = "2022061601"
 __compat__ = "python2.7+"
 
 import json
@@ -51,12 +51,12 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 4:
     # python version < 3.3
     import time
 
-    def timestamp(date):
+    def get_timestamp(date):
         return time.mktime(date.timetuple())
 
 else:
 
-    def timestamp(date):
+    def get_timestamp(date):
         return date.timestamp()
 
 
@@ -139,7 +139,7 @@ def check_path_access(
                         test_file = (
                             sub_path
                             + "/.somehopefullyunexistenttestfile"
-                            + str(timestamp(datetime.now()))
+                            + str(get_timestamp(datetime.now()))
                         )
                         open(test_file, "w")
                         remove_file(test_file)
@@ -556,28 +556,33 @@ def check_file_timestamp_delta(
     hours=0,  # type: int
     minutes=0,  # type: int
     seconds=0,  # type: int
+    timestamp=None  # type: float
 ):
     # type: (...) -> bool
     """
     mac_type can be ctime, mtime, or atime for comparison purposes
 
-    Simple check if a file is newer/older (ctime) than given time delta from now
-    Can also check if file has been modified (mtime) earlier than given time delta from now
+    Simple check if a file is newer/older (ctime) than given time delta from timestamp
+    Can also check if file has been modified (mtime) earlier than given time delta from timestamp
+    If no timestamp is given, we'll use current time
 
-    Future timestamps are achieved by specifying positive values, eg days=1
-    Past timestamps are achieved by specifying negative values, eg days=-1
-
+    future comparaisons are achieved by specifying postivie values, ex: days=1 would search for files created / modified / accessed tomorrow
+    past comparaisons are achieved by specifying negative values, ex: days=-1 would search for files created / modified / accessed yesterday
     """
     if not os.path.isfile(file):
         raise FileNotFoundError("[%s] not found." % file)
     delta = (
         seconds + (minutes * 60) + (hours * 3600) + (days * 86400) + (years * 31536000)
     )
-    # file creation date is UTC for Linux, TZ for Windows
-    if os.name == "nt":
-        now = timestamp(datetime.now())
+
+    if not timestamp:
+        if os.name == "nt":
+            # file creation date is UTC for Linux, TZ for Windows
+            now = get_timestamp(datetime.now())
+        else:
+            now = get_timestamp(datetime.utcnow())
     else:
-        now = timestamp(datetime.utcnow())
+        now = timestamp
     return bool((now + delta - get_file_time(file, mac_type)) > 0)
 
 
@@ -613,33 +618,34 @@ def remove_files_on_timestamp_delta(
     hours=0,  # type: int
     minutes=0,  # type: int
     seconds=0,  # type: int
+    timestamp=None,  # type: Optional[datetime]
 ):
     # type: (...) -> None
     """
-    Remove files older than given delta from now
+    Remove files older than given delta from timestamp
+    If no timestamp is given, we'll use current date timestamp
     """
 
     if not os.path.isdir(directory):
         raise FileNotFoundError("[%s] not found." % directory)
 
-    for _, _, filenames in os.walk(directory):
-        for filename in filenames:
-            filename = os.path.join(directory, filename)
-            try:
-                if check_file_timestamp_delta(
-                    filename,
-                    mac_type=mac_type,
-                    years=years,
-                    days=days,
-                    hours=hours,
-                    minutes=minutes,
-                    seconds=seconds,
-                ):
-                    os.remove(filename)
-            except FileNotFoundError:
-                pass
-            except (IOError, OSError):
-                raise OSError("Cannot remove file [%s]." % filename)
+    for filename in get_paths_recursive(directory):
+        try:
+            if check_file_timestamp_delta(
+                filename,
+                mac_type=mac_type,
+                years=years,
+                days=days,
+                hours=hours,
+                minutes=minutes,
+                seconds=seconds,
+                timestamp=timestamp
+            ):
+                os.remove(filename)
+        except FileNotFoundError:
+            pass
+        except (IOError, OSError):
+            raise OSError("Cannot remove file [%s]." % filename)
 
 
 def remove_files_older_than(
