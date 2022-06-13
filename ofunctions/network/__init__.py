@@ -43,14 +43,16 @@ logger = logging.getLogger()
 
 
 def ping(
-    targets=None,  # type: Union[Iterable[Union[str, IPv4Address, IPv6Address]], Union[str, IPv4Address, IPv6Address]]
-    mtu=1200,  # type: int
-    retries=2,  # type: int
-    timeout=4,  # type: float
-    interval=1,  # type: float
-    ip_type=None,  # type : int
-    do_not_fragment=False,  # type: bool
-    all_targets_must_succeed=False,  # type: bool
+        targets=None,
+        # type: Union[Iterable[Union[str, IPv4Address, IPv6Address]], Union[str, IPv4Address, IPv6Address]]
+        mtu=1200,  # type: int
+        retries=2,  # type: int
+        timeout=4,  # type: float
+        interval=1,  # type: float
+        ip_type=None,  # type : int
+        do_not_fragment=False,  # type: bool
+        all_targets_must_succeed=False,  # type: bool
+        source=None,  # type : str
 ):
     # type: (...) -> bool
     """
@@ -79,13 +81,14 @@ def ping(
         # Cloudflare, Google and OpenDNS dns servers
         targets = ["1.1.1.1", "8.8.8.8", "208.67.222.222"]
 
-    def _ping_host(target, retries):
+    def _ping_host(target, retries, source):
         if os.name == "nt":
             # -4/-6: IPType
             # -n ...: number of packets to send
             # -f: do not fragment
             # -l ...: packet size to send
             # -w ...: timeout (ms)
+            # -S ...: optional source addr (IP) (which binds to source interface)
             command = "ping -n 1 -l {} -w {}".format(mtu_encapsulated, windows_timeout)
 
             # IPv6 does not allow to set fragmentation
@@ -99,6 +102,7 @@ def ping(
             # -s ...: packet size to send
             # -i ...: interval (s), only root can set less than .2 seconds
             # -W ...: timeous (s)
+            # -I ...: optional source interface name
             command = "ping -c 1 -s {} -W {} -i {}".format(
                 mtu_encapsulated, timeout, interval
             )
@@ -111,8 +115,32 @@ def ping(
         # Add ip_type if specified
         if ip_type:
             command += " -{}".format(ip_type)
-        command += " {}".format(target)
 
+        # Try to detect what kind of source we're dealing with, IP address or interface name
+        try:
+            IPv6Address(source)
+            source_type = 'ip'
+        except ValueError:
+            try:
+                IPv4Address(source)
+                source_type = 'ip'
+            except ValueError:
+                source_type = 'iface'
+
+        if source:
+            if source_type == 'ip':
+                if os.name != "nt":
+                    raise ValueError("Source address does only work on Windows platform")
+                # -S
+                command += " -S {}".format(source)
+
+            if source_type == 'iface':
+                if os.name == "nt":
+                    raise ValueError("Source interface does not work on Windows platform")
+                command += " -I {}".format(source_iface)
+
+        command += " {}".format(target)
+        print(command)
         result = False
         while retries > 0 and not result:
             exit_code, output = command_runner(
@@ -130,7 +158,7 @@ def ping(
 
     # Handle the case when a user gives a single target instead of a list
     for target in targets if isinstance(targets, list) else [targets]:
-        if _ping_host(target, retries):
+        if _ping_host(target, retries, source):
             if not all_targets_must_succeed:
                 all_ping_results = True
                 break
@@ -208,11 +236,11 @@ def _try_server(server, proxy_dict, timeout):
 
 
 def test_http_internet(
-    fqdn_servers=None,  # type: List[str]
-    ip_servers=None,  # type: List[Union[IPv4Address, IPv6Address]]
-    proxy=None,  # type: str
-    timeout=5,  # type: int
-    all_targets_must_succeed=False,  # type: bool
+        fqdn_servers=None,  # type: List[str]
+        ip_servers=None,  # type: List[Union[IPv4Address, IPv6Address]]
+        proxy=None,  # type: str
+        timeout=5,  # type: int
+        all_targets_must_succeed=False,  # type: bool
 ):
     # type: (...) -> bool
     """
@@ -280,16 +308,16 @@ def test_http_internet(
 
         # Don't bother with diag message when multiple fqdn_servers exist and all_targets_must_succeed is enabled
         if not all_targets_must_succeed or (
-            all_targets_must_succeed and len(fqdn_servers) == 1
+                all_targets_must_succeed and len(fqdn_servers) == 1
         ):
             diag_messages = (
-                diag_messages
-                + "\nNo FQDN server test worked, but at least one IP server test worked. "
-                "Looks like a DNS resolving issue, or IP specific firewall rules."
+                    diag_messages
+                    + "\nNo FQDN server test worked, but at least one IP server test worked. "
+                      "Looks like a DNS resolving issue, or IP specific firewall rules."
             )
         if not dns_resolver_works:
             diag_messages = (
-                diag_messages + "\nIt seems that DNS resolution does not work."
+                    diag_messages + "\nIt seems that DNS resolution does not work."
             )
         else:
             diag_messages = diag_messages + "\nDNS resolution seems to work."
@@ -328,8 +356,8 @@ def get_public_ip(check_services=None, proxy=None, timeout=5):
     return None
 
 
-def probe_mtu(target, method="ICMP", min=1100, max=9000):
-    # type: (Union[str, IPv4Address, IPv6Address], str, int, int) -> int
+def probe_mtu(target, method="ICMP", min=1100, max=9000, source=None):
+    # type: (Union[str, IPv4Address, IPv6Address], str, int, int, str) -> int
     """
     Detects MTU to target
     Probing can take up to 15-20 seconds
@@ -340,7 +368,12 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000):
       1492 for ethernet over ADSL
       9000 for ethernet over LAN with jumbo frames
       13xx for ethernet over 3G/4G
+
+    Optional source when using ICMP can be interface or IPaddress
     """
+
+    if not target:
+        raise ValueError('No valid target given.')
 
     if method == "ICMP":
         # Let's always keep 2 retries just to make sure we don't get false positives
@@ -354,7 +387,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000):
             pass
 
         ping_args = [
-            (target, mtu, 2, 4, 1, ip_type, True) for mtu in range(min, max + 1)
+            (target, mtu, 2, 4, 1, ip_type, True, False, source) for mtu in range(min, max + 1)
         ]
 
         # Bisect will return argument, list, let's just return the MTU
@@ -362,7 +395,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000):
             return bisection.bisect(ping, ping_args, allow_all_expected=True)[1]
         except ValueError as exc:
             # Bisection failed, let's check if at least ping works to target
-            result = ping(target, 28, 2, 4, 1, ip_type)
+            result = ping(target, 28, 2, 4, 1, ip_type, False, False, source)
             if not result:
                 raise ValueError(
                     'ICMP request on target "{}" failed. Cannot determine MTU.'.format(
