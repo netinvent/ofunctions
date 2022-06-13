@@ -43,7 +43,7 @@ logger = logging.getLogger()
 
 
 def ping(
-    targets=None,  # type: Union[Iterable[Union[str, IPv4Address, IPv6Address], Union[str, IPv4Address, IPv6Address]
+    targets=None,  # type: Union[Iterable[Union[str, IPv4Address, IPv6Address]], Union[str, IPv4Address, IPv6Address]]
     mtu=1200,  # type: int
     retries=2,  # type: int
     timeout=4,  # type: float
@@ -209,7 +209,7 @@ def _try_server(server, proxy_dict, timeout):
 
 def test_http_internet(
     fqdn_servers=None,  # type: List[str]
-    ip_servers=None,  # type: List[str]
+    ip_servers=None,  # type: List[Union[IPv4Address, IPv6Address]]
     proxy=None,  # type: str
     timeout=5,  # type: int
     all_targets_must_succeed=False,  # type: bool
