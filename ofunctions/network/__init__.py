@@ -356,6 +356,21 @@ def get_public_ip(check_services=None, proxy=None, timeout=5):
     return None
 
 
+def get_public_hostname(ip=None):
+    # type: (Optional[Union[IPv6Address, IPv6Address]]) -> Optional[str]
+    """
+    Get DNS record from public IP
+    """
+    if not ip:
+        ip = get_public_ip()
+    if ip:
+        try:
+            return socket.gethostbyaddr(ip)[0]
+        except Exception:
+            pass
+    return None
+
+
 def probe_mtu(target, method="ICMP", min=1100, max=9000, source=None):
     # type: (Union[str, IPv4Address, IPv6Address], str, int, int, str) -> int
     """
