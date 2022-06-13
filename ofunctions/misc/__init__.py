@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.0"
-__build__ = "2021060301"
+__version__ = "1.3.0"
+__build__ = "2022061301"
 __compat__ = "python2.7+"
 
 
@@ -98,6 +98,28 @@ def get_key_from_value(haystack, needle):
     Returns a dict key by it's value, ie get_key_from_value({key: value}, value) returns key
     """
     return next((k for k, v in haystack.items() if v == needle), None)
+
+
+def dict_update(dict_original, dict_update):
+    # type: (dict, dict) -> dict
+    """
+    Update a nested dictionnary with another nested dictionnary
+    Balant copy from https://stackoverflow.com/a/60435617/2635443
+    """
+    if isinstance(dict_original, dict) and isinstance(dict_update, dict):
+        output=dict(dict_original)
+        keys_original=set(dict_original.keys())
+        keys_update=set(dict_update.keys())
+        similar_keys=keys_original.intersection(keys_update)
+        similar_dict={key:deep_update(dict_original[key], dict_update[key]) for key in similar_keys}
+        new_keys=keys_update.difference(keys_original)
+        new_dict={key:dict_update[key] for key in new_keys}
+        output.update(similar_dict)
+        output.update(new_dict)
+        return output
+    else:
+        return dict_update
+
 
 
 def is_nan(var):
