@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.0"
-__build__ = "2022061301"
+__version__ = "1.4.0"
+__build__ = "2022063001"
 __compat__ = "python2.7+"
 
 
@@ -129,3 +129,54 @@ def is_nan(var):
     based on the simple check where (nan is nan) gives True but (nan == nan) gives False
     """
     return not var == var
+
+
+class BytesConverter(float):
+    """
+    float subclass that adds multiple properties in order to make computer guys life easier
+    We use float instead of int since we divide in order to make conversions
+    """
+    def __new__(cls, value, *args, **kwargs):
+        if value < 0:
+            raise ValueError("Negative bytes should not exist")
+        return super(cls, cls).__new__(cls, value)
+
+    @property
+    def bytes(self):
+        return self
+
+    @property
+    def bits(self):
+        return self * 8
+
+    @property
+    def kbytes(self):
+        return self / 1024
+
+    @property
+    def kbits(self):
+        return self.kbytes * 8
+
+    @property
+    def mbytes(self):
+        return round(self / (1024 ** 2), 1)
+
+    @property
+    def mbits(self):
+        return self.mbytes * 8
+
+    @property
+    def gbytes(self):
+        return round(self / (1024 ** 3), 1)
+
+    @property
+    def gbits(self):
+        return self.gbytes * 8
+
+    @property
+    def tbytes(self):
+        return round(self / (1024 ** 4), 1)
+
+    @property
+    def tbits(self):
+        return self.tbytes * 8
