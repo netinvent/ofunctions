@@ -39,7 +39,7 @@ __compat__ = "python2.7+"
 
 
 import sys
-from threading import Thread
+import threading
 # Python 2.7 compat fixes
 try:
     from concurrent.futures import Future
@@ -53,7 +53,7 @@ if sys.version_info[0] < 3:
     def threaded(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            thread = Thread(target=fn, args=args, kwargs=kwargs)
+            thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
             thread.daemon = True
             thread.start()
             return thread
@@ -84,7 +84,7 @@ else:
         @wraps(fn)
         def wrapper(*args, **kwargs):
             future = Future()
-            Thread(target=call_with_future, args=(fn, future, args, kwargs)).start()
+            threading.Thread(target=call_with_future, args=(fn, future, args, kwargs)).start()
             return future
 
         return wrapper
