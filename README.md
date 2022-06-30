@@ -174,6 +174,35 @@ mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails=
 
 ## network Usage
 
+ofunctions.network is a collection of various tools making network diag / mapping easier.
+
+Setup:
+```commandline
+pip install ofunctions.network
+```
+
+### IOCounters
+
+IOCounters is a class that will log instant sent/received bytes as well as total sent/received bytes.
+Once an instance is created, logging begins as a thread.
+You may specify which interfaces to track at which resolution.
+If none is given, all interfaces are tracked every second.
+
+Example of IO counters for network interfaces:
+```python
+counter = IOCounters()
+while True:
+    print(counter.interfaces['eth0'].recv_bytes, counter.interfaces['eth0'].recv_bytes_total)
+    time.sleep(1)
+```
+
+```python
+counter = IOCounters(['Ethernet Connection 2', 'Wi-Fi'], resolution=2)
+while True:
+    print(counter.interfaces['Ethernet Connection 2'].sent_bytes)
+    time.sleep(1)
+```
+
 ## platform Usage
 
 ## process Usage

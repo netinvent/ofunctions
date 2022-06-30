@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.1"
-__build__ = "2022060901"
+__version__ = "1.3.0"
+__build__ = "2022063001"
 __compat__ = "python2.7+"
 
 import logging
@@ -27,11 +27,14 @@ import os
 import socket
 import warnings
 from ipaddress import IPv4Address, IPv6Address, AddressValueError
+import time
+import psutil
 
 from command_runner import command_runner
 from requests import get
 
 from ofunctions import bisection
+from ofunctions.threading import threaded
 
 # python 2.7 compat fixes
 try:
@@ -423,3 +426,101 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source=None):
                 )
     else:
         raise ValueError("Method {} not implemented yet.".format(method))
+
+
+class IOInterface:
+    """
+    Simple class that holds counters for network interfaces
+    """
+    def __init__(self, name):
+        self.name = name
+        self._sent_bytes = None
+        self._recv_bytes = None
+        self._sent_bytes_total = None
+        self._recv_bytes_total = None
+
+    def __repr__(self):
+        return 'Interface {}: {} sent bytes, {} recv bytes, {} total sent bytes, {} total recv bytes'.format(self.name, self.sent_bytes, self.recv_bytes, self.sent_bytes_total, self.recv_bytes_total)
+
+    @property
+    def sent_bytes(self):
+        return self._sent_bytes
+
+    @sent_bytes.setter
+    def sent_bytes(self, value):
+        # type: (int) -> None
+        self._sent_bytes = value
+
+    @property
+    def recv_bytes(self):
+        return self._recv_bytes
+
+    @recv_bytes.setter
+    def recv_bytes(self, value):
+        # type: (int) -> None
+        self._recv_bytes = value
+
+    @property
+    def sent_bytes_total(self):
+        return self._sent_bytes_total
+
+    @sent_bytes_total.setter
+    def sent_bytes_total(self, value):
+        # type: (int) -> None
+        self._sent_bytes_total = value
+
+    @property
+    def recv_bytes_total(self):
+        return self._recv_bytes_total
+
+    @recv_bytes_total.setter
+    def recv_bytes_total(self, value):
+        # type: (int) -> None
+        self._recv_bytes_total = value
+
+
+class IOCounters:
+    """
+    IOCounters counts sent/received bytes as soon a class instance is created
+    """
+    def __init__(self, interface_names = None, resolution = 1):
+        # type: (List[str], float) -> None
+        self.counters = {}
+        self.stats = {}
+        self.resolution = resolution
+        self.interfaces = {}
+        self.interface_names = interface_names
+        self._get_interface_names()
+
+        # init each interface with a IOInterface counter class
+        for interface in self.interface_names:
+            self.interfaces[interface] = IOInterface(interface)
+
+        # Start counters
+        self._increase_counters()
+
+    def _get_interface_names(self):
+        """
+        Get interfaces names if none given
+        """
+        if not self.interface_names:
+            self.interface_names = []
+            for interface in psutil.net_io_counters(pernic=True, nowrap=True):
+                self.interface_names.append(interface)
+
+    @threaded
+    def _increase_counters(self):
+        for interface in self.interfaces:
+            self.interfaces[interface].sent_bytes_total = psutil.net_io_counters(pernic=True, nowrap=True)[interface].bytes_sent
+            self.interfaces[interface].recv_bytes_total = psutil.net_io_counters(pernic=True, nowrap=True)[interface].bytes_recv
+        while True:
+            for interface in self.interfaces:
+                sent_new_value = psutil.net_io_counters(pernic=True, nowrap=True)[
+                    interface].bytes_sent
+                recv_new_value = psutil.net_io_counters(pernic=True, nowrap=True)[
+                    interface].bytes_recv
+                self.interfaces[interface].sent_bytes = sent_new_value - self.interfaces[interface].sent_bytes_total
+                self.interfaces[interface].recv_bytes = recv_new_value - self.interfaces[interface].recv_bytes_total
+                self.interfaces[interface].sent_bytes_total = sent_new_value
+                self.interfaces[interface].recv_bytes_total = recv_new_value
+            time.sleep(self.resolution)
