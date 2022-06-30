@@ -144,7 +144,6 @@ def ping(
                 command += " -I {}".format(source_iface)
 
         command += " {}".format(target)
-        print(command)
         result = False
         while retries > 0 and not result:
             exit_code, output = command_runner(
@@ -484,7 +483,6 @@ class IOInterface:
     @recv_total.setter
     def recv_total(self, value):
         # type: (int) -> None
-        print('I RECV', value)
         self._recv_total = BytesConverter(value)
 
     @property
