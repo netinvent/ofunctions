@@ -143,15 +143,15 @@ class BytesConverter(float):
 
     @property
     def bytes(self):
-        return self
+        return round(self, 1)
 
     @property
     def bits(self):
-        return self * 8
+        return round(self * 8, 1)
 
     @property
     def kbytes(self):
-        return self / 1024
+        return round(self / 1024, 1)
 
     @property
     def kbits(self):
