@@ -446,6 +446,10 @@ class IOInterface:
         self._sent_avg_speed_samples = 0
         self._recv_avg_speed_samples = 0
 
+        # We may also reset total counters by keeping before reset value here
+        self._sent_total_reset_value = 0
+        self._recv_total_reset_value = 0
+
     def __repr__(self):
         return 'Interface {}: {} sent bytes, {} recv bytes, {} total sent bytes, {} total recv bytes, Avg {} bytes/s sent, Avg {} bytes/s recv'.format(self.name, self.sent, self.recv, self.sent_total, self.recv_total, self._sent_avg_speed, self._recv_avg_speed)
 
@@ -474,7 +478,7 @@ class IOInterface:
     @sent_total.setter
     def sent_total(self, value):
         # type: (int) -> None
-        self._sent_total = BytesConverter(value)
+        self._sent_total = BytesConverter(value - self._sent_total_reset_value)
 
     @property
     def recv_total(self):
@@ -483,7 +487,7 @@ class IOInterface:
     @recv_total.setter
     def recv_total(self, value):
         # type: (int) -> None
-        self._recv_total = BytesConverter(value)
+        self._recv_total = BytesConverter(value - self._recv_total_reset_value)
 
     @property
     def sent_avg_speed(self):
@@ -547,6 +551,8 @@ class IOCounters:
         # Initialize total counters so we don't get high instant values at first run
         iface_results = psutil.net_io_counters(pernic=True, nowrap=True)
         for interface in self.interfaces:
+            self.interfaces[interface]._sent_total_reset_value = BytesConverter(iface_results[interface].bytes_sent)
+            self.interfaces[interface]._recv_total_reset_value = BytesConverter(iface_results[interface].bytes_recv)
             self.interfaces[interface].sent_total = BytesConverter(iface_results[interface].bytes_sent)
             self.interfaces[interface].recv_total = BytesConverter(iface_results[interface].bytes_recv)
         while True:
@@ -555,8 +561,8 @@ class IOCounters:
                 sent_new_value = iface_results[interface].bytes_sent
                 recv_new_value = iface_results[interface].bytes_recv
                 # We still use BytesConverter cast here since Python 2.7 does not work when casting in IOInterface class property
-                self.interfaces[interface].sent = BytesConverter(sent_new_value - self.interfaces[interface].sent_total)
-                self.interfaces[interface].recv = BytesConverter(recv_new_value - self.interfaces[interface].recv_total)
+                self.interfaces[interface].sent = BytesConverter(sent_new_value - self.interfaces[interface].sent_total - self.interfaces[interface]._sent_total_reset_value)
+                self.interfaces[interface].recv = BytesConverter(recv_new_value - self.interfaces[interface].recv_total - self.interfaces[interface]._recv_total_reset_value)
 
                 # Calculate average speed depending on self.resolution which is calculated in seconds
                 sent_bytes_per_second = self.interfaces[interface].sent / self.resolution
@@ -570,6 +576,8 @@ class IOCounters:
     def reset(self):
         iface_results = psutil.net_io_counters(pernic=True, nowrap=True)
         for interface in self.interfaces:
+            self.interfaces[interface]._sent_total_reset_value = BytesConverter(iface_results[interface].bytes_sent)
+            self.interfaces[interface]._recv_total_reset_value = BytesConverter(iface_results[interface].bytes_recv)
             self.interfaces[interface].sent_total = BytesConverter(iface_results[interface].bytes_sent)
             self.interfaces[interface].recv_total = BytesConverter(iface_results[interface].bytes_recv)
             self.interfaces[interface].sent_avg_speed = BytesConverter(0)
