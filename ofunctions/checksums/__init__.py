@@ -21,8 +21,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "SHA256 Checksumming, manifest file creation and verification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.2"
-__build__ = "2022041601"
+__version__ = "1.1.0"
+__build__ = "2022070501"
 __compat__ = "python2.7+"
 
 
@@ -35,6 +35,16 @@ from ofunctions.file_utils import get_paths_recursive
 # python 2.7 compat fixes
 if sys.version_info[0] < 3:
     from io import open as open
+
+
+def sha256sum_data(data):
+    # type: (bytes) -> str
+    """
+    Returns sha256sum of some data
+    """
+    sha256 = hashlib.sha256()
+    sha256.update(data)
+    return sha256.hexdigest()
 
 
 def sha256sum(file):
