@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.0"
-__build__ = "2022063002"
+__version__ = "1.3.1"
+__build__ = "2022070701"
 __compat__ = "python2.7+"
 
 import logging
@@ -56,7 +56,7 @@ def ping(
         ip_type=None,  # type : int
         do_not_fragment=False,  # type: bool
         all_targets_must_succeed=False,  # type: bool
-        source=None,  # type : str
+        source_interface=None,  # type : str
 ):
     # type: (...) -> bool
     """
@@ -85,7 +85,7 @@ def ping(
         # Cloudflare, Google and OpenDNS dns servers
         targets = ["1.1.1.1", "8.8.8.8", "208.67.222.222"]
 
-    def _ping_host(target, retries, source):
+    def _ping_host(target, retries, source_interface):
         if os.name == "nt":
             # -4/-6: IPType
             # -n ...: number of packets to send
@@ -120,28 +120,28 @@ def ping(
         if ip_type:
             command += " -{}".format(ip_type)
 
-        # Try to detect what kind of source we're dealing with, IP address or interface name
-        try:
-            IPv6Address(source)
-            source_type = 'ip'
-        except ValueError:
+        if source_interface:
+            # Try to detect what kind of source we're dealing with, IP address or interface name
             try:
-                IPv4Address(source)
+                IPv6Address(source_interface)
                 source_type = 'ip'
             except ValueError:
-                source_type = 'iface'
+                try:
+                    IPv4Address(source_interface)
+                    source_type = 'ip'
+                except ValueError:
+                    source_type = 'iface'
 
-        if source:
             if source_type == 'ip':
                 if os.name != "nt":
                     raise ValueError("Source address does only work on Windows platform")
                 # -S
-                command += " -S {}".format(source)
+                command += " -S {}".format(source_interface)
 
             if source_type == 'iface':
                 if os.name == "nt":
                     raise ValueError("Source interface does not work on Windows platform")
-                command += " -I {}".format(source_iface)
+                command += " -I {}".format(source_interface)
 
         command += " {}".format(target)
         result = False
@@ -161,7 +161,7 @@ def ping(
 
     # Handle the case when a user gives a single target instead of a list
     for target in targets if isinstance(targets, list) else [targets]:
-        if _ping_host(target, retries, source):
+        if _ping_host(target, retries, source_interface):
             if not all_targets_must_succeed:
                 all_ping_results = True
                 break
@@ -374,7 +374,7 @@ def get_public_hostname(ip=None):
     return None
 
 
-def probe_mtu(target, method="ICMP", min=1100, max=9000, source=None):
+def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
     # type: (Union[str, IPv4Address, IPv6Address], str, int, int, str) -> int
     """
     Detects MTU to target
@@ -405,7 +405,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source=None):
             pass
 
         ping_args = [
-            (target, mtu, 2, 4, 1, ip_type, True, False, source) for mtu in range(min, max + 1)
+            (target, mtu, 2, 4, 1, ip_type, True, False, source_interface) for mtu in range(min, max + 1)
         ]
 
         # Bisect will return argument, list, let's just return the MTU
@@ -413,7 +413,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source=None):
             return bisection.bisect(ping, ping_args, allow_all_expected=True)[1]
         except ValueError as exc:
             # Bisection failed, let's check if at least ping works to target
-            result = ping(target, 28, 2, 4, 1, ip_type, False, False, source)
+            result = ping(target, 28, 2, 4, 1, ip_type, False, False, source_interface)
             if not result:
                 raise ValueError(
                     'ICMP request on target "{}" failed. Cannot determine MTU.'.format(
