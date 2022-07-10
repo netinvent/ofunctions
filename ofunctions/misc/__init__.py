@@ -35,21 +35,33 @@ restrict_numbers = lambda n, n_min, n_max: max(min(n_max, n), n_min)
 
 
 def rot13(string):
-    # type: (str) -> Optional[str]
+    # type: (str) -> str
     """
     Rot13 for only A-Z and a-z characters
     """
-    try:
-        return "".join(
-            [
-                chr(ord(n) + (13 if "Z" < n < "n" or n < "N" else -13))
-                if ("a" <= n <= "z" or "A" <= n <= "Z")
-                else n
-                for n in string
-            ]
-        )
-    except TypeError:
-        return None
+    return "".join(
+        [
+            chr(ord(n) + (13 if "Z" < n < "n" or n < "N" else -13))
+            if ("a" <= n <= "z" or "A" <= n <= "Z")
+            else n
+            for n in string
+        ]
+    )
+
+
+def _rot47(string):
+    # type: (str) -> str
+    """
+    rot47 for alphanumeric characters
+    """
+    x = []
+    for i in range(len(string)):
+        j = ord(string[i])
+        if 33 <= j <= 126:
+            x.append(chr(33 + ((j + 14) % 94)))
+        else:
+            x.append(string[i])
+    return "".join(x)
 
 
 def bytes_to_string(bytes_to_convert, strip_null=False):
@@ -100,26 +112,28 @@ def get_key_from_value(haystack, needle):
     return next((k for k, v in haystack.items() if v == needle), None)
 
 
-def dict_update(dict_original, dict_update):
+def deep_dict_update(dict_original, dict_update):
     # type: (dict, dict) -> dict
     """
     Update a nested dictionnary with another nested dictionnary
     Balant copy from https://stackoverflow.com/a/60435617/2635443
     """
     if isinstance(dict_original, dict) and isinstance(dict_update, dict):
-        output=dict(dict_original)
-        keys_original=set(dict_original.keys())
-        keys_update=set(dict_update.keys())
-        similar_keys=keys_original.intersection(keys_update)
-        similar_dict={key:deep_update(dict_original[key], dict_update[key]) for key in similar_keys}
-        new_keys=keys_update.difference(keys_original)
-        new_dict={key:dict_update[key] for key in new_keys}
+        output = dict(dict_original)
+        keys_original = set(dict_original.keys())
+        keys_update = set(dict_update.keys())
+        similar_keys = keys_original.intersection(keys_update)
+        similar_dict = {
+            key: deep_dict_update(dict_original[key], dict_update[key])
+            for key in similar_keys
+        }
+        new_keys = keys_update.difference(keys_original)
+        new_dict = {key: dict_update[key] for key in new_keys}
         output.update(similar_dict)
         output.update(new_dict)
         return output
     else:
         return dict_update
-
 
 
 def is_nan(var):
@@ -136,6 +150,7 @@ class BytesConverter(float):
     float subclass that adds multiple properties in order to make computer guys life easier
     We use float instead of int since we divide in order to make conversions
     """
+
     def __new__(cls, value, *args, **kwargs):
         if value < 0:
             raise ValueError("Negative bytes should not exist")
@@ -159,7 +174,7 @@ class BytesConverter(float):
 
     @property
     def mbytes(self):
-        return round(self / (1024 ** 2), 1)
+        return round(self / (1024**2), 1)
 
     @property
     def mbits(self):
@@ -167,7 +182,7 @@ class BytesConverter(float):
 
     @property
     def gbytes(self):
-        return round(self / (1024 ** 3), 1)
+        return round(self / (1024**3), 1)
 
     @property
     def gbits(self):
@@ -175,7 +190,7 @@ class BytesConverter(float):
 
     @property
     def tbytes(self):
-        return round(self / (1024 ** 4), 1)
+        return round(self / (1024**4), 1)
 
     @property
     def tbits(self):
