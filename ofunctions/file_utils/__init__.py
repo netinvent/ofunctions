@@ -45,6 +45,9 @@ if sys.version_info[0] < 3:
     class FileNotFoundError(OSError):
         pass
 
+    class PermissionError(OSError):
+        pass
+
 
 # Python 2.7 compat where datetime.now() does not have .timestamp() method
 if sys.version_info[0] < 3 or sys.version_info[1] < 4:
