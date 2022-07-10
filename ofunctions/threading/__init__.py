@@ -33,8 +33,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "Threading decorator to run functions as threads"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.0"
-__build__ = "2022060301"
+__version__ = "1.0.1"
+__build__ = "2022071001"
 __compat__ = "python2.7+"
 
 
@@ -88,9 +88,11 @@ else:
         @wraps(fn)
         def wrapper(*args, **kwargs):
             future = Future()
-            threading.Thread(
+            thread = threading.Thread(
                 target=call_with_future, args=(fn, future, args, kwargs)
-            ).start()
+            )
+            thread.daemon = True
+            thread.start()
             return future
 
         return wrapper
