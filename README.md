@@ -25,7 +25,7 @@ ofunctions is a set of various recurrent functions amongst
 - json_sanitize: make sure json does not contain unsupported chars, yes I look at you Windows eventlog
 - logger_utils: basic no brain console + file log creation
 - mailer: A class to deal with email sending, regardless of ssl/tls protocols, in batch or as single mail, with attachments
-- network: various tools like ping, internet check, MTU probing and public IP discovery
+- network: various tools like ping, internet check, MTU probing, public IP discovery, network interface IO counters
 - platform: nothing special here, just check what arch we are running on
 - process: simple kill-them-all function to terminate subprocesses
 - random: basic random string & password generator
