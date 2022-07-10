@@ -556,7 +556,7 @@ def check_file_timestamp_delta(
     hours=0,  # type: int
     minutes=0,  # type: int
     seconds=0,  # type: int
-    timestamp=None  # type: float
+    timestamp=None,  # type: float
 ):
     # type: (...) -> bool
     """
@@ -639,7 +639,7 @@ def remove_files_on_timestamp_delta(
                 hours=hours,
                 minutes=minutes,
                 seconds=seconds,
-                timestamp=timestamp
+                timestamp=timestamp,
             ):
                 os.remove(filename)
         except FileNotFoundError:

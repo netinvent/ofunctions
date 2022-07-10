@@ -95,9 +95,11 @@ def get_distro():
     build = None
 
     if os.path.isfile(RHEL_path):
-        flavor="RHEL"
-        with open(RHEL_path, 'r') as file_handle:
-            result = re.search(r"(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)", file_handle.read(), re.MULTILINE)
+        flavor = "RHEL"
+        with open(RHEL_path, "r") as file_handle:
+            result = re.search(
+                r"(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)", file_handle.read(), re.MULTILINE
+            )
             try:
                 version = result.group(0)
             except AttributeError:

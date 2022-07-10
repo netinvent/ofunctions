@@ -47,16 +47,16 @@ logger = logging.getLogger()
 
 
 def ping(
-        targets=None,
-        # type: Union[Iterable[Union[str, IPv4Address, IPv6Address]], Union[str, IPv4Address, IPv6Address]]
-        mtu=1200,  # type: int
-        retries=2,  # type: int
-        timeout=4,  # type: float
-        interval=1,  # type: float
-        ip_type=None,  # type : int
-        do_not_fragment=False,  # type: bool
-        all_targets_must_succeed=False,  # type: bool
-        source_interface=None,  # type : str
+    targets=None,
+    # type: Union[Iterable[Union[str, IPv4Address, IPv6Address]], Union[str, IPv4Address, IPv6Address]]
+    mtu=1200,  # type: int
+    retries=2,  # type: int
+    timeout=4,  # type: float
+    interval=1,  # type: float
+    ip_type=None,  # type : int
+    do_not_fragment=False,  # type: bool
+    all_targets_must_succeed=False,  # type: bool
+    source_interface=None,  # type : str
 ):
     # type: (...) -> bool
     """
@@ -124,23 +124,27 @@ def ping(
             # Try to detect what kind of source we're dealing with, IP address or interface name
             try:
                 IPv6Address(source_interface)
-                source_type = 'ip'
+                source_type = "ip"
             except ValueError:
                 try:
                     IPv4Address(source_interface)
-                    source_type = 'ip'
+                    source_type = "ip"
                 except ValueError:
-                    source_type = 'iface'
+                    source_type = "iface"
 
-            if source_type == 'ip':
+            if source_type == "ip":
                 if os.name != "nt":
-                    raise ValueError("Source address does only work on Windows platform")
+                    raise ValueError(
+                        "Source address does only work on Windows platform"
+                    )
                 # -S
                 command += " -S {}".format(source_interface)
 
-            if source_type == 'iface':
+            if source_type == "iface":
                 if os.name == "nt":
-                    raise ValueError("Source interface does not work on Windows platform")
+                    raise ValueError(
+                        "Source interface does not work on Windows platform"
+                    )
                 command += " -I {}".format(source_interface)
 
         command += " {}".format(target)
@@ -239,11 +243,11 @@ def _try_server(server, proxy_dict, timeout):
 
 
 def test_http_internet(
-        fqdn_servers=None,  # type: List[str]
-        ip_servers=None,  # type: List[Union[IPv4Address, IPv6Address]]
-        proxy=None,  # type: str
-        timeout=5,  # type: int
-        all_targets_must_succeed=False,  # type: bool
+    fqdn_servers=None,  # type: List[str]
+    ip_servers=None,  # type: List[Union[IPv4Address, IPv6Address]]
+    proxy=None,  # type: str
+    timeout=5,  # type: int
+    all_targets_must_succeed=False,  # type: bool
 ):
     # type: (...) -> bool
     """
@@ -311,16 +315,16 @@ def test_http_internet(
 
         # Don't bother with diag message when multiple fqdn_servers exist and all_targets_must_succeed is enabled
         if not all_targets_must_succeed or (
-                all_targets_must_succeed and len(fqdn_servers) == 1
+            all_targets_must_succeed and len(fqdn_servers) == 1
         ):
             diag_messages = (
-                    diag_messages
-                    + "\nNo FQDN server test worked, but at least one IP server test worked. "
-                      "Looks like a DNS resolving issue, or IP specific firewall rules."
+                diag_messages
+                + "\nNo FQDN server test worked, but at least one IP server test worked. "
+                "Looks like a DNS resolving issue, or IP specific firewall rules."
             )
         if not dns_resolver_works:
             diag_messages = (
-                    diag_messages + "\nIt seems that DNS resolution does not work."
+                diag_messages + "\nIt seems that DNS resolution does not work."
             )
         else:
             diag_messages = diag_messages + "\nDNS resolution seems to work."
@@ -391,7 +395,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
     """
 
     if not target:
-        raise ValueError('No valid target given.')
+        raise ValueError("No valid target given.")
 
     if method == "ICMP":
         # Let's always keep 2 retries just to make sure we don't get false positives
@@ -405,7 +409,8 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
             pass
 
         ping_args = [
-            (target, mtu, 2, 4, 1, ip_type, True, False, source_interface) for mtu in range(min, max + 1)
+            (target, mtu, 2, 4, 1, ip_type, True, False, source_interface)
+            for mtu in range(min, max + 1)
         ]
 
         # Bisect will return argument, list, let's just return the MTU
@@ -433,6 +438,7 @@ class IOInterface:
     IOCounters counts instant sent / received bytes as soon a class instance is created
     Also counts total and average send / received bytes
     """
+
     def __init__(self, name):
         self.name = name
         self._sent = BytesConverter(0)
@@ -451,7 +457,15 @@ class IOInterface:
         self._recv_total_reset_value = 0
 
     def __repr__(self):
-        return 'Interface {}: {} sent bytes, {} recv bytes, {} total sent bytes, {} total recv bytes, Avg {} bytes/s sent, Avg {} bytes/s recv'.format(self.name, self.sent, self.recv, self.sent_total, self.recv_total, self._sent_avg_speed, self._recv_avg_speed)
+        return "Interface {}: {} sent bytes, {} recv bytes, {} total sent bytes, {} total recv bytes, Avg {} bytes/s sent, Avg {} bytes/s recv".format(
+            self.name,
+            self.sent,
+            self.recv,
+            self.sent_total,
+            self.recv_total,
+            self._sent_avg_speed,
+            self._recv_avg_speed,
+        )
 
     @property
     def sent(self):
@@ -517,10 +531,10 @@ class IOInterface:
     def recv_avg_speed_samples(self):
         return self._recv_avg_speed_samples
 
-class IOCounters:
-    """
 
-    """
+class IOCounters:
+    """ """
+
     def __init__(self, interface_names=None, resolution=1):
         # type: (List[str], float) -> None
         self.counters = {}
@@ -551,24 +565,62 @@ class IOCounters:
         # Initialize total counters so we don't get high instant values at first run
         iface_results = psutil.net_io_counters(pernic=True, nowrap=True)
         for interface in self.interfaces:
-            self.interfaces[interface]._sent_total_reset_value = BytesConverter(iface_results[interface].bytes_sent)
-            self.interfaces[interface]._recv_total_reset_value = BytesConverter(iface_results[interface].bytes_recv)
-            self.interfaces[interface].sent_total = BytesConverter(iface_results[interface].bytes_sent)
-            self.interfaces[interface].recv_total = BytesConverter(iface_results[interface].bytes_recv)
+            self.interfaces[interface]._sent_total_reset_value = BytesConverter(
+                iface_results[interface].bytes_sent
+            )
+            self.interfaces[interface]._recv_total_reset_value = BytesConverter(
+                iface_results[interface].bytes_recv
+            )
+            self.interfaces[interface].sent_total = BytesConverter(
+                iface_results[interface].bytes_sent
+            )
+            self.interfaces[interface].recv_total = BytesConverter(
+                iface_results[interface].bytes_recv
+            )
         while True:
             iface_results = psutil.net_io_counters(pernic=True, nowrap=True)
             for interface in self.interfaces:
                 sent_new_value = iface_results[interface].bytes_sent
                 recv_new_value = iface_results[interface].bytes_recv
                 # We still use BytesConverter cast here since Python 2.7 does not work when casting in IOInterface class property
-                self.interfaces[interface].sent = BytesConverter(sent_new_value - self.interfaces[interface].sent_total - self.interfaces[interface]._sent_total_reset_value)
-                self.interfaces[interface].recv = BytesConverter(recv_new_value - self.interfaces[interface].recv_total - self.interfaces[interface]._recv_total_reset_value)
+                self.interfaces[interface].sent = BytesConverter(
+                    sent_new_value
+                    - self.interfaces[interface].sent_total
+                    - self.interfaces[interface]._sent_total_reset_value
+                )
+                self.interfaces[interface].recv = BytesConverter(
+                    recv_new_value
+                    - self.interfaces[interface].recv_total
+                    - self.interfaces[interface]._recv_total_reset_value
+                )
 
                 # Calculate average speed depending on self.resolution which is calculated in seconds
-                sent_bytes_per_second = self.interfaces[interface].sent / self.resolution
-                self.interfaces[interface].sent_avg_speed = BytesConverter(round((self.interfaces[interface].sent_avg_speed + sent_bytes_per_second) / (self.interfaces[interface].sent_avg_speed_samples + 1), 2))
-                recv_bytes_per_second = self.interfaces[interface].recv / self.resolution
-                self.interfaces[interface].recv_avg_speed = BytesConverter(round((self.interfaces[interface].recv_avg_speed + recv_bytes_per_second) / (self.interfaces[interface].recv_avg_speed_samples + 1), 2))
+                sent_bytes_per_second = (
+                    self.interfaces[interface].sent / self.resolution
+                )
+                self.interfaces[interface].sent_avg_speed = BytesConverter(
+                    round(
+                        (
+                            self.interfaces[interface].sent_avg_speed
+                            + sent_bytes_per_second
+                        )
+                        / (self.interfaces[interface].sent_avg_speed_samples + 1),
+                        2,
+                    )
+                )
+                recv_bytes_per_second = (
+                    self.interfaces[interface].recv / self.resolution
+                )
+                self.interfaces[interface].recv_avg_speed = BytesConverter(
+                    round(
+                        (
+                            self.interfaces[interface].recv_avg_speed
+                            + recv_bytes_per_second
+                        )
+                        / (self.interfaces[interface].recv_avg_speed_samples + 1),
+                        2,
+                    )
+                )
                 self.interfaces[interface].sent_total = BytesConverter(sent_new_value)
                 self.interfaces[interface].recv_total = BytesConverter(recv_new_value)
             time.sleep(self.resolution)
@@ -576,12 +628,19 @@ class IOCounters:
     def reset(self):
         iface_results = psutil.net_io_counters(pernic=True, nowrap=True)
         for interface in self.interfaces:
-            self.interfaces[interface]._sent_total_reset_value = BytesConverter(iface_results[interface].bytes_sent)
-            self.interfaces[interface]._recv_total_reset_value = BytesConverter(iface_results[interface].bytes_recv)
-            self.interfaces[interface].sent_total = BytesConverter(iface_results[interface].bytes_sent)
-            self.interfaces[interface].recv_total = BytesConverter(iface_results[interface].bytes_recv)
+            self.interfaces[interface]._sent_total_reset_value = BytesConverter(
+                iface_results[interface].bytes_sent
+            )
+            self.interfaces[interface]._recv_total_reset_value = BytesConverter(
+                iface_results[interface].bytes_recv
+            )
+            self.interfaces[interface].sent_total = BytesConverter(
+                iface_results[interface].bytes_sent
+            )
+            self.interfaces[interface].recv_total = BytesConverter(
+                iface_results[interface].bytes_recv
+            )
             self.interfaces[interface].sent_avg_speed = BytesConverter(0)
             self.interfaces[interface]._sent_avg_speed_samples = 0
             self.interfaces[interface].recv_avg_speed = BytesConverter(0)
             self.interfaces[interface]._recv_avg_speed_samples = 0
-
