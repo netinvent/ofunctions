@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2017-2022 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.2"
-__build__ = "2022061601"
+__version__ = "1.2.3"
+__build__ = "2022101801"
 __compat__ = "python2.7+"
 
 import json
@@ -632,7 +632,7 @@ def remove_files_on_timestamp_delta(
     if not os.path.isdir(directory):
         raise FileNotFoundError("[%s] not found." % directory)
 
-    for filename in get_paths_recursive(directory):
+    for filename in get_paths_recursive(directory, exclude_dirs=True):
         try:
             if check_file_timestamp_delta(
                 filename,
