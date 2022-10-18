@@ -552,7 +552,7 @@ def file_modification_date(
 
 
 def check_file_timestamp_delta(
-    file,  # type: str,
+    file,  # type: str
     mac_type="ctime",  # type: str
     years=0,  # type: int
     days=0,  # type: int
@@ -590,7 +590,7 @@ def check_file_timestamp_delta(
 
 
 def is_file_older_than(
-    file,  # type: str,
+    file,  # type: str
     years=0,  # type: int
     days=0,  # type: int
     hours=0,  # type: int
@@ -614,7 +614,7 @@ def is_file_older_than(
 
 
 def remove_files_on_timestamp_delta(
-    directory,  # type: str,
+    directory,  # type: str
     mac_type="ctime",  # type: str
     years=0,  # type: int
     days=0,  # type: int
@@ -652,7 +652,7 @@ def remove_files_on_timestamp_delta(
 
 
 def remove_files_older_than(
-    directory,  # type: str,
+    directory,  # type: str
     years=0,  # type: int
     days=0,  # type: int
     hours=0,  # type: int
