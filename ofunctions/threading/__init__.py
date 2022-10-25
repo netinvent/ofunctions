@@ -133,6 +133,7 @@ def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
             # We need to create a global variable if it doesn't exist so we can keep track of executions outside of this decorator
             global __NO_FLOOD_TIMEOUT
             try:
+                # pylint: disable=E0601 (used-before-assignment)
                 __NO_FLOOD_TIMEOUT
             except:
                 __NO_FLOOD_TIMEOUT = {}
