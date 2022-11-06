@@ -31,12 +31,12 @@ ofunctions is a set of various recurrent functions amongst
 - random: basic random string & password generator
 - service_control: control Windows / Linux service start / stop / status
 - string_handling: remove accents / special chars from strings
-- threading: threading decorator for functions
+- threading: threading decorator for functions, also contains a function call anti-flood system
 
 ofunctions is compatible with Python 2.7 and 3.5+ and is tested on both Linux and Windows.
 There are still two subpackages that will only work with Python 3.5+
 - delayed_keyboardinterrupt (signal handling is different in Python 2.7)
-- threading (we don't have concurrent_futures in python 2.7)
+- threading (we don't have concurrent_futures in python 2.7, so the @threaded decorator will indeed work, but can't return a result)
 
 
 ## Setup
@@ -214,3 +214,58 @@ while True:
 ## string_handling Usage
 
 ## threading Usage
+
+### @threaded
+
+threading comes with a couple of decorators that allow to modify functions.
+In order to thread a function, you can simply apply the `@threaded` decorator like below.
+
+Once you call the function, it will automatically be threaded, and you get to keep your execution flow.
+You can then execute whatever you want, or wait for it's result:
+
+```
+@threaded
+def my_nice_function():
+   # Do some nice stuff
+   return result
+   
+def main():
+   # Some stuff
+   thread = my_nice_function()
+   # Some other stuff being executed while my_nice_function runs in a thread
+   # now let's wait for my function result
+   result = thread.result()
+```
+
+Remember that Python 2.7 can't give you a result, so the function will be threaded, but without any possible return codes.
+
+### @no_flood
+
+There are situations where some code can call multiple times the same function (on a trigger for example), but you don't want that function to run multiple times.
+That's a situation where we should handle function call antiflooding.
+
+Example:
+```
+# Adding @no_flood(5) only allows one execution of my_function per 5 seconds
+
+@no_flood(5)
+def my_function():
+    print("Hey, it's me !")
+  
+# Will run my_function() only once
+for _ in range(0, 20):
+    my_function()
+```
+
+Multiple executions of a functions are permitted as long as they're called with different arguments.
+The `@no_flood` decorator can be setup to prevent **any** multiple function execution in a given timespan, regarless of it's arguments:
+
+```
+@no_flood(5, multiple_instances_diff_args=False)
+@def my_function(var):
+    print("Hey, it's me: {}".format(var))
+
+# Will run my_function() only once
+for i in range(0, 20):
+    my_function(i)
+```
