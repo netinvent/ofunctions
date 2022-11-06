@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.1"
-__build__ = "2022070701"
+__version__ = "1.3.2"
+__build__ = "2022110601"
 __compat__ = "python2.7+"
 
 import logging
@@ -43,7 +43,7 @@ try:
 except ImportError:
     pass
 
-logger = logging.getLogger()
+logger = logging.getLogger(__intname__)
 
 
 def ping(

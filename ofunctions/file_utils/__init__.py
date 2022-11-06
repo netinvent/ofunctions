@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2017-2022 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.3"
-__build__ = "2022101801"
+__version__ = "1.2.4"
+__build__ = "2022110601"
 __compat__ = "python2.7+"
 
 import json
@@ -65,7 +65,7 @@ else:
 
 from command_runner import command_runner
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__intname__)
 FILE_LOCK = None
 
 

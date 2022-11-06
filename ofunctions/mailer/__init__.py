@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.0"
-__build__ = "2022041603"
+__version__ = "1.2.1"
+__build__ = "2022110601"
 __compat__ = "python2.7+"
 
 import logging
@@ -65,7 +65,7 @@ if sys.version_info[0] < 3:
         pass
 
 
-logger = logging.getLogger("__intname__")
+logger = logging.getLogger(__intname__)
 
 
 class Mailer:
