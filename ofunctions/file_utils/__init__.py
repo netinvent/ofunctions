@@ -582,8 +582,8 @@ def check_file_timestamp_delta(
     )
 
     if not timestamp:
-        if os.name == "nt":
-            # file creation date is UTC for Linux, TZ for Windows
+        if os.name == "nt" or sys.version_info[0] < 3:
+            # file creation date is UTC for Linux Python 3+, TZ for Windows or Linux Python 2.7
             now = get_timestamp(datetime.now())
         else:
             now = get_timestamp(datetime.utcnow())
