@@ -245,7 +245,10 @@ def move_file(
     make_path(os.path.dirname(dest))
     with _file_lock():
         # Using copy function because we don't want metadata, permissions, buffer nor anything else
-        shutil.move(source, dest, copy_function=shutil.copy)
+        if sys.version_info[0] >= 3:
+            shutil.move(source, dest, copy_function=shutil.copy)
+        else:
+            shutil.move(source, dest)
 
 
 def glob_path_match(
