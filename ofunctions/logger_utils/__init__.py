@@ -101,10 +101,11 @@ class ContextFilterWorstLevel(logging.Filter):
 def get_logger_formatter(formatter_insert=None):
     # type: (Optional[str]) -> logging.Formatter
     if formatter_insert:
-        return logging.Formatter(FORMATTER.replace('##OPTINAL_STRING##', '{} :: '.format(formatter_insert)))
+        return logging.Formatter(
+            FORMATTER.replace("##OPTINAL_STRING##", "{} :: ".format(formatter_insert))
+        )
     else:
-        return logging.Formatter(FORMATTER.replace('##OPTINAL_STRING##', ""))
-
+        return logging.Formatter(FORMATTER.replace("##OPTINAL_STRING##", ""))
 
 
 def logger_get_console_handler(
@@ -222,9 +223,7 @@ def logger_get_logger(
         _logger.setLevel(logging.INFO)
 
     if console:
-        console_handler = logger_get_console_handler(
-            formatter_insert=formatter_insert
-        )
+        console_handler = logger_get_console_handler(formatter_insert=formatter_insert)
         if console_handler:
             _logger.addHandler(console_handler)
     if log_file:
