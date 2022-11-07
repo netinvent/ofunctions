@@ -123,6 +123,33 @@ my_santized_json will contain `{'somename': 'somevalue'}`
 
 ## logger_utils Usage
 
+ofunctions.logger_utils is an easy implementation of logger which promises to always work, regardless of encoding issues.
+Easy usage:
+```
+from ofunctions.logger_utils import logger_get_logger
+
+logger = logger_get_logger(log_file='/path/to/log/file')
+```
+
+logger_utils will automatically try to open a temp log file if given log_file is not writable.
+You can also disable console output with `console=False`, enable debug_mode with `debug=True` (or later with `logger.setLevel(logging.DEBUG)`).
+Also allows to inject more LOGGER formatter objects, eg:
+```
+logger = logger_get_logger(formatter_insert="%(processName)s")
+```
+
+logger_utils also allows to know what was the worst loglevel that has been called in your program:
+
+```
+from ofunctions.logger_utils import logger_get_logger, get_worst_logger_level
+
+logger = logger_get_logger()
+logger.error("Oh no !")
+
+print("worst log level was :", get_worst_logger_level())  # 10-50, 10 = debug, 50 = critical
+```
+
+
 ## mailer Usage
 
 ofunctions.mailer is a simple mailing class and a rfc822 email validation function.
