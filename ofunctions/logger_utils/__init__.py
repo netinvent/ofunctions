@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.2.1"
-__build__ = "2022052301"
+__version__ = "2.3.0"
+__build__ = "2022110711"
 __compat__ = "python2.7+"
 
 import logging
@@ -30,16 +30,13 @@ from logging.handlers import RotatingFileHandler
 
 # python 2.7 compat fixes
 try:
-    from typing import Union, Tuple
+    from typing import Union, Tuple, Optional
 except ImportError:
     pass
 
 # Logging functions ########################################################
 
-FORMATTER = logging.Formatter("%(asctime)s :: %(levelname)s :: %(message)s")
-MP_FORMATTER = logging.Formatter(
-    "%(asctime)s :: %(levelname)s :: %(processName)s :: %(message)s"
-)
+FORMATTER = logging.Formatter("%(asctime)s :: %(levelname)s :: ##OPTINAL_STRING##%(message)s")
 
 
 class FixPython2Logging(logging.Filter):
@@ -102,16 +99,16 @@ class ContextFilterWorstLevel(logging.Filter):
 
 
 def logger_get_console_handler(
-    multiprocessing_formatter=False,
+    formatter_insert=None,
 ):
-    # type: (bool) -> Union[logging.StreamHandler, None]
+    # type: (Optional[str]) -> Union[logging.StreamHandler, None]
     """
     Returns a console handler that outputs as UTF-8 regardless of the platform
     """
-    if multiprocessing_formatter:
-        formatter = MP_FORMATTER
+    if formatter_insert:
+        formatter = FORMATTER.replace('##OPTINAL_STRING##', formatter_insert + ' :: ')
     else:
-        formatter = FORMATTER
+        formatter = FORMATTER.replace('##OPTINAL_STRING##', "")
 
     # When Nuitka compiled under Windows, calls to subshells are opened as cp850 / other system locale
     # This behavior makes logging popen output to stdout/stderr fail
@@ -149,16 +146,16 @@ def logger_get_console_handler(
         return console_handler
 
 
-def logger_get_file_handler(log_file, multiprocessing_formatter=False):
-    # type: (str, bool) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
+def logger_get_file_handler(log_file, formatter_insert=None):
+    # type: (str, Optional[None]) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
     """
     Returns a log file handler
     On failire, will return a temporary file log handler
     """
-    if multiprocessing_formatter:
-        formatter = MP_FORMATTER
+    if formatter_insert:
+        formatter = FORMATTER.replace('##OPTINAL_STRING##', formatter_insert + ' :: ')
     else:
-        formatter = FORMATTER
+        formatter = FORMATTER.replace('##OPTINAL_STRING##', "")
     err_output = None
     try:
         file_handler = RotatingFileHandler(
@@ -200,7 +197,7 @@ def logger_get_logger(
     temp_log_file=None,  # type: str
     console=True,  # type: bool
     debug=False,  # type: bool
-    multiprocessing_formatter=False,  # type: bool
+    formatter_insert=None,  # type: str
 ):
     # type: (...) -> logging.Logger
     """
@@ -224,13 +221,13 @@ def logger_get_logger(
 
     if console:
         console_handler = logger_get_console_handler(
-            multiprocessing_formatter=multiprocessing_formatter
+            formatter_insert=formatter_insert
         )
         if console_handler:
             _logger.addHandler(console_handler)
     if log_file:
         file_handler, err_output = logger_get_file_handler(
-            log_file, multiprocessing_formatter=multiprocessing_formatter
+            log_file, formatter_insert=formatter_insert
         )
         if file_handler:
             _logger.addHandler(file_handler)
@@ -250,7 +247,7 @@ def logger_get_logger(
                     temp_log_file,
                 )
         file_handler, err_output = logger_get_file_handler(
-            temp_log_file, multiprocessing_formatter=multiprocessing_formatter
+            temp_log_file, formatter_insert=formatter_insert
         )
         if file_handler:
             _logger.addHandler(file_handler)
