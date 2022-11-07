@@ -36,7 +36,7 @@ except ImportError:
 
 # Logging functions ########################################################
 
-FORMATTER = logging.Formatter("%(asctime)s :: %(levelname)s :: ##OPTINAL_STRING##%(message)s")
+FORMATTER = "%(asctime)s :: %(levelname)s :: ##OPTINAL_STRING##%(message)s"
 
 
 class FixPython2Logging(logging.Filter):
@@ -98,6 +98,15 @@ class ContextFilterWorstLevel(logging.Filter):
         return True
 
 
+def get_logger_formatter(formatter_insert=None):
+    # type: (Optional[str]) -> logging.Formatter
+    if formatter_insert:
+        return logging.Formatter(FORMATTER.replace('##OPTINAL_STRING##', '{} :: '.format(formatter_insert)))
+    else:
+        return logging.Formatter(FORMATTER.replace('##OPTINAL_STRING##', ""))
+
+
+
 def logger_get_console_handler(
     formatter_insert=None,
 ):
@@ -105,11 +114,7 @@ def logger_get_console_handler(
     """
     Returns a console handler that outputs as UTF-8 regardless of the platform
     """
-    if formatter_insert:
-        formatter = FORMATTER.replace('##OPTINAL_STRING##', formatter_insert + ' :: ')
-    else:
-        formatter = FORMATTER.replace('##OPTINAL_STRING##', "")
-
+    formatter = get_logger_formatter(formatter_insert)
     # When Nuitka compiled under Windows, calls to subshells are opened as cp850 / other system locale
     # This behavior makes logging popen output to stdout/stderr fail
     # Let's force stdout and stderr to always be utf-8
@@ -152,10 +157,7 @@ def logger_get_file_handler(log_file, formatter_insert=None):
     Returns a log file handler
     On failire, will return a temporary file log handler
     """
-    if formatter_insert:
-        formatter = FORMATTER.replace('##OPTINAL_STRING##', formatter_insert + ' :: ')
-    else:
-        formatter = FORMATTER.replace('##OPTINAL_STRING##', "")
+    formatter = get_logger_formatter(formatter_insert)
     err_output = None
     try:
         file_handler = RotatingFileHandler(
