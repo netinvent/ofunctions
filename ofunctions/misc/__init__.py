@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.misc"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.4.0"
-__build__ = "2022063001"
+__version__ = "1.5.0"
+__build__ = "2022010401"
 __compat__ = "python2.7+"
 
 
@@ -145,53 +145,170 @@ def is_nan(var):
     return not var == var
 
 
-class BytesConverter(float):
+class BytesConverter(int):
     """
-    float subclass that adds multiple properties in order to make computer guys life easier
-    We use float instead of int since we divide in order to make conversions
+    int subclass that adds multiple properties in order to make computer guys life easier
+
+    Converting bytes to other units:
+
+    kilobytes = BytesConverter(2049).kbytes
+    print(kilobytes)
+    > 2
+
+    terabits = BytesConverter(1000000000000).tbits
+    print(terabits)
+    > 7.2
+
+    Getting human readable output
+
+    print(BytesConverter(4350580).human)
+    > 4.1 MB
+    Getting bytes from human readable input
+
+    print(BytesConverter("64 KB"))
+    > 65536
     """
 
+    byte_units = ["EB", "PB", "TB", "GB", "MB", "KB", "B"]
+    bits_units = ["Eb", "Pb", "Tb", "Gb", "Mb", "Kb", "b"]
+    units = {
+        "b": 8,
+        "B": 1,
+        "KB": 1024,
+        "Kb": 1024,
+        "MB": 1024**2,
+        "Mb": 1024**2,
+        "GB": 1024**3,
+        "Gb": 1024**3,
+        "TB": 1024**4,
+        "Tb": 1024**4,
+        "PB": 1024**5,
+        "Pb": 1024**5,
+        "EB": 1024**6,
+        "Eb": 1024**6,
+    }
+
     def __new__(cls, value, *args, **kwargs):
+        """
+        Creates a new int type object
+        We can give an int parameter (which will be bytes) or a str parameter (like '500KB') which will be translated to bytes
+        """
+        if isinstance(value, str):
+            value = cls._from_units_to_bytes(cls, value)
         if value < 0:
             raise ValueError("Negative bytes should not exist")
         return super(cls, cls).__new__(cls, value)
 
+    def _from_units_to_bytes(self, string):
+        # Check if we have value:
+        value = None
+        for unit in self.byte_units + self.bits_units:
+            result = string.split(unit)
+            if len(result) == 2:
+                value = float(result[0]) * self.units[unit]
+                if unit in self.bits_units:
+                    value /= 8
+                break
+        if not value:
+            try:
+                return float(string)
+            except ValueError:
+                pass
+            raise ValueError(
+                'Given string "{}" cannot be converted to bytes'.format(string)
+            )
+        return value
+
+    def _from_bytes_to_unit(self, unit):
+        result = round(self / self.units[unit], 1)
+        if unit in self.bits_units:
+            result *= 8
+        int_result = int(result)
+        if result == int_result:
+            return int_result
+        return result
+
     @property
     def bytes(self):
-        return round(self, 1)
+        return self
 
     @property
     def bits(self):
-        return round(self * 8, 1)
+        return round(self * 8, 0)
 
     @property
     def kbytes(self):
-        return round(self / 1024, 1)
+        return self._from_bytes_to_unit("KB")
 
     @property
     def kbits(self):
-        return self.kbytes * 8
+        return self._from_bytes_to_unit("Kb")
 
     @property
     def mbytes(self):
-        return round(self / (1024**2), 1)
+        return self._from_bytes_to_unit("MB")
 
     @property
     def mbits(self):
-        return self.mbytes * 8
+        return self._from_bytes_to_unit("Mb")
 
     @property
     def gbytes(self):
-        return round(self / (1024**3), 1)
+        return self._from_bytes_to_unit("GB")
 
     @property
     def gbits(self):
-        return self.gbytes * 8
+        return self._from_bytes_to_unit("Gb")
 
     @property
     def tbytes(self):
-        return round(self / (1024**4), 1)
+        return self._from_bytes_to_unit("TB")
 
     @property
     def tbits(self):
-        return self.tbytes * 8
+        return self._from_bytes_to_unit("Tb")
+
+    @property
+    def pbytes(self):
+        return self._from_bytes_to_unit("PB")
+
+    @property
+    def pbits(self):
+        return self._from_bytes_to_unit("Pb")
+
+    @property
+    def ebytes(self):
+        return self._from_bytes_to_unit("EB")
+
+    @property
+    def ebits(self):
+        return self._from_bytes_to_unit("Eb")
+
+    def _to_human(self, units):
+        """
+        Converts an int / float to a human readable format with less than 5 significant digits
+        """
+        for unit in units:
+            operation = self.units[unit]
+
+            result = self / operation
+            if unit in self.bits_units:
+                result *= 8
+            integer_len = len(str(int(result)))
+            if int(result) == 0:
+                continue
+            if integer_len <= 4:
+                return "{} {}".format(round(result, 1), unit)
+        return "{} {}".format(result, unit)
+
+    @property
+    def human_bytes(self):
+        return self._to_human(self.byte_units)
+
+    @property
+    def human(self):
+        return self.human_bytes
+
+    @property
+    def human_bits(self):
+        return self._to_human(self.bits_units)

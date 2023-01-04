@@ -1,3 +1,10 @@
+# Current master
+
+## Features
+
+### misc
+- Improved BytesConverter class in order to deal with human notations
+
 # v2.4.0
 
 ## Features

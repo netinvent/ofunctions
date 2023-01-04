@@ -199,6 +199,56 @@ mailer = Mailer()  # Uses localhost:25
 mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails='them@example.com', body='some body just told me', attachment=attachment, filename='My Attachment File.txt')
 ```
 
+## misc Usage
+
+Misc is a collection of somehow useful functions.
+
+Example: BytesConverter
+
+BytesConverter is that little tool that you want when handling bits and byte units.
+Internally, BytesConverter always represents data an int number of bytes.
+BytesConverter will return a float or a str if human output is requested.
+
+Example:
+
+```
+from ofunctions.misc import BytesConverter
+
+print(BytesConverter(1234))
+print(BytesConverter(1234).bits)
+print(BytesConverter(1234).kbytes)
+print(BytesConverter(1234).human)
+print(BytesConverter(65535).kbytes)
+print(BytesConverter(9000000).mbytes)
+print(BytesConverter("4MB"))
+print(BytesConverter("9600 Kb").mbytes)
+
+```
+
+Output will be:
+```
+1234
+9872
+1.2
+1.2 KB
+64
+8.6
+4194304
+1.2
+```
+
+Arithmetics:
+```
+print(BytesConverter("50 MB") + BytesConverter("8192 Kb"))
+print(BytesConverter(BytesConverter("50 MB") + BytesConverter("8192 Kb")).human)
+```
+
+Output
+```
+53477376
+51.0 MB
+```
+
 ## network Usage
 
 ofunctions.network is a collection of various tools making network diag / mapping easier.
