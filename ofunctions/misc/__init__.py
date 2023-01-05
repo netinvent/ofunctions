@@ -311,7 +311,7 @@ class BytesConverter(float):
             result = self / operation
             if unit in self.bits_units:
                 result *= 8
-            
+
             # Check whether the int part of our result is to small
             if len(str(result).split("e-")) == 2:
                 continue
