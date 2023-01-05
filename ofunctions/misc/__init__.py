@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.5.0"
-__build__ = "2022010401"
+__build__ = "2023010501"
 __compat__ = "python2.7+"
 
 
@@ -145,9 +145,11 @@ def is_nan(var):
     return not var == var
 
 
-class BytesConverter(int):
+class BytesConverter(float):
     """
-    int subclass that adds multiple properties in order to make computer guys life easier
+    float subclass that adds multiple properties in order to make computer guys life easier
+    Internal always reasons in byte unit represented as float
+    So why float ? Because on multiple python versions, int is limited to 2**32, which is only 4GB
 
     Converting bytes to other units:
 
@@ -193,8 +195,26 @@ class BytesConverter(int):
         Creates a new int type object
         We can give an int parameter (which will be bytes) or a str parameter (like '500KB') which will be translated to bytes
         """
+
+        # If a string was given, we'll try to convert it's unit to bytes
         if isinstance(value, str):
-            value = cls._from_units_to_bytes(cls, value)
+            converted_value = None
+            for unit in cls.byte_units + cls.bits_units:
+                result = value.split(unit)
+                if len(result) == 2:
+                    converted_value = float(result[0]) * cls.units[unit]
+                    if unit in cls.bits_units:
+                        converted_value /= 8
+                    break
+            if not converted_value:
+                try:
+                    converted_value = float(value)
+                except ValueError:
+                    pass
+                raise ValueError(
+                    'Given string "{}" cannot be converted to bytes'.format(value)
+                )
+            value = converted_value
         if value < 0:
             raise ValueError("Negative bytes should not exist")
         return super(cls, cls).__new__(cls, value)
@@ -223,9 +243,6 @@ class BytesConverter(int):
         result = round(self / self.units[unit], 1)
         if unit in self.bits_units:
             result *= 8
-        int_result = int(result)
-        if result == int_result:
-            return int_result
         return result
 
     @property
@@ -294,10 +311,14 @@ class BytesConverter(int):
             result = self / operation
             if unit in self.bits_units:
                 result *= 8
-            integer_len = len(str(int(result)))
-            if int(result) == 0:
+            
+            # Check whether the int part of our result is to small
+            if len(str(result).split("e-")) == 2:
                 continue
-            if integer_len <= 4:
+            integer_result = str(result).split(".")[0]
+            if integer_result == "0":
+                continue
+            if len(integer_result) <= 4:
                 return "{} {}".format(round(result, 1), unit)
         return "{} {}".format(result, unit)
 
