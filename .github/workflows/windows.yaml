@@ -39,4 +39,4 @@ jobs:
         # $Env:RUNNING_ON_GITHUB_ACTIONS = true
         python -m coverage run -m pytest -s tests
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
