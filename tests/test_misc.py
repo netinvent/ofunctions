@@ -46,9 +46,9 @@ def test_bytesconverter():
 
     x = BytesConverter("20MB")
     print(x.human)
-    print(x.human_bibytes)
+    print(x.human_iec_bytes)
     print(x.human_bits)
-    print(x.human_bibits)
+    print(x.human_iec_bits)
     assert x.human == "20.0 MB"
     assert x.human_iec_bytes == "19.1 MiB"
     assert x.human_bits == "160.0 Mb"
