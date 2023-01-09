@@ -18,7 +18,7 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.0"
+__version__ = "1.5.1"
 __build__ = "2023010501"
 __compat__ = "python2.7+"
 
@@ -171,23 +171,39 @@ class BytesConverter(float):
     > 65536
     """
 
-    byte_units = ["EB", "PB", "TB", "GB", "MB", "KB", "B"]
-    bits_units = ["Eb", "Pb", "Tb", "Gb", "Mb", "Kb", "b"]
+    # We need to respect international system of units standards https://physics.nist.gov/cuu/Units/binary.html
+    byte_units = ["EB", "EiB", "PB", "PiB", "TB", "TiB", "GB", "GiB", "MB", "MiB", "KB", "KiB", "B"]
+    bits_units = ["Eb", "Eib", "Pb", "Pib", "Tb", "Tib", "Gb", "Gib", "Mb", "Mib", "Kb", "Kib" ,"b"]
     units = {
+        """
+        We'll keep bytes and bits measures the same here, except we'll multiply or divide by 8 later for bits
+        """
         "b": 8,
         "B": 1,
-        "KB": 1024,
-        "Kb": 1024,
-        "MB": 1024**2,
-        "Mb": 1024**2,
-        "GB": 1024**3,
-        "Gb": 1024**3,
-        "TB": 1024**4,
-        "Tb": 1024**4,
-        "PB": 1024**5,
-        "Pb": 1024**5,
-        "EB": 1024**6,
-        "Eb": 1024**6,
+        "KB": 10**3,
+        "Kb": 10**3,
+        "KiB": 1024,
+        "Kib": 1024,
+        "MB": 10**6,
+        "Mb": 10**6,
+        "MiB": 1024**2,
+        "Mib": 1024**2,
+        "GB": 10**9,
+        "Gb": 10**9,
+        "GiB": 1024**3,
+        "Gib": 1024**3,
+        "TB": 10**12,
+        "Tb": 10**12,
+        "TiB": 1024**4,
+        "Tib": 1024**4,
+        "PB": 10**15,
+        "Pb": 10**15,
+        "PiB": 1024**5,
+        "Pib": 1024**5,
+        "EB": 1000**18,
+        "Eb": 1000**18,
+        "EiB": 1024**6,
+        "Eib": 1024**6,
     }
 
     def __new__(cls, value, *args, **kwargs):
@@ -255,51 +271,51 @@ class BytesConverter(float):
 
     @property
     def kbytes(self):
-        return self._from_bytes_to_unit("KB")
+        return self._from_bytes_to_unit("KiB")
 
     @property
     def kbits(self):
-        return self._from_bytes_to_unit("Kb")
+        return self._from_bytes_to_unit("Kib")
 
     @property
     def mbytes(self):
-        return self._from_bytes_to_unit("MB")
+        return self._from_bytes_to_unit("MiB")
 
     @property
     def mbits(self):
-        return self._from_bytes_to_unit("Mb")
+        return self._from_bytes_to_unit("Mib")
 
     @property
     def gbytes(self):
-        return self._from_bytes_to_unit("GB")
+        return self._from_bytes_to_unit("GiB")
 
     @property
     def gbits(self):
-        return self._from_bytes_to_unit("Gb")
+        return self._from_bytes_to_unit("Gib")
 
     @property
     def tbytes(self):
-        return self._from_bytes_to_unit("TB")
+        return self._from_bytes_to_unit("TiB")
 
     @property
     def tbits(self):
-        return self._from_bytes_to_unit("Tb")
+        return self._from_bytes_to_unit("Tib")
 
     @property
     def pbytes(self):
-        return self._from_bytes_to_unit("PB")
+        return self._from_bytes_to_unit("PiB")
 
     @property
     def pbits(self):
-        return self._from_bytes_to_unit("Pb")
+        return self._from_bytes_to_unit("Pib")
 
     @property
     def ebytes(self):
-        return self._from_bytes_to_unit("EB")
+        return self._from_bytes_to_unit("EiB")
 
     @property
     def ebits(self):
-        return self._from_bytes_to_unit("Eb")
+        return self._from_bytes_to_unit("Eib")
 
     def _to_human(self, units):
         """
@@ -324,7 +340,19 @@ class BytesConverter(float):
 
     @property
     def human_bytes(self):
-        return self._to_human(self.byte_units)
+        """
+        Convert to any bytes unit (1000) from byte_unit list
+        """
+        unit_list = [unit for unit in self.byte_units if 'i' not in unit]
+        return self._to_human(unit_list)
+
+    @property
+    def human_iec_bytes(self):
+        """
+        Convert to any bibytes unit (1024) from byte_unit list
+        """
+        unit_list = [unit for unit in self.byte_units if 'i' in unit]
+        return self._to_human(unit_list)
 
     @property
     def human(self):
@@ -332,4 +360,52 @@ class BytesConverter(float):
 
     @property
     def human_bits(self):
-        return self._to_human(self.bits_units)
+        unit_list = [unit for unit in self.bits_units if 'i' not in unit]
+        return self._to_human(unit_list)
+
+    @property
+    def human_iec_bits(self):
+        unit_list = [unit for unit in self.bits_units if 'i' in unit]
+        return self._to_human(unit_list)
+
+
+def test_bytesconverter():
+    
+
+    x = BytesConverter(1024)
+    assert x.bits == 8192, 'Bogus BytesConverter result for 1024: {}'.format(x.bits)
+    assert x.kbytes == 1, 'Bogus ByesConverter result for 1024: {}'.format(x.kbytes)
+
+    x = BytesConverter("50GB")
+    assert x.human == '50.0 GB', 'Bogus human conversion for 50GB: {}'.format(x.human)
+    assert x == 50000000000, 'Bogus byte conversion for 50GB: {}'.format(x)
+
+    x = BytesConverter("50GiB")
+    assert x.human == '53.7 GB', 'Bogus human conversion for 50GB: {}'.format(x.human)
+    assert x == 53687091200, 'Bogus byte conversion for 50GB: {}'.format(x)
+
+    assert BytesConverter(2049).kbytes == 2
+    assert BytesConverter(1000000000000).tbits == 7.2
+    assert BytesConverter(4350580).human == "4.4 MB"
+    assert BytesConverter("64 KiB") == 65536
+    assert BytesConverter("64 KB") == 64000
+    assert BytesConverter("64 Kib") == 65536 / 8
+    assert BytesConverter("64 Kb") == 64000 / 8
+
+    x = BytesConverter("20MB")
+    print(x.human)
+    print(x.human_iec_bytes)
+    print(x.human_bits)
+    print(x.human_iec_bits)
+    assert x.human == "20.0 MB"
+    assert x.human_iec_bytes == "19.1 MiB"
+    assert x.human_bits == "160.0 Mb"
+    assert x.human_iec_bits == "152.6 Mib"
+
+
+if __name__ == "__main__":
+    print("Example code for %s, %s" % (__intname__, __build__))
+    #test_bytesconverter()
+
+print(BytesConverter("50 MB") + BytesConverter("8192 Kb"))
+print(BytesConverter(BytesConverter("50 MB") + BytesConverter("8192 Kb")).human)

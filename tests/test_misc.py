@@ -30,12 +30,29 @@ def test_bytesconverter():
 
     x = BytesConverter("50GB")
     assert x.human == '50.0 GB', 'Bogus human conversion for 50GB: {}'.format(x.human)
+    assert x == 50000000000, 'Bogus byte conversion for 50GB: {}'.format(x)
+
+    x = BytesConverter("50GiB")
+    assert x.human == '53.7 GB', 'Bogus human conversion for 50GB: {}'.format(x.human)
     assert x == 53687091200, 'Bogus byte conversion for 50GB: {}'.format(x)
 
     assert BytesConverter(2049).kbytes == 2
     assert BytesConverter(1000000000000).tbits == 7.2
-    assert BytesConverter(4350580).human == "4.1 MB"
-    assert BytesConverter("64 KB") == 65536
+    assert BytesConverter(4350580).human == "4.4 MB"
+    assert BytesConverter("64 KiB") == 65536
+    assert BytesConverter("64 KB") == 64000
+    assert BytesConverter("64 Kib") == 65536 / 8
+    assert BytesConverter("64 Kb") == 64000 / 8
+
+    x = BytesConverter("20MB")
+    print(x.human)
+    print(x.human_bibytes)
+    print(x.human_bits)
+    print(x.human_bibits)
+    assert x.human == "20.0 MB"
+    assert x.human_iec_bytes == "19.1 MiB"
+    assert x.human_bits == "160.0 Mb"
+    assert x.human_iec_bits == "152.6 Mib"
 
 
 if __name__ == "__main__":

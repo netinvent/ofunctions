@@ -209,44 +209,39 @@ BytesConverter is that little tool that you want when handling bits and byte uni
 Internally, BytesConverter always represents data an int number of bytes.
 BytesConverter will return a float or a str if human output is requested.
 
-Example:
+Example (output is shown as comment):
 
 ```
 from ofunctions.misc import BytesConverter
 
-print(BytesConverter(1234))
-print(BytesConverter(1234).bits)
-print(BytesConverter(1234).kbytes)
-print(BytesConverter(1234).human)
-print(BytesConverter(65535).kbytes)
-print(BytesConverter(9000000).mbytes)
-print(BytesConverter("4MB"))
-print(BytesConverter("9600 Kb").mbytes)
+print(BytesConverter("64 KB"))  # 64000.0
+print(BytesConverter("64 KiB")) # 65536.0
+print(BytesConverter("64 Kb"))  # 8000.0
+print(BytesConverter("64 KiB")) # 65536.0
 
-```
+value = BytesConverter("20MB")
+print(value.human)              # 20.0 MB
+print(value.human_iec_bytes)    # 19.1 MiB
+print(value.human_bits)         # 160.0 Mb
+print(value.human_iec_bits)     # 152.6 Mib
 
-Output will be:
-```
-1234
-9872
-1.2
-1.2 KB
-64
-8.6
-4194304
-1.2
+print(BytesConverter(1234))                 # 1234.0
+print(BytesConverter(1234).bits)            # 9872.0
+print(BytesConverter(1234).kbytes)          # 1.2
+print(BytesConverter(1234).human)           # 1.2 KB
+
+print(BytesConverter(65535).kbytes)         # 64.0
+print(BytesConverter(9000000).mbytes)       # 8.6
+print(BytesConverter("4MB"))                # 4000000.0
+print(BytesConverter("4MiB"))               # 4194304.0
+print(BytesConverter("9600 Kb").mbytes)     # 1.1
 ```
 
 Arithmetics:
+BytesConverter objects can be added just as other mathematic types:
 ```
-print(BytesConverter("50 MB") + BytesConverter("8192 Kb"))
-print(BytesConverter(BytesConverter("50 MB") + BytesConverter("8192 Kb")).human)
-```
-
-Output
-```
-53477376
-51.0 MB
+print(BytesConverter("50 MB") + BytesConverter("8192 Kb"))                          # 51024000.0
+print(BytesConverter(BytesConverter("50 MB") + BytesConverter("8192 Kb")).human)    # 51.0 MB
 ```
 
 ## network Usage
