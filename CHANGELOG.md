@@ -3,7 +3,8 @@
 ## Features
 
 ### misc
-- Improved BytesConverter class in order to deal with human notations
+- Improved BytesConverter class in order to deal with human and IEC notations
+- Added convert_time_to_seconds() function allowing converting HHH:MM:SS to seconds
 
 # v2.4.0
 
