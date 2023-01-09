@@ -187,8 +187,36 @@ class BytesConverter(float):
     """
 
     # We need to respect international system of units standards https://physics.nist.gov/cuu/Units/binary.html
-    byte_units = ["EB", "EiB", "PB", "PiB", "TB", "TiB", "GB", "GiB", "MB", "MiB", "KB", "KiB", "B"]
-    bits_units = ["Eb", "Eib", "Pb", "Pib", "Tb", "Tib", "Gb", "Gib", "Mb", "Mib", "Kb", "Kib" ,"b"]
+    byte_units = [
+        "EB",
+        "EiB",
+        "PB",
+        "PiB",
+        "TB",
+        "TiB",
+        "GB",
+        "GiB",
+        "MB",
+        "MiB",
+        "KB",
+        "KiB",
+        "B",
+    ]
+    bits_units = [
+        "Eb",
+        "Eib",
+        "Pb",
+        "Pib",
+        "Tb",
+        "Tib",
+        "Gb",
+        "Gib",
+        "Mb",
+        "Mib",
+        "Kb",
+        "Kib",
+        "b",
+    ]
     units = {
         """
         We'll keep bytes and bits measures the same here, except we'll multiply or divide by 8 later for bits
@@ -358,7 +386,7 @@ class BytesConverter(float):
         """
         Convert to any bytes unit (1000) from byte_unit list
         """
-        unit_list = [unit for unit in self.byte_units if 'i' not in unit]
+        unit_list = [unit for unit in self.byte_units if "i" not in unit]
         return self._to_human(unit_list)
 
     @property
@@ -366,7 +394,7 @@ class BytesConverter(float):
         """
         Convert to any bibytes unit (1024) from byte_unit list
         """
-        unit_list = [unit for unit in self.byte_units if 'i' in unit]
+        unit_list = [unit for unit in self.byte_units if "i" in unit]
         return self._to_human(unit_list)
 
     @property
@@ -375,10 +403,10 @@ class BytesConverter(float):
 
     @property
     def human_bits(self):
-        unit_list = [unit for unit in self.bits_units if 'i' not in unit]
+        unit_list = [unit for unit in self.bits_units if "i" not in unit]
         return self._to_human(unit_list)
 
     @property
     def human_iec_bits(self):
-        unit_list = [unit for unit in self.bits_units if 'i' in unit]
+        unit_list = [unit for unit in self.bits_units if "i" in unit]
         return self._to_human(unit_list)
