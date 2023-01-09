@@ -96,6 +96,21 @@ def time_is_between(current_time, time_range):
     return time_range[0] <= current_time <= time_range[1]
 
 
+def convert_time_to_seconds(value):
+    # type (str) -> int
+    """
+    Converts hh:mm:ss into seconds
+    Works with higher than 24 hh values, eg 101:45:01 would be 101 hours, 45 min and 1 second
+    """
+
+    splitted = value.split(":")
+    splitted = [int(value) for value in splitted]
+    if len(splitted) == 2:
+        return splitted[0] * 60 + splitted[1]
+    elif len(splitted) == 3:
+        return splitted[0] * 3600 + splitted[1] * 60 + splitted[2]
+
+
 def reverse_dict(dictionary):
     # type: (dict) -> dict
     """
