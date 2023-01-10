@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.1"
-__build__ = "2023010501"
+__version__ = "1.5.2"
+__build__ = "2023010901"
 __compat__ = "python2.7+"
 
 
@@ -265,7 +265,7 @@ class BytesConverter(float):
                     if unit in cls.bits_units:
                         converted_value /= 8
                     break
-            if not converted_value:
+            if not converted_value and converted_value != 0:
                 try:
                     converted_value = float(value)
                 except ValueError:
