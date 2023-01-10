@@ -15,7 +15,7 @@ __intname__ = "tests.ofunctions.misc"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2023 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2023010401"
+__build__ = "2023011001"
 
 
 from ofunctions.misc import *
@@ -53,6 +53,10 @@ def test_bytesconverter():
     assert x.human_iec_bytes == "19.1 MiB"
     assert x.human_bits == "160.0 Mb"
     assert x.human_iec_bits == "152.6 Mib"
+
+    assert BytesConverter(0).mbits == 0
+    assert BytesConverter('0 b') == 0
+    assert BytesConverter('0 EB') == 0
 
 
 if __name__ == "__main__":
