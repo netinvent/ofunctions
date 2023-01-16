@@ -84,7 +84,7 @@ def kill_childs(
         process,  # type: psutil.Process
         sig,  # type: signal.valid_signals
         soft_kill,  # type: bool
-        verbose,  #type: bool
+        verbose,  # type: bool
     ):
         # (...) -> None
         """
