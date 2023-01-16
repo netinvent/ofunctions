@@ -15,17 +15,21 @@ Versioning semantics:
 
 __intname__ = "ofunctions.process"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Shorthand for killing an entire process tree"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.0"
-__build__ = "2022041501"
+__version__ = "1.4.0"
+__build__ = "2023011601"
 __compat__ = "python2.7+"
 
 
 import os
 import psutil
 import signal
+import logging
+
+
+logger = logging.getLogger(__intname__)
 
 
 # python 2.7 compat fixes
@@ -40,6 +44,7 @@ def kill_childs(
     itself=False,  # type: bool
     children=True,  # type: bool
     soft_kill=False,  # type: bool
+    verbose=True,  # type: bool
 ):
     # type: (...) -> bool
     """
@@ -79,12 +84,15 @@ def kill_childs(
         process,  # type: psutil.Process
         sig,  # type: signal.valid_signals
         soft_kill,  # type: bool
+        verbose,  #type: bool
     ):
         # (...) -> None
         """
         Simple abstract process killer that works with signals in order to avoid reused PID race conditions
         and can prefers using terminate than kill
         """
+        if verbose:
+            logger.info("Killed: {} with sig {}".format(process, sig))
         if sig:
             try:
                 process.send_signal(sig)
@@ -109,13 +117,12 @@ def kill_childs(
                 pid, 15
             )  # 15 being signal.SIGTERM or SIGKILL depending on the platform
         return False
-
     if children:
         for child in current_process.children(recursive=True):
-            _process_killer(child, sig, soft_kill)
+            _process_killer(child, sig, soft_kill, verbose)
 
     if itself:
-        _process_killer(current_process, sig, soft_kill)
+        _process_killer(current_process, sig, soft_kill, verbose)
     return True
 
 
