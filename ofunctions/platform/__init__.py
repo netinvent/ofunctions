@@ -15,16 +15,17 @@ Versioning semantics:
 
 __intname__ = "ofunctions.platform"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.0"
-__build__ = "2022051001"
+__version__ = "1.3.0"
+__build__ = "2023012301"
 __compat__ = "python2.7+"
 
 import os
 import sys
 import re
+import platform
 
 
 def get_os():
@@ -44,6 +45,14 @@ def get_os():
 
         return result
     raise OSError("Cannot get os, os.name=[%s]." % os.name)
+
+
+def os_arch():
+    # type: (None) -> str
+    """
+    Get current machine (python independant) architecture
+    """
+    return 'x64' if platform.machine().endswith('64') else 'x86'
 
 
 def python_arch():

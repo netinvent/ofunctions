@@ -12,9 +12,9 @@ Versioning semantics:
 
 __intname__ = "tests.ofunctions.platform"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2023 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2022041501"
+__build__ = "2023012301"
 
 from ofunctions.platform import *
 
@@ -23,6 +23,12 @@ def test_get_os():
     os = get_os()
     print(os)
     assert os in ["Windows", "Linux"], "Undefined OS"
+
+
+def test_os_arch():
+    arch = os_arch()
+    print(arch)
+    assert arch in ["x86", "x64"], "Undefined arch"
 
 
 def test_python_arch():
