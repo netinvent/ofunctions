@@ -1,4 +1,19 @@
-# Current master
+# v2.5.2
+
+### platform
+- Added os_arch() function which returns current OS arch regardless of python arch
+
+### process
+- Make kill_childs() function verbose by default
+
+# v2.5.1
+
+## Fixes
+
+### misc
+- Fixed BytesConverter class conversion failures for null values
+
+# v2.5.0
 
 ## Features
 
@@ -6,6 +21,10 @@
 - Improved BytesConverter class in order to deal with human and IEC notations
 - Added convert_time_to_seconds() function allowing converting HHH:MM:SS to seconds
 
+## Others
+
+- Remove Python 3.5 and 3.6 from linux test matrix since Github actions don't propose them anymore
+- Update github actions to v3
 # v2.4.0
 
 ## Features
