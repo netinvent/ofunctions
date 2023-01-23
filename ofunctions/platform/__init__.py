@@ -29,7 +29,7 @@ import platform
 
 
 def get_os():
-    # type: (None) -> str
+    # type: () -> str
     """
     Simple windows / linux identification that handles msys too
     """
@@ -48,15 +48,15 @@ def get_os():
 
 
 def os_arch():
-    # type: (None) -> str
+    # type: () -> str
     """
     Get current machine (python independant) architecture
     """
-    return 'x64' if platform.machine().endswith('64') else 'x86'
+    return "x64" if platform.machine().endswith("64") else "x86"
 
 
 def python_arch():
-    # type: (None) -> str
+    # type: () -> str
     """
     Get current python interpreter architecture
     """
@@ -74,7 +74,7 @@ def python_arch():
 
 
 def is_64bit_python():
-    # type: (None) -> bool
+    # type: () -> bool
     """
     Detect if python is 64 bit but stay OS agnostic
     """
@@ -82,7 +82,7 @@ def is_64bit_python():
 
 
 def get_distro():
-    # type: (None) -> (str, float, float, float, str)
+    # type: () -> (str, float, float, float, str)
     """
     Detect distribution and version
     # TODO develop other flavors than RHEL and clones
