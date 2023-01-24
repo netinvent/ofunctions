@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.logger_utils"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.3.0"
-__build__ = "2022110711"
+__version__ = "2.4.0"
+__build__ = "2023012401"
 __compat__ = "python2.7+"
 
 import logging
@@ -152,8 +152,8 @@ def logger_get_console_handler(
         return console_handler
 
 
-def logger_get_file_handler(log_file, formatter_insert=None):
-    # type: (str, Optional[None]) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
+def logger_get_file_handler(log_file, formatter_insert=None, max_bytes=10485760):
+    # type: (str, Optional[None], int) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
     """
     Returns a log file handler
     On failire, will return a temporary file log handler
@@ -162,7 +162,7 @@ def logger_get_file_handler(log_file, formatter_insert=None):
     err_output = None
     try:
         file_handler = RotatingFileHandler(
-            log_file, mode="a", encoding="utf-8", maxBytes=1048576, backupCount=3
+            log_file, mode="a", encoding="utf-8", maxBytes=max_bytes, backupCount=3
         )
     except (OSError, IOError) as exc:
         try:
@@ -177,7 +177,7 @@ def logger_get_file_handler(log_file, formatter_insert=None):
                 temp_log_file,
                 mode="a",
                 encoding="utf-8",
-                maxBytes=1048576,
+                maxBytes=max_bytes,
                 backupCount=1,
             )
             file_handler.setFormatter(formatter)
@@ -201,6 +201,7 @@ def logger_get_logger(
     console=True,  # type: bool
     debug=False,  # type: bool
     formatter_insert=None,  # type: str
+    max_bytes=10485760,  # type int
 ):
     # type: (...) -> logging.Logger
     """
@@ -228,7 +229,7 @@ def logger_get_logger(
             _logger.addHandler(console_handler)
     if log_file:
         file_handler, err_output = logger_get_file_handler(
-            log_file, formatter_insert=formatter_insert
+            log_file, formatter_insert=formatter_insert, max_bytes=max_bytes
         )
         if file_handler:
             _logger.addHandler(file_handler)
