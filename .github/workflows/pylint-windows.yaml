@@ -24,8 +24,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade setuptools
         if (Test-Path "ofunctions/requirements.txt") { pip install -r ofunctions/requirements.txt }
-        # Add additional windows requirements
-        if (Test-Path "ofunctions/requirements-win.txt") { pip install -r ofunctions/requirements-win.txt }
     - name: Lint with Pylint
       run: |
         # Do not run pylint on python 3.3 because isort is not available for python 3.3, don't run on python 3.4 because pylint: disable=xxxx does not exist
