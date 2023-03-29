@@ -312,7 +312,6 @@ def test_http_internet(
 
     # Only ip servers succeed, but not fqdn servers
     if (not (fqdn_servers and fqdn_success)) and ip_success:
-
         # Don't bother with diag message when multiple fqdn_servers exist and all_targets_must_succeed is enabled
         if not all_targets_must_succeed or (
             all_targets_must_succeed and len(fqdn_servers) == 1
