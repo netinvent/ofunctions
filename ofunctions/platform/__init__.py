@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.0"
-__build__ = "2023012301"
+__version__ = "1.4.0"
+__build__ = "2023032901"
 __compat__ = "python2.7+"
 
 import os
@@ -52,7 +52,19 @@ def os_arch():
     """
     Get current machine (python independant) architecture
     """
-    return "x64" if platform.machine().endswith("64") else "x86"
+    machine = platform.machine()
+    if machine.endswith("AMD64"):
+        return "x64"
+    machine = machine.lower()
+    if "aarch64" in machine or "armv8" in machine:
+        return "arm64"
+    # 3é bit arm
+    elif "arm" in machine:  # This could return armv71 or aarch64
+        return "arm"
+    elif "i386" in machine or "i686" in machine:
+        return "x86"
+    else:
+        return machine
 
 
 def python_arch():
@@ -60,17 +72,26 @@ def python_arch():
     """
     Get current python interpreter architecture
     """
-    if get_os() == "Windows":
+    if os.name == "nt":
         if "AMD64" in sys.version:
             return "x64"
         return "x86"
 
     # uname property does not exist under windows
     # pylint: disable=E1101
-    arch = os.uname()[4]
-    if "x64" in arch.lower():
+    arch = os.uname()[4].lower()
+    if "x64" in arch:
         return "x64"
-    return "x86"
+    # 64 bit arm
+    elif "aarch64" in arch or "armv8" in arch:
+        return "arm64"
+    # 3é bit arm
+    elif "arm" in arch:
+        return "arm"
+    elif "i386" in arch or "i686" in arch:
+        return "x86"
+    else:
+        return arch
 
 
 def is_64bit_python():
@@ -91,7 +112,7 @@ def get_distro():
     RHEL_path = "/etc/redhat-release"
     """
     File content examples:
-    
+
     Red Hat Enterprise Server release 7.5 (Maipo)
     AlmaLinux release 8.5 (Arctic Sphynx)
     CentOS Linux release 8.4.2105
