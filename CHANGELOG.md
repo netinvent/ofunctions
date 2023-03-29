@@ -1,4 +1,16 @@
+# v2.6.0
+
+## Features
+
+### requestor
+- Initial upload of REST API class
+
+### platform
+- os_arch() and python_arch() now also check for arm & arm64 platforms
+
 # v2.5.2
+
+## Features
 
 ### platform
 - Added os_arch() function which returns current OS arch regardless of python arch
