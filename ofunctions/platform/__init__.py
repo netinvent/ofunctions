@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.4.0"
-__build__ = "2023032901"
+__version__ = "1.4.1"
+__build__ = "2023033001"
 __compat__ = "python2.7+"
 
 import os
@@ -52,14 +52,21 @@ def os_arch():
     """
     Get current machine (python independant) architecture
     """
-    machine = platform.machine()
-    if machine.endswith("AMD64"):
+    # Returns:
+    # linux:
+    # armv71, aarch64, x86_64
+    # windows:
+    # AMD64x
+    machine = platform.machine() 
+    if machine == "AMD64":
         return "x64"
     machine = machine.lower()
-    if "aarch64" in machine or "armv8" in machine:
+    if "x86_64" in machine:
+        return "x64"
+    elif "aarch64" in machine or "armv8" in machine:
         return "arm64"
-    # 3é bit arm
-    elif "arm" in machine:  # This could return armv71 or aarch64
+    # 32 bit arm
+    elif "arm" in machine: 
         return "arm"
     elif "i386" in machine or "i686" in machine:
         return "x86"
@@ -80,12 +87,12 @@ def python_arch():
     # uname property does not exist under windows
     # pylint: disable=E1101
     arch = os.uname()[4].lower()
-    if "x64" in arch:
+    if "x86_64" in arch:
         return "x64"
     # 64 bit arm
     elif "aarch64" in arch or "armv8" in arch:
         return "arm64"
-    # 3é bit arm
+    # 32 bit arm
     elif "arm" in arch:
         return "arm"
     elif "i386" in arch or "i686" in arch:
