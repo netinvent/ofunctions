@@ -179,7 +179,6 @@ def ping(
 
 
 def resolve_hostname(host):
-    
     """
     Resolves a hostname
     """
@@ -669,18 +668,22 @@ def set_ip_version(ip_version: int = 6):
     """
     Sets preferred IP protocol version to use in requests / ofunctions
     Attention: this propagates
-    By default, AF_INET6 is used which preferes IPv6 but fallbacks to IPv4 
+    By default, AF_INET6 is used which preferes IPv6 but fallbacks to IPv4
     """
     if ip_version == 4:
+
         def allowed_gai_family():
             return socket.AF_INET
+
     elif ip_version == 6:
+
         def allowed_gai_family():
             if requests.packages.urllib3.util.connection.HAS_IPV6:
                 return socket.AF_INET6
             return socket.AF_INET
+
     else:
         return False
 
-    requests.packages.urllib3.util.connection.allowed_gai_family = allowed_gai_family:
+    requests.packages.urllib3.util.connection.allowed_gai_family = allowed_gai_family
     return True
