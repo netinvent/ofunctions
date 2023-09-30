@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.network"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.3"
-__build__ = "2023042201"
+__version__ = "1.40"
+__build__ = "2023093001"
 __compat__ = "python2.7+"
 
 import logging
@@ -32,6 +32,7 @@ import psutil
 
 from command_runner import command_runner
 from requests import get
+import requests.packages.urllib3.util.connection
 
 from ofunctions import bisection
 from ofunctions.threading import threaded
@@ -178,7 +179,7 @@ def ping(
 
 
 def resolve_hostname(host):
-    # type: (str) -> Optional[list]
+    
     """
     Resolves a hostname
     """
@@ -209,7 +210,7 @@ def proxy_dict(proxy):
 
 
 def _try_server(server, proxy_dict, timeout):
-    # (str, dict, int, bool) -> Tuple[bool, str]
+    # type: (str, dict, int) -> Tuple[bool, str]
     diag_messages = ""
 
     # With optional proxy
@@ -338,8 +339,8 @@ def test_http_internet(
     return True
 
 
-def get_public_ip(check_services=None, proxy=None, timeout=5):
-    # type: (list, str, int) -> Optional[str]
+def get_public_ip(check_services=None, proxy=None, timeout=5, ip_version: int = None):
+    # type: (list, dict, int, int) -> Optional[int]
     """
     Get public IP address from one of the various web services
     """
@@ -353,12 +354,19 @@ def get_public_ip(check_services=None, proxy=None, timeout=5):
             "https://api.ipify.org",
         ]
 
+    prior_ip_version = get_ip_version()
+
+    if ip_version:
+        set_ip_version(ip_version)
     for check_service in check_services:
         result, content = _try_server(
             check_service, proxy_dict=proxy_dict(proxy), timeout=timeout
         )
         if result:
+            # We need to set ip version back to what it was
+            set_ip_version(prior_ip_version)
             return content
+    set_ip_version(prior_ip_version)
     return None
 
 
@@ -643,3 +651,36 @@ class IOCounters:
             self.interfaces[interface]._sent_avg_speed_samples = 0
             self.interfaces[interface].recv_avg_speed = BytesConverter(0)
             self.interfaces[interface]._recv_avg_speed_samples = 0
+
+
+def get_ip_version():
+    # type: () -> Optional[int]
+    ip_version = requests.packages.urllib3.util.connection.allowed_gai_family()
+    if ip_version == socket.AF_INET6:
+        return 6
+    elif ip_version == socket.AF_INET:
+        return 4
+    else:
+        return None
+
+
+def set_ip_version(ip_version: int = 6):
+    # type: (str) -> bool
+    """
+    Sets preferred IP protocol version to use in requests / ofunctions
+    Attention: this propagates
+    By default, AF_INET6 is used which preferes IPv6 but fallbacks to IPv4 
+    """
+    if ip_version == 4:
+        def allowed_gai_family():
+            return socket.AF_INET
+    elif ip_version == 6:
+        def allowed_gai_family():
+            if requests.packages.urllib3.util.connection.HAS_IPV6:
+                return socket.AF_INET6
+            return socket.AF_INET
+    else:
+        return False
+
+    requests.packages.urllib3.util.connection.allowed_gai_family = allowed_gai_family:
+    return True
