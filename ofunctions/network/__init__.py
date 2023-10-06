@@ -32,6 +32,7 @@ import psutil
 
 from command_runner import command_runner
 from requests import get
+
 # On windows pylint, we get a false positive import-error
 # pylint: disable=E0401 (import-error)
 import requests.packages.urllib3.util.connection
