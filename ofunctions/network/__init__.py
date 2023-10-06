@@ -654,6 +654,7 @@ class IOCounters:
 
 def get_ip_version():
     # type: () -> Optional[int]
+    # pylint: disable=E1101 (no-member)
     ip_version = requests.packages.urllib3.util.connection.allowed_gai_family()
     if ip_version == socket.AF_INET6:
         return 6
@@ -678,6 +679,7 @@ def set_ip_version(ip_version: int = 6):
     elif ip_version == 6:
 
         def allowed_gai_family():
+            # pylint: disable=E1101 (no-member)
             if requests.packages.urllib3.util.connection.HAS_IPV6:
                 return socket.AF_INET6
             return socket.AF_INET
@@ -685,5 +687,6 @@ def set_ip_version(ip_version: int = 6):
     else:
         return False
 
+    # pylint: disable=E1101 (no-member)
     requests.packages.urllib3.util.connection.allowed_gai_family = allowed_gai_family
     return True

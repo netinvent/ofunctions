@@ -1,3 +1,9 @@
+# Current master
+
+### network
+
+- Added IPv4 / IPv6 preference selector function (set_ip_version()
+
 # v2.6.0
 
 ## Features
