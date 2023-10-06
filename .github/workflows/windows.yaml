@@ -15,7 +15,9 @@ jobs:
       matrix:
         os: [windows-latest]
         # Don't use pypy on windows since it does not have pywin32 module
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, "3.10", "3.11"]
+        # As of 2023/10/06, we have removed python 2.7 fas they don't work anymore with windows on github
+        # As of 2023/10/06, we have removed python 2.7 fas they don't work anymore with windows on github
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, "3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v3
