@@ -3,6 +3,7 @@
 ### network
 
 - Added IPv4 / IPv6 preference selector function (set_ip_version()
+  - Make Nuitka compiler and pylint happy about the way we call into urllib
 
 # v2.6.0
 
