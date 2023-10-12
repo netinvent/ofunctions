@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.4.0"
-__build__ = "2023093001"
+__version__ = "1.41"
+__build__ = "2023101201"
 __compat__ = "python2.7+"
 
 import logging
@@ -32,10 +32,7 @@ import psutil
 
 from command_runner import command_runner
 from requests import get
-
-# On windows pylint, we get a false positive import-error
-# pylint: disable=E0401 (import-error)
-import requests.packages.urllib3.util.connection
+import urllib3.util.connection as requests_connection
 
 from ofunctions import bisection
 from ofunctions.threading import threaded
@@ -657,8 +654,7 @@ class IOCounters:
 
 def get_ip_version():
     # type: () -> Optional[int]
-    # pylint: disable=E1101 (no-member)
-    ip_version = requests.packages.urllib3.util.connection.allowed_gai_family()
+    ip_version = requests_connection.allowed_gai_family()
     if ip_version == socket.AF_INET6:
         return 6
     elif ip_version == socket.AF_INET:
@@ -682,14 +678,12 @@ def set_ip_version(ip_version: int = 6):
     elif ip_version == 6:
 
         def allowed_gai_family():
-            # pylint: disable=E1101 (no-member)
-            if requests.packages.urllib3.util.connection.HAS_IPV6:
+            if requests_connection.HAS_IPV6:
                 return socket.AF_INET6
             return socket.AF_INET
 
     else:
         return False
 
-    # pylint: disable=E1101 (no-member)
-    requests.packages.urllib3.util.connection.allowed_gai_family = allowed_gai_family
+    requests_connection.allowed_gai_family = allowed_gai_family
     return True
