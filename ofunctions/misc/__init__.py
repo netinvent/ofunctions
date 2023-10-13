@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.5.2"
-__build__ = "2023011001"
+__build__ = "2023101301"
 __compat__ = "python2.7+"
 
 
@@ -49,7 +49,7 @@ def rot13(string):
     )
 
 
-def _rot47(string):
+def rot47(string):
     # type: (str) -> str
     """
     rot47 for alphanumeric characters
