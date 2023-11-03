@@ -103,6 +103,28 @@ Setup
 pip install ofunctions.file_utils
 ```
 
+Most interesting function in file utils is get_paths_recursive(), which yields a list of directories and/or files corresponding to a pattern.  
+Example:
+```
+from ofunctions.file_utils import get_paths_recursive
+
+paths = get_paths_recursive("/", exclude_dirs=True, ext_include_list=".txt")
+for path in paths:
+    print(path)
+```
+
+`get_paths_recursive` also can execute a function when an error is encountered, such as checking permissions or even fix them.
+Example:
+```
+from ofunctions.file_utils import get_paths_recursive, check_path_access
+
+paths = get_paths_recursive("/", exclude_dirs=True, ext_include_list=".txt", fn_on_perm_error=check_path_access)
+for path in paths:
+    print(path)
+```
+
+On every permission error, check_path_access will be launched, and will check read/write permissions and log them.
+
 ## json_sanitize Usage
 
 json_sanitize will remove any control characters from json content (0x00-0x1F and 0x7F-0x9F) of which some are usually non printable and non visible.
