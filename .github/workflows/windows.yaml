@@ -31,8 +31,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install --upgrade setuptools
         if (Test-Path "ofunctions/requirements.txt") { pip install -r ofunctions/requirements.txt }
-        # Add additional windows requirements
-        if (Test-Path "ofunctions/requirements-win.txt") { pip install -r ofunctions/requirements-win.txt }
     - name: Execute tests and generate coverage report
       env:
         RUNNING_ON_GITHUB_ACTIONS: true
