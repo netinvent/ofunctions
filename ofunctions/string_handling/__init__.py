@@ -47,9 +47,11 @@ def convert_accents(string):
     )
 
     """
-    return str(
-        unicodedata.normalize("NFD", string).encode("ascii", "ignore").decode("utf-8")
-    )
+    if isinstance(string, str):
+        return str(
+            unicodedata.normalize("NFD", string).encode("ascii", "ignore").decode("utf-8")
+        )
+    return string
 
 
 def strip_characters(string, regex=r"[]"):
