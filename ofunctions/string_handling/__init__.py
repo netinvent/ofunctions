@@ -18,15 +18,14 @@ from __future__ import unicode_literals
 
 __intname__ = "ofunctions.string_handling"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Simple string sanitization functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.0"
-__build__ = "2022060901"
+__version__ = "1.2.1"
+__build__ = "2023112601"
 __compat__ = "python2.7+"
 
 
-import sys
 import unicodedata
 import re
 
@@ -37,6 +36,16 @@ def convert_accents(string):
     Replace accents by non accents characters when possible
 
     Original source https://stackoverflow.com/a/44433664/2635443
+
+    Aonther elegant implementation
+    From https://stackoverflow.com/a/518232/2635443
+
+    return "".join(
+        c
+        for c in unicodedata.normalize("NFD", string)
+        if unicodedata.category(c) != "Mn"
+    )
+
     """
     return str(
         unicodedata.normalize("NFD", string).encode("ascii", "ignore").decode("utf-8")
