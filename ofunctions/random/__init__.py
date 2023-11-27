@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.random"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Simple random string generator including password generator"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.2.0"
-__build__ = "2022041401"
+__version__ = "0.3.0"
+__build__ = "2023112601"
 __compat__ = "python2.7+"
 
 
@@ -38,3 +38,27 @@ def random_string(size=8, chars=string.ascii_letters + string.digits):
 def pw_gen(size=16, chars=string.ascii_letters + string.digits):
     # type: (int, list) -> str
     return random_string(size, chars)
+
+
+def password_gen(size=16, alpha=True, numeric=True, special_chars=True, no_accents=True, ambiguous_filter=True):
+    """
+    Basic password generator
+    """
+    chars = ""
+    if alpha:
+        chars += string.ascii_letters
+        if not no_accents:
+            chars += 'éàèêëïîç'
+    chars += string.digits if numeric else ""
+    chars += string.punctuation if special_chars else ""
+
+    if ambiguous_filter:
+        """
+        Remove Linux / Windows specific chars from possible char list
+        Remove ambiguous letters like 'O' (leave 0)
+        """
+        for char in ['/', '\\', '\'', '"', '?', '`', ':', ';', '&', '!', '|', ',', '0']:
+            chars = chars.replace(char, "")
+    
+
+    return pw_gen(size, chars)
