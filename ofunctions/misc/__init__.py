@@ -151,11 +151,14 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
-def replace_in_iterable(src: Union[dict, list], old: Union[str, Callable], new: str = None):
+def replace_in_iterable(
+    src: Union[dict, list], old: Union[str, Callable], new: str = None
+):
     """
     Replaces every instance of old with new in a list/dict
     If old is a callable function, it will replace every instance of old win callable(old)
     """
+
     def _replace_in_iterable(_src):
         if isinstance(_src, dict) or isinstance(_src, list):
             _src = replace_in_iterable(_src, old, new)

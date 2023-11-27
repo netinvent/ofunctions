@@ -40,7 +40,14 @@ def pw_gen(size=16, chars=string.ascii_letters + string.digits):
     return random_string(size, chars)
 
 
-def password_gen(size=16, alpha=True, numeric=True, special_chars=True, no_accents=True, ambiguous_filter=True):
+def password_gen(
+    size=16,
+    alpha=True,
+    numeric=True,
+    special_chars=True,
+    no_accents=True,
+    ambiguous_filter=True,
+):
     """
     Basic password generator
     """
@@ -48,7 +55,7 @@ def password_gen(size=16, alpha=True, numeric=True, special_chars=True, no_accen
     if alpha:
         chars += string.ascii_letters
         if not no_accents:
-            chars += 'éàèêëïîç'
+            chars += "éàèêëïîç"
     chars += string.digits if numeric else ""
     chars += string.punctuation if special_chars else ""
 
@@ -57,8 +64,7 @@ def password_gen(size=16, alpha=True, numeric=True, special_chars=True, no_accen
         Remove Linux / Windows specific chars from possible char list
         Remove ambiguous letters like 'O' (leave 0)
         """
-        for char in ['/', '\\', '\'', '"', '?', '`', ':', ';', '&', '!', '|', ',', '0']:
+        for char in ["/", "\\", "'", '"', "?", "`", ":", ";", "&", "!", "|", ",", "0"]:
             chars = chars.replace(char, "")
-    
 
     return pw_gen(size, chars)

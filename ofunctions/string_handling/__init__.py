@@ -49,7 +49,9 @@ def convert_accents(string):
     """
     if isinstance(string, str):
         return str(
-            unicodedata.normalize("NFD", string).encode("ascii", "ignore").decode("utf-8")
+            unicodedata.normalize("NFD", string)
+            .encode("ascii", "ignore")
+            .decode("utf-8")
         )
     return string
 
