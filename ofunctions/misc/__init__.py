@@ -18,14 +18,14 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.3"
-__build__ = "2023101301"
+__version__ = "1.6.0"
+__build__ = "2023112701"
 __compat__ = "python2.7+"
 
 
 # python 2.7 compat fixes
 try:
-    from typing import Optional, List, Any
+    from typing import Optional, List, Any, Union, Callable
 except ImportError:
     pass
 
@@ -149,6 +149,33 @@ def deep_dict_update(dict_original, dict_update):
         return output
     else:
         return dict_update
+
+
+def replace_in_iterable(src: Union[dict, list], old: Union[str, Callable], new: str = None):
+    """
+    Replaces every instance of old with new in a list/dict
+    If old is a callable function, it will replace every instance of old win callable(old)
+    """
+    def _replace_in_iterable(_src):
+        if isinstance(_src, dict) or isinstance(_src, list):
+            _src = replace_in_iterable(_src, old, new)
+        elif isinstance(old, Callable):
+            _src = old(_src)
+        elif isinstance(_src, str):
+            _src = _src.replace(old, new)
+        return _src
+
+    if isinstance(src, dict):
+        result = {}
+        for key, value in src.items():
+            result[key] = _replace_in_iterable(value)
+    elif isinstance(src, list):
+        result = []
+        for entry in src:
+            result.append(_replace_in_iterable(entry))
+    else:
+        result = _replace_in_iterable(src)
+    return result
 
 
 def is_nan(var):
