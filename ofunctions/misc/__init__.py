@@ -192,7 +192,6 @@ def replace_in_iterable(src, original, replacement, callable_wants_key):
 
 
 class DotDict(dict):
-    # type: (dict) -> dict
     """
     A dictionary supporting dot notation
     Modified version of https://stackoverflow.com/a/23689767/2635443
