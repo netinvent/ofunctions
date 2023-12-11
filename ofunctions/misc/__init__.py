@@ -490,4 +490,3 @@ class BytesConverter(float):
     def human_iec_bits(self):
         unit_list = [unit for unit in self.bits_units if "i" in unit]
         return self._to_human(unit_list)
-
