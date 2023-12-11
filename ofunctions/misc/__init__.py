@@ -152,7 +152,10 @@ def deep_dict_update(dict_original, dict_update):
 
 
 def replace_in_iterable(
-    src: Union[dict, list], original: Union[str, Callable], replacement: Any = None, callable_wants_key: bool = False
+    src: Union[dict, list],
+    original: Union[str, Callable],
+    replacement: Any = None,
+    callable_wants_key: bool = False,
 ):
     """
     Recursive replace data in a struct
@@ -197,6 +200,7 @@ class DotDict(dict):
     A dictionary supporting dot notation
     Modified version of https://stackoverflow.com/a/23689767/2635443
     """
+
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
