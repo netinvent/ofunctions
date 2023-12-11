@@ -151,7 +151,7 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
-def replace_in_iterable(src, original, replacement, callable_wants_key):
+def replace_in_iterable(src, original, replacement, callable_wants_keys=False):
     # type: (Union[dict, list], Union[str, Callable], Any, bool) -> Union[dict, list]
     """
     Recursive replace data in a struct
