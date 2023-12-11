@@ -192,6 +192,39 @@ def replace_in_iterable(
     return src
 
 
+class DotDict(dict):
+    """
+    A dictionary supporting dot notation
+    Modified version of https://stackoverflow.com/a/23689767/2635443
+    """
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+    __dir__ = dict.keys
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for key, value in self.items():
+            if isinstance(value, dict):
+                self[key] = DotDict(value)
+
+    def lookup(self, dot_key):
+        """
+        Lookup value in a nested structure with a single key, e.g. "a.b.c"
+        Equivalent of using __getattr__ = dict.get
+        """
+        path = list(reversed(dot_key.split(".")))
+        dct = self
+        while path:
+            key = path.pop()
+            if isinstance(dct, dict):
+                dct = dct[key]
+            elif isinstance(dct, list):
+                dct = dct[int(key)]
+            else:
+                raise KeyError(key)
+        return dct
+
 
 def is_nan(var):
     # type: (Any) -> bool
