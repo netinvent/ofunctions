@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Toolset for Python programmers"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.6.0"
-__build__ = "2023032901"
+__version__ = "2.7.0"
+__build__ = "2023121101"
 
 
 # Make sure we declare this file as namespace holder
