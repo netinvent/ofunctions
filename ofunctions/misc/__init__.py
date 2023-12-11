@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.6.0"
-__build__ = "2023112701"
+__version__ = "1.6.1"
+__build__ = "2023121101"
 __compat__ = "python2.7+"
 
 
