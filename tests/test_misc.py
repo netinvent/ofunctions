@@ -15,7 +15,7 @@ __intname__ = "tests.ofunctions.misc"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2023 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2023011001"
+__build__ = "2023121101"
 
 
 from ofunctions.misc import *
@@ -57,6 +57,45 @@ def test_bytesconverter():
     assert BytesConverter("0 EB") == 0
 
 
+def test_replace_in_iterable():
+
+    def _fn(key, value):
+        if key == 'dic':
+            return '--{}--'.format(value)
+    
+    dic = {
+        'test': {
+            'sub': {
+                'dic': 123
+            }
+        }
+    }
+
+    new_dic = replace_in_iterable(dic, _fn)
+    assert new_dic['test']['sub']['dic'] == '--123--', 'fn replacement did not succeed'
+
+
+def test_DotDict():
+    dic = {
+        'test': {
+            'sub': {
+                'dic': 123
+            },
+            'li': [123, 456]
+        }
+    }
+
+    dic = DotDict(dic)
+
+    assert dic.test.sub.dic == 123, 'Bogus test.sub.dic value'
+    assert dic.test.li == [123, 456], 'Bogus test.li value'
+
+    dic.test.sub.dic = 456
+    assert dic.test.sub.dic == 456, 'Setter did not update dict'
+
+
 if __name__ == "__main__":
     print("Example code for %s, %s" % (__intname__, __build__))
     test_bytesconverter()
+    test_replace_in_iterable()
+    test_DotDict()
