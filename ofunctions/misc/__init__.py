@@ -162,10 +162,10 @@ def replace_in_iterable(
 
     Replaces every instance of string original with string replacement in a list/dict
 
-    If original is a callable function, it will replace every instance of original with callable(original)
+    If original is a callable function, it will replace every value with original(value)
     If original is a callable function and callable_wants_key == True,
-      it will replace every instance of original with callable(key, original) for dicts
-      and with callable(original) for any other data type
+      it will replace every value with original(key, value) for dicts
+      and with original(value) for any other data types
     """
 
     def _replace_in_iterable(key, _src):
