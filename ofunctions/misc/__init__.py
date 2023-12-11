@@ -151,12 +151,8 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
-def replace_in_iterable(
-    src: Union[dict, list],
-    original: Union[str, Callable],
-    replacement: Any = None,
-    callable_wants_key: bool = False,
-):
+def replace_in_iterable(src, original, replacement, callable_wants_key):
+    # type: (Union[dict, list], Union[str, Callable], Any, bool) -> Union[dict, list]
     """
     Recursive replace data in a struct
 
@@ -196,6 +192,7 @@ def replace_in_iterable(
 
 
 class DotDict(dict):
+    # type: (dict) -> dict
     """
     A dictionary supporting dot notation
     Modified version of https://stackoverflow.com/a/23689767/2635443
