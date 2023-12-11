@@ -152,33 +152,45 @@ def deep_dict_update(dict_original, dict_update):
 
 
 def replace_in_iterable(
-    src: Union[dict, list], old: Union[str, Callable], new: str = None
+    src: Union[dict, list], original: Union[str, Callable], replacement: Any = None, callable_wants_key: bool = False
 ):
     """
-    Replaces every instance of old with new in a list/dict
-    If old is a callable function, it will replace every instance of old win callable(old)
+    Recursive replace data in a struct
+
+    Replaces every instance of string original with string replacement in a list/dict
+
+    If original is a callable function, it will replace every instance of original with callable(original)
+    If original is a callable function and callable_wants_key == True,
+      it will replace every instance of original with callable(key, original) for dicts
+      and with callable(original) for any other data type
     """
 
-    def _replace_in_iterable(_src):
+    def _replace_in_iterable(key, _src):
         if isinstance(_src, dict) or isinstance(_src, list):
-            _src = replace_in_iterable(_src, old, new)
-        elif isinstance(old, Callable):
-            _src = old(_src)
-        elif isinstance(_src, str):
-            _src = _src.replace(old, new)
+            _src = replace_in_iterable(_src, original, replacement, callable_wants_key)
+        elif isinstance(original, Callable):
+            if callable_wants_key:
+                _src = original(key, _src)
+            else:
+                _src = original(_src)
+        elif isinstance(_src, str) and isinstance(replacement, str):
+            _src = _src.replace(original, replacement)
+        else:
+            _src = replacement
         return _src
 
     if isinstance(src, dict):
-        result = {}
         for key, value in src.items():
-            result[key] = _replace_in_iterable(value)
+            src[key] = _replace_in_iterable(key, value)
     elif isinstance(src, list):
         result = []
         for entry in src:
-            result.append(_replace_in_iterable(entry))
+            result.append(_replace_in_iterable(None, entry))
+        src = result
     else:
-        result = _replace_in_iterable(src)
-    return result
+        src = _replace_in_iterable(None, src)
+    return src
+
 
 
 def is_nan(var):
