@@ -59,9 +59,9 @@ def test_string_handling():
     if not running_on_github_actions():
         strip_non_alnum_characters_result = "ABCDxyz1234éèçàééàéàiIÎiïX"
         assert (
-                strip_non_alnum_characters(test_string, keep_accents=True)
-                == strip_non_alnum_characters_result
-            )
+            strip_non_alnum_characters(test_string, keep_accents=True)
+            == strip_non_alnum_characters_result
+        )
 
 
 if __name__ == "__main__":

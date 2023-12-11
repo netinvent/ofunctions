@@ -20,6 +20,7 @@ __build__ = "2022150401"
 from time import sleep
 from ofunctions.delayed_keyboardinterrupt import *
 
+
 # TODO: How to write an automatic CTRL+C test without doing a lot of threading stuff ???
 def test_delayed_keyboard_interrupt():
     with DelayedKeyboardInterrupt():

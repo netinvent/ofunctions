@@ -22,19 +22,17 @@ from ofunctions.misc import *
 
 
 def test_bytesconverter():
-    
-
     x = BytesConverter(1024)
-    assert x.bits == 8192, 'Bogus BytesConverter result for 1024: {}'.format(x.bits)
-    assert x.kbytes == 1, 'Bogus ByesConverter result for 1024: {}'.format(x.kbytes)
+    assert x.bits == 8192, "Bogus BytesConverter result for 1024: {}".format(x.bits)
+    assert x.kbytes == 1, "Bogus ByesConverter result for 1024: {}".format(x.kbytes)
 
     x = BytesConverter("50GB")
-    assert x.human == '50.0 GB', 'Bogus human conversion for 50GB: {}'.format(x.human)
-    assert x == 50000000000, 'Bogus byte conversion for 50GB: {}'.format(x)
+    assert x.human == "50.0 GB", "Bogus human conversion for 50GB: {}".format(x.human)
+    assert x == 50000000000, "Bogus byte conversion for 50GB: {}".format(x)
 
     x = BytesConverter("50GiB")
-    assert x.human == '53.7 GB', 'Bogus human conversion for 50GB: {}'.format(x.human)
-    assert x == 53687091200, 'Bogus byte conversion for 50GB: {}'.format(x)
+    assert x.human == "53.7 GB", "Bogus human conversion for 50GB: {}".format(x.human)
+    assert x == 53687091200, "Bogus byte conversion for 50GB: {}".format(x)
 
     assert BytesConverter(2049).kbytes == 2
     assert BytesConverter(1000000000000).tbits == 7.2
@@ -55,8 +53,8 @@ def test_bytesconverter():
     assert x.human_iec_bits == "152.6 Mib"
 
     assert BytesConverter(0).mbits == 0
-    assert BytesConverter('0 b') == 0
-    assert BytesConverter('0 EB') == 0
+    assert BytesConverter("0 b") == 0
+    assert BytesConverter("0 EB") == 0
 
 
 if __name__ == "__main__":

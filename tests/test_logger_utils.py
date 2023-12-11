@@ -84,7 +84,7 @@ def test_logger_exception():
     logger = logger_get_logger(console=True)
     try:
         # Log some unicode character which should throw an unhandled UnicodedecodeError exception in Python 2.7
-        raise Exception('jörn')
+        raise Exception("jörn")
     except Exception as exc:
         logger.exception(exc)
 

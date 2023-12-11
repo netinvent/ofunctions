@@ -32,7 +32,9 @@ def test_csv_dict_reader():
     with open(file, "wt", encoding="utf-8") as fp:
         # python 2.7 compat fixes
         if sys.version_info[0] < 3:
-            csv_content = u"SOME;CSV HEADER;WITH COLUMNS\n1;2;3\n#commented;out;line\nA;B;C\n4;5;6"
+            csv_content = (
+                "SOME;CSV HEADER;WITH COLUMNS\n1;2;3\n#commented;out;line\nA;B;C\n4;5;6"
+            )
         else:
             csv_content = (
                 "SOME;CSV HEADER;WITH COLUMNS\n1;2;3\n#commented;out;line\nA;B;C\n4;5;6"

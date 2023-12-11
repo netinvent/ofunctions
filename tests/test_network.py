@@ -92,7 +92,6 @@ def test_ping():
     ), "Failing hosts should make all_targets_must_succeed=True ping fail"
 
 
-
 def test_test_http_internet():
     # Hopefully these adresses don't exist
     result = test_http_internet(
