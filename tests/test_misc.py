@@ -59,21 +59,30 @@ def test_bytesconverter():
 
 def test_replace_in_iterable():
 
-    def _fn(key, value):
+    def _fn_key_value(key, value):
         if key == 'dic':
             return '--{}--'.format(value)
+        
+    def _fn_value(value):
+        value = '--{value}--'.format(value)
     
     dic = {
         'test': {
             'sub': {
                 'dic': 123
-            }
+            },
+            'other': 456,
         }
     }
 
-    new_dic = replace_in_iterable(dic, _fn)
+    new_dic = replace_in_iterable(dic, _fn_value)
     assert new_dic['test']['sub']['dic'] == '--123--', 'fn replacement did not succeed'
+    assert new_dic['test']['other'] == '--456--', 'fn replacement did not succeed'
 
+
+    new_dic = replace_in_iterable(dic, _fn_key_value, callable_wants_key=True)
+    assert new_dic['test']['sub']['dic'] == '--123--', 'fn replacement did not succeed'
+    assert new_dic['test']['other'] == 456, 'fn replacement did not succeed'
 
 def test_DotDict():
     dic = {
