@@ -1,9 +1,31 @@
-# Current master
+# v2.7.0
+
+## Features
 
 ### network
 
-- Added IPv4 / IPv6 preference selector function (set_ip_version()
+- Added IPv4 / IPv6 preference selector function set_ip_version()
   - Make Nuitka compiler and pylint happy about the way we call into urllib
+
+### Misc
+
+- New replace_in_iterable() function which can iter over a composite dict/list struct and replace values
+  - Retains original struct type
+  - Can also run a callable to replace values
+- New DotDict() object which is basically a dict that can be accessed with dot notation, ie dict.my.value
+
+### Platform
+
+- Improve os_arch() function to work with various arm platforms
+
+### Random
+
+- Add new password_gen() function which allows to select alpha/numeric/special_chars & non ambiguous chars
+
+## Others
+
+- Removed Python 2.7 from the test matrix since Github doesn't support it anymore
+- Linters are now using Python 3.11
 
 # v2.6.0
 
