@@ -64,7 +64,7 @@ def test_replace_in_iterable():
             return '--{}--'.format(value)
         
     def _fn_value(value):
-        value = '--{value}--'.format(value)
+        value = '--{}--'.format(value)
     
     dic = {
         'test': {
