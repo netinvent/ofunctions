@@ -174,7 +174,7 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
                     d[key] = iter_over_keys(value, fn)
                 else:
                     d[key] = fn(key, d[key])
-        return d 
+        return d
     """
 
     def _replace_in_iterable(key, _src):
