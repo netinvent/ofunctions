@@ -162,6 +162,19 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
     If original is a callable function and callable_wants_key == True,
       it will replace every value with original(key, value) for dicts
       and with original(value) for any other data types
+
+    This is en enhanced version of the following
+        def iter_over_keys(d: dict, fn: Callable) -> dict:
+        ""
+        Execute value=fn(value) on any key in a nested env
+        ""
+        if isinstance(d, dict):
+            for key, value in d.items():
+                if isinstance(value, dict):
+                    d[key] = iter_over_keys(value, fn)
+                else:
+                    d[key] = fn(key, d[key])
+        return d 
     """
 
     def _replace_in_iterable(key, _src):
