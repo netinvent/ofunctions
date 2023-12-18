@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.4.0"
-__build__ = "2023012401"
+__version__ = "2.4.1"
+__build__ = "2023121801"
 __compat__ = "python2.7+"
 
 import logging
@@ -260,6 +260,11 @@ def logger_get_logger(
                     'Failed to use log file "%s", %s.', log_file, err_output
                 )
     _logger.propagate = True
+
+    # Monkeypatching _logger so we get to use get_worst_logger_level() as class method
+    _logger.get_worst_logger_level = get_worst_logger_level.__get__(
+        _logger, type(_logger)
+    )
     return _logger
 
 
@@ -289,12 +294,12 @@ def safe_string_convert(string):
                     return string
 
 
-def get_worst_logger_level(_logger):
+def get_worst_logger_level(self):
     # type (logging.Logger) -> int
     """
     Return the worst log level called
     """
-    for flt in _logger.filters:
+    for flt in self.filters:
         if isinstance(flt, ContextFilterWorstLevel):
             return flt.worst_level
     return 0
