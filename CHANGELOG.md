@@ -1,3 +1,11 @@
+# current Master
+
+## Features
+
+### logger_utils 
+
+- Monkeypatch get_worst_logger_level() into logger object returned by logger_get_logger()
+
 # v2.7.0
 
 ## Features
