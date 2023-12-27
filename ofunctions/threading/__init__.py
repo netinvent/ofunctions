@@ -22,7 +22,7 @@ __description__ = (
 )
 __licence__ = "BSD 3 Clause"
 __version__ = "2.0.0"
-__build__ = "2022102501"
+__build__ = "2022122701"
 __compat__ = "python2.7+"
 
 
@@ -50,6 +50,8 @@ if sys.version_info[0] < 3:
 
         @wraps(fn)
         def wrapper(*args, **kwargs):
+            if kwargs.pop("__no_threads", False):
+                return fn(*args, **kwargs)
             thread = threading.Thread(target=fn, args=args, kwargs=kwargs)
             thread.daemon = True
             thread.start()
@@ -94,6 +96,8 @@ else:
 
         @wraps(fn)
         def wrapper(*args, **kwargs):
+            if kwargs.pop("__no_threads", False):
+                return fn(*args, **kwargs)
             future = Future()
             thread = threading.Thread(
                 target=call_with_future, args=(fn, future, args, kwargs)
