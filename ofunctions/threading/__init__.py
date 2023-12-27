@@ -21,8 +21,8 @@ __description__ = (
     "Threading decorator to run functions as threads, antiflood decorator too"
 )
 __licence__ = "BSD 3 Clause"
-__version__ = "2.0.0"
-__build__ = "2022122701"
+__version__ = "2.1.0"
+__build__ = "2023122701"
 __compat__ = "python2.7+"
 
 
