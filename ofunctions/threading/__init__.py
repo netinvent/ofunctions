@@ -108,7 +108,7 @@ else:
             return future
 
         return wrapper
-    
+
 
 def wait_for_threaded_result(thread):
     #  type: (Future) -> Any
@@ -117,10 +117,9 @@ def wait_for_threaded_result(thread):
     """
     if hasattr(thread, "done") and hasattr(thread, "cancelled"):
         while not thread.done() and not thread.cancelled():
-            sleep(.01)
+            sleep(0.01)
         return thread.result
     return thread
-
 
 
 def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
@@ -174,4 +173,5 @@ def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
             return fn(*args, **kwargs)
 
         return wrapper
+
     return decorator
