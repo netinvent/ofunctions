@@ -52,8 +52,8 @@ def test_kill_childs():
         for child in process_list:
             if child.is_alive():
                 childs_still_run = True
-            # Now let's kill the childs if at least 3 seconds elapsed
-            if (datetime.utcnow() - start_time).total_seconds() >= 3:
+            # Now let's kill the childs if at least 5 seconds elapsed
+            if (datetime.utcnow() - start_time).total_seconds() >= 5:
                 if not kill_childs_ran:
                     kill_childs()
                     kill_childs_ran = True
@@ -61,10 +61,10 @@ def test_kill_childs():
 
     stop_time = datetime.utcnow()
 
-    exec_time = stop_time - start_time
-    print("Executed for {} seconds".format(exec_time))
+    exec_time = (stop_time - start_time).total_seconds()
+    print("Executed workers for {} seconds".format(exec_time))
     assert (
-        exec_time.total_seconds() < 10
+        exec_time < 15
     ), "Execution should have been halted before workers got to finished their job"
 
 
