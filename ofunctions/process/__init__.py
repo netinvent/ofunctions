@@ -75,7 +75,7 @@ def kill_childs(
     pid=None,  # type: int
     itself=False,  # type: bool
     children=True,  # type: bool
-    verbose=True,  # type: bool
+    verbose=False,  # type: bool
     grace_period=1,  # type: int
     fast_kill=False,  # type: bool
 ):
