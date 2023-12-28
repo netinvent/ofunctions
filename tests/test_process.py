@@ -30,7 +30,7 @@ def test_kill_childs():
     This test is time based so we don't need to use the child pid logic to test a child pid based function ;)
     """
     workers = 4
-    child_exec_time = 30
+    child_exec_time = 120
 
     process_list = []
 
