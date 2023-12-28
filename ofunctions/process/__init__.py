@@ -162,6 +162,8 @@ def kill_childs(
                     else:
                         try:
                             process.kill()
+                        except psutil.NoSuchProcess:
+                            pass
                         # pylint: disable=W0703
                         except Exception as exc:
                             if verbose:
@@ -193,6 +195,8 @@ def kill_childs(
                 if is_pid_alive(process.pid):
                     try:
                         process.kill()
+                    except psutil.NoSuchProcess:
+                        pass
                     # pylint: disable=W0703
                     except Exception as exc:
                         if verbose:
