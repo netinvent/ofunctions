@@ -16,19 +16,20 @@ Versioning semantics:
 
 __intname__ = "ofunctions.threading"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2023 Orsiris de Jong"
 __description__ = (
     "Threading decorator to run functions as threads, antiflood decorator too"
 )
 __licence__ = "BSD 3 Clause"
 __version__ = "2.1.0"
-__build__ = "2023122701"
+__build__ = "2023122801"
 __compat__ = "python2.7+"
 
 
 import sys
 import threading
 from datetime import datetime
+from time import sleep
 
 
 # Python 2.7 compat fixes
@@ -107,6 +108,19 @@ else:
             return future
 
         return wrapper
+    
+
+def wait_for_threaded_result(thread):
+    #  type: (Future) -> Any
+    """
+    Simple shorthand to wait for a thread to finish
+    """
+    if hasattr(thread, "done") and hasattr(thread, "cancelled"):
+        while not thread.done() and not thread.cancelled():
+            sleep(.01)
+        return thread.result
+    return thread
+
 
 
 def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
@@ -160,5 +174,4 @@ def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
             return fn(*args, **kwargs)
 
         return wrapper
-
     return decorator
