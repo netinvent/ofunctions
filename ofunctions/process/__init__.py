@@ -134,7 +134,7 @@ def kill_childs(
 
     def _process_killer(
         process,  # type: psutil.Process
-        is_child,  # type: bool
+        is_child=False,  # type: bool
     ):
         # (...) -> None
         """
@@ -244,8 +244,9 @@ def kill_childs(
                     )  # 15 being signal.SIGTERM or SIGKILL depending on the platform
             except OSError:
                 logger.error(
-                    "Process with pid {} exists but cannot be killed by os.kill",
-                    format(pid),
+                    "Process with pid {} exists but cannot be killed by os.kill".format(
+                        pid
+                    ),
                 )
         return False
     return True
