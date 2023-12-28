@@ -53,8 +53,9 @@ def is_pid_alive(
         process = psutil.Process(pid)
     except psutil.Error as error:  # includes NoSuchProcess error
         return False
-    if psutil.pid_exists(pid) and process.status() == psutil.STATUS_RUNNING:
+    if psutil.pid_exists(pid) and process.status() not in (psutil.STATUS_DEAD, psutil.STATUS_ZOMBIE):
         return True
+    return False
 
 
 def is_pid_dead(
