@@ -29,7 +29,7 @@ def test_kill_childs():
     We'll check if kill_childs successfully stops multiprocessing childs by checking the execution time
     This test is time based so we don't need to use the child pid logic to test a child pid based function ;)
     """
-    workers = 2
+    workers = 4
     child_exec_time = 30
 
     process_list = []
@@ -46,6 +46,7 @@ def test_kill_childs():
     print("Running {} workers".format(running_workers))
 
     childs_still_run = True
+    kill_childs_ran = False
     while childs_still_run:
         childs_still_run = False
         for child in process_list:
@@ -53,7 +54,9 @@ def test_kill_childs():
                 childs_still_run = True
             # Now let's kill the childs if at least 3 seconds elapsed
             if (datetime.utcnow() - start_time).total_seconds() >= 3:
-                kill_childs()
+                if not kill_childs_ran:
+                    kill_childs()
+                    kill_childs_ran = True
             sleep(0.1)
 
     stop_time = datetime.utcnow()
