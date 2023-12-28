@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Shorthand for killing an entire process tree"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.4.0"
-__build__ = "2023011601"
+__version__ = "2.0.0"
+__build__ = "2023122801"
 __compat__ = "python2.7+"
 
 
@@ -27,6 +27,8 @@ import os
 import psutil
 import signal
 import logging
+from time import sleep
+from datetime import datetime
 
 
 logger = logging.getLogger(__intname__)
@@ -39,12 +41,38 @@ except ImportError:
     pass
 
 
+def is_pid_alive(
+    pid,  # type: int or str
+):
+    #  type: (...) -> bool
+    """
+    Quick check if pid is alive
+    From https://stackoverflow.com/a/74720401/2635443
+    """
+    try:
+        process = psutil.Process(pid)
+    except psutil.Error as error:  # includes NoSuchProcess error
+        return False
+    if psutil.pid_exists(pid) and process.status() == psutil.STATUS_RUNNING:
+        return True
+
+
+def is_pid_dead(
+    pid,  # type: int
+):
+    #  type: (...) -> bool
+    """
+    Reverse of is_pid_alive, for use in conditions
+    """
+    return not is_pid_alive(pid)
+
+
 def kill_childs(
     pid=None,  # type: int
     itself=False,  # type: bool
     children=True,  # type: bool
-    soft_kill=False,  # type: bool
     verbose=True,  # type: bool
+    grace_period=1,  # type: int
 ):
     # type: (...) -> bool
     """
@@ -65,64 +93,161 @@ def kill_childs(
     A ValueError will be raised in any other case. Note that not all systems define the same set of signal names;
     an AttributeError will be raised if a signal name is not defined as SIG* module level constant.
     """
-    sig = None
+
     if not pid and itself:
         pid = os.getpid()
 
     try:
-        if not soft_kill and hasattr(signal, "SIGKILL"):
+        sigterm = signal.SIGTERM
+        if hasattr(signal, "SIGKILL"):
             # Don't bother to make pylint go crazy on Windows
             # pylint: disable=E1101
-            sig = signal.SIGKILL
+            sigkill = signal.SIGKILL
         else:
-            sig = signal.SIGTERM
+            sigkill = None
     # Handle situation where no signal is defined
     except NameError:
-        sig = None
+        sigkill = sigterm = None
+
+    def _grace_period_timer(condition, *args, **kwargs):
+        #  type: (Callable) -> None
+        """
+        Wait for grace period or condition to be true
+        """
+        start_time = datetime.utcnow()
+        while True:
+            if (datetime.utcnow() - start_time).total_seconds() > grace_period:
+                logger.warning(
+                    "kill_childs grace period of {} seconds reached. Now being merciless process-killer".format(
+                        grace_period
+                    )
+                )
+                break
+            try:
+                if condition:
+                    if condition(*args, **kwargs):
+                        break
+            # pylint: disable=W0703
+            except Exception as exc:
+                logger.debug("Conditional grace timer stopped: {}".format(exc))
+                break
 
     def _process_killer(
         process,  # type: psutil.Process
-        sig,  # type: signal.valid_signals
-        soft_kill,  # type: bool
-        verbose,  # type: bool
+        is_child,  # type: bool
     ):
         # (...) -> None
         """
         Simple abstract process killer that works with signals in order to avoid reused PID race conditions
         and can prefers using terminate than kill
         """
-        if verbose:
-            logger.info("Killed: {} with sig {}".format(process, sig))
-        if sig:
+        if sigterm:  # sigterm should exist on all oses
             try:
-                process.send_signal(sig)
+                _grace_period_timer(is_pid_dead, process.pid)
+                if is_pid_alive(process.pid):
+                    if verbose:
+                        logger.info(
+                            "Asking {} process pid {} nicely to terminate".format(
+                                "child" if is_child else "", process.pid
+                            )
+                        )
+                    process.send_signal(sigterm)
+                    _grace_period_timer(is_pid_dead, process.pid)
+                    if sigkill and is_pid_alive(process.pid):
+                        if verbose:
+                            logger.warning(
+                                "Killing: {} with sigkill {}".format(process, sigkill)
+                            )
+                        process.send_signal(sigkill)
+                    else:
+                        try:
+                            process.kill()
+                        # pylint: disable=W0703
+                        except Exception as exc:
+                            if verbose:
+                                logger.error(
+                                    "Process with pid {} seems impossible to kill.: {}".format(
+                                        process.pid, exc
+                                    )
+                                )
             # psutil.NoSuchProcess might not be available, let's be broad
             # pylint: disable=W0703
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.error(
+                    "Cannot send signals to process with pid {}: {}".format(
+                        process.pid, exc
+                    )
+                )
         else:
-            if soft_kill:
-                process.terminate()
-            else:
-                process.kill()
+            if is_pid_alive(process.pid):
+                try:
+                    process.terminate()
+                # pylint: disable=W0703
+                except Exception as exc:
+                    logger.warning(
+                        "Cannot send terminate to process with pid {}: {}".format(
+                            process.pid, exc
+                        )
+                    )
+                _grace_period_timer(is_pid_dead, process.pid)
+                if is_pid_alive(process.pid):
+                    try:
+                        process.kill()
+                    # pylint: disable=W0703
+                    except Exception as exc:
+                        if verbose:
+                            logger.error(
+                                "Process with pid {} seems impossible to kill via kill...: {}".format(
+                                    process.pid, exc
+                                )
+                            )
 
-    # If we cannot identify current process using psutil, fallback to os.kill()
+    # Let's first wait some arbitrary time for processes to close
     try:
         current_process = psutil.Process(pid)
     # psutil.NoSuchProcess might not be available, let's be broad
     # pylint: disable=W0703
     except Exception:
-        if itself:
-            os.kill(
-                pid, 15
-            )  # 15 being signal.SIGTERM or SIGKILL depending on the platform
-        return False
-    if children:
-        for child in current_process.children(recursive=True):
-            _process_killer(child, sig, soft_kill, verbose)
+        current_process = None
 
-    if itself:
-        _process_killer(current_process, sig, soft_kill, verbose)
+    # If we cannot identify current process using psutil, fallback to os.kill()
+    if current_process:
+        if children:
+            for child in current_process.children(recursive=True):
+                try:
+                    _process_killer(child, is_child=True)
+                # pylint: disable=W0703
+                except Exception as exc:
+                    logger.error(
+                        "Cannot kill child process with pid {}: {}".format(
+                            child.pid, exc
+                        )
+                    )
+
+        if itself:
+            try:
+                _process_killer(current_process)
+            # pylint: disable=W0703
+            except Exception as exc:
+                logger.error(
+                    "Cannot kill parent process with pid {}: {}".format(pid, exc)
+                )
+    else:
+        if children:
+            logger.error("Cannot kill process child subtree. Sorry")
+        if itself:
+            _grace_period_timer(is_pid_dead, pid)
+            try:
+                if is_pid_alive(pid):
+                    os.kill(
+                        pid, 15
+                    )  # 15 being signal.SIGTERM or SIGKILL depending on the platform
+            except OSError:
+                logger.error(
+                    "Process with pid {} exists but cannot be killed by os.kill",
+                    format(pid),
+                )
+        return False
     return True
 
 
