@@ -21,8 +21,8 @@ __description__ = (
     "Threading decorator to run functions as threads, antiflood decorator too"
 )
 __licence__ = "BSD 3 Clause"
-__version__ = "2.1.0"
-__build__ = "2023122801"
+__version__ = "2.2.0"
+__build__ = "2023122901"
 __compat__ = "python2.7+"
 
 
@@ -31,6 +31,12 @@ import threading
 from datetime import datetime
 from time import sleep
 
+
+# python 2.7 comapt fixes
+try:
+    from typing import Union, List, Any
+except ImportError:
+    pass
 
 # Python 2.7 compat fixes
 try:
@@ -110,15 +116,38 @@ else:
         return wrapper
 
 
-def wait_for_threaded_result(thread):
-    #  type: (Future) -> Any
+def wait_for_threaded_result(thread_list):
+    #  type: (Union[List[Future], Future]) -> Any
     """
     Simple shorthand to wait for a thread to finish
+    Accepts a sigle thread, or a list of threads
+    If no thread is given, we'll just
     """
-    if hasattr(thread, "done") and hasattr(thread, "cancelled"):
-        while not thread.done() and not thread.cancelled():
-            sleep(0.01)
+    if not isinstance(thread_list, list):
+        thread_list = [thread_list]
+        is_list = True
+    else:
+        is_list = False
+
+    threads_alive = True
+    while threads_alive:
+        threads_alive = False
+        for thread in thread_list:
+            if hasattr(thread, "done") and hasattr(thread, "cancelled"):
+                is_thread = True
+                if not thread.done and not thread.cancelled():
+                    threads_alive = True
+        sleep(0.01)
+    # If threaded, return results or list of results
+    if is_thread:
+        if is_list:
+            result_list = []
+            for thread in thread_list:
+                result_list.append(thread.result())
+            return result_list
+        # Or return a single thread result
         return thread.result
+    # If not thread, return a single result
     return thread
 
 
