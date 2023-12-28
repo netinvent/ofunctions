@@ -6,6 +6,10 @@
 
 - Monkeypatch get_worst_logger_level() into logger object returned by logger_get_logger()
 
+### process
+
+- Refactor kill_childs() to allow grace period before asking nicely to quit, then grace period before being a merciless process killer
+
 ### threading
 
 - @threaded decorator now takes optional `__no_thread` bool which allows to bypass threading will keeping the decorator syntax
