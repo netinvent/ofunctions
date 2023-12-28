@@ -301,6 +301,48 @@ while True:
 
 ## process Usage
 
+### kill_childs()
+
+`kill_childs` allows to walk a process and kill all it's children, with various options:
+- pid(int): If none given, current process pid is used
+- itself (bool): Shall we also kill current process (defaults to False)
+- children (bool): Shall we kill current process' childs (defaults to True)
+- verbose (bool): Log more actions (defaults to False)
+- grace_period (int): Period before we consider hard killing a process. Defaults to 1 second
+- fast_kill (bool): Kill children using threads, in order to parallelize grace_period and kill faster
+
+`kill_childs` will first try to send SIGTERM to the process, and if not successful in grace_period, it will send SIGKILL.
+Works well on both Windows and Linux, and has fallback mecanisms to make sure process tree gets properly killed.
+
+Example:
+```
+from ofunctions.process import kill_childs, get_process_by_name
+
+process = get_process_by_name("notepad.exe")
+result = kill_childs(process[0].pid)
+```
+
+### get_process_by_name
+
+As said in the title, takes a process name and returns it's process handle.
+Example:
+```
+from ofunctions.process import get_process_by_name
+
+print(get_process_by_name("bash"))
+# Prints a list of all the process handles for bash processes
+```
+
+### get_absolute_path
+
+Searches for absolute path of an executable in PATH variables.
+Example:
+```
+from ofunctions.process import get_absolute_path
+
+print(get_absolute_path("bash"))
+# prints /usr/bin/bash
+```
 ## random Usage
 
 ## service_control Usage
@@ -318,6 +360,8 @@ Once you call the function, it will automatically be threaded, and you get to ke
 You can then execute whatever you want, or wait for it's result:
 
 ```
+from ofunctions.threading import threaded, wait_for_threaded_result
+
 @threaded
 def my_nice_function():
    # Do some nice stuff
@@ -328,10 +372,28 @@ def main():
    thread = my_nice_function()
    # Some other stuff being executed while my_nice_function runs in a thread
    # now let's wait for my function result
-   result = thread.result()
+   result = wait_for_threaded_result(thread)
 ```
 
-Remember that Python 2.7 can't give you a result, so the function will be threaded, but without any possible return codes.
+There's a special argument in order to bypass the decorator called `__no_threads`, which can be used like the following example.  
+This allows manual threading bypass without having to change the code
+```
+from ofunctions.threading import threaded, wait_for_threaded_result
+
+@threaded
+def my_nice_function():
+   # Do some nice stuff
+   return result
+
+def main():
+   # Some stuff
+   thread = my_nice_function(__no_threads=True)
+   # In 
+   result = wait_for_threaded_result(thread)
+```
+
+
+Also please note that Python 2.7 can't give you a result, so the function will be threaded, but without any possible return codes.
 
 ### @no_flood
 
