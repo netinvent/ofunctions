@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Shorthand for killing an entire process tree"
 __licence__ = "BSD 3 Clause"
 __version__ = "2.0.0"
-__build__ = "2023122801"
+__build__ = "2023122901"
 __compat__ = "python2.7+"
 
 
@@ -53,7 +53,10 @@ def is_pid_alive(
         process = psutil.Process(pid)
     except psutil.Error as error:  # includes NoSuchProcess error
         return False
-    if psutil.pid_exists(pid) and process.status() not in (psutil.STATUS_DEAD, psutil.STATUS_ZOMBIE):
+    if psutil.pid_exists(pid) and process.status() not in (
+        psutil.STATUS_DEAD,
+        psutil.STATUS_ZOMBIE,
+    ):
         return True
     return False
 
@@ -63,7 +66,7 @@ def is_pid_dead(
 ):
     #  type: (...) -> bool
     """
-    Reverse of is_pid_alive, for use in conditions
+    Reverse of is_pid_alive, for use in conditions, eg grace timer
     """
     return not is_pid_alive(pid)
 
@@ -74,12 +77,15 @@ def kill_childs(
     children=True,  # type: bool
     verbose=True,  # type: bool
     grace_period=1,  # type: int
+    fast_kill=False,  # type: bool
 ):
     # type: (...) -> bool
     """
     Kills pid or all childs of pid (current pid can be obtained with os.getpid())
     If no pid given current pid is taken
     Good idea when using multiprocessing, is to call with atexit.register(ofunctions.kill_childs, os.getpid(),)
+
+    fast_kill will allow to use threads to kill quicker
 
     Beware: MS Windows does not maintain a process tree, so child dependencies are computed on the fly
     Knowing this, orphaned processes (where parent process died) cannot be found and killed this way
@@ -98,6 +104,22 @@ def kill_childs(
     if not pid:
         pid = os.getpid()
 
+    if fast_kill:
+        from ofunctions.threading import threaded, wait_for_threaded_result
+    else:
+
+        def threaded(fn):
+            """
+            Just an empty decorator so we don't actually need ofunctions.theading
+            This exists for compat reasons for earlier versions of kill_childs without fast_kill option
+            """
+
+            def wrapper(*args, **kwargs):
+                kwargs.pop("__no_threads")
+                return fn(*args, **kwargs)
+
+            return wrapper
+
     try:
         sigterm = signal.SIGTERM
         if hasattr(signal, "SIGKILL"):
@@ -113,7 +135,7 @@ def kill_childs(
     def _grace_period_timer(condition_fn, *args, **kwargs):
         #  type: (...) -> None
         """
-        Wait for grace period or condition to be true
+        Wait for grace period or condition to be true$
         """
         start_time = datetime.utcnow()
         while True:
@@ -133,6 +155,7 @@ def kill_childs(
                 logger.debug("Conditional grace timer stopped: {}".format(exc))
                 break
 
+    @threaded
     def _process_killer(
         process,  # type: psutil.Process
         is_child=False,  # type: bool
@@ -145,46 +168,62 @@ def kill_childs(
         if sigterm:  # sigterm should exist on all oses
             try:
                 _grace_period_timer(is_pid_dead, process.pid)
-                if is_pid_alive(process.pid):
+                if verbose:
+                    logger.info(
+                        "Asking {} process pid {} nicely to terminate".format(
+                            "child" if is_child else "", process.pid
+                        )
+                    )
+                try:
+                    process.send_signal(sigterm)
+                except psutil.NoSuchProcess:
+                    pass
+                except Exception as exc:
+                    logger.warning(
+                        "Cannot send sigterm to process with pid {}: {}".format(
+                            process.pid, exc
+                        )
+                    )
+
+                if sigkill and is_pid_alive(process.pid):
+                    _grace_period_timer(is_pid_dead, process.pid)
                     if verbose:
-                        logger.info(
-                            "Asking {} process pid {} nicely to terminate".format(
-                                "child" if is_child else "", process.pid
+                        logger.warning(
+                            "Killing: {} with sigkill {}".format(process, sigkill)
+                        )
+                    try:
+                        process.send_signal(sigkill)
+                    except psutil.NoSuchProcess:
+                        pass
+                    except Exception as exc:
+                        logger.error(
+                            "Cannot send sigterm to process with pid {}: {}".format(
+                                process.pid, exc
                             )
                         )
-                    process.send_signal(sigterm)
+                else:
                     _grace_period_timer(is_pid_dead, process.pid)
-                    if sigkill and is_pid_alive(process.pid):
-                        if verbose:
-                            logger.warning(
-                                "Killing: {} with sigkill {}".format(process, sigkill)
+                    try:
+                        process.kill()
+                    except psutil.NoSuchProcess:
+                        pass
+                    # pylint: disable=W0703
+                    except Exception as exc:
+                        logger.error(
+                            "Process with pid {} seems impossible to kill.: {}".format(
+                                process.pid, exc
                             )
-                        process.send_signal(sigkill)
-                    else:
-                        try:
-                            process.kill()
-                        except psutil.NoSuchProcess:
-                            pass
-                        # pylint: disable=W0703
-                        except Exception as exc:
-                            if verbose:
-                                logger.error(
-                                    "Process with pid {} seems impossible to kill.: {}".format(
-                                        process.pid, exc
-                                    )
-                                )
+                        )
             # psutil.NoSuchProcess might not be available, let's be broad
             # pylint: disable=W0703
             except Exception as exc:
-                logger.error(
-                    "Cannot send signals to process with pid {}: {}".format(
-                        process.pid, exc
-                    )
-                )
+                logger.error("Cannot send signals to process: {}".format(exc))
         else:
             if is_pid_alive(process.pid):
                 try:
                     process.terminate()
+                except psutil.NoSuchProcess:
+                    pass
                 # pylint: disable=W0703
                 except Exception as exc:
                     logger.warning(
@@ -192,20 +231,19 @@ def kill_childs(
                             process.pid, exc
                         )
                     )
-                _grace_period_timer(is_pid_dead, process.pid)
                 if is_pid_alive(process.pid):
+                    _grace_period_timer(is_pid_dead, process.pid)
                     try:
                         process.kill()
                     except psutil.NoSuchProcess:
                         pass
                     # pylint: disable=W0703
                     except Exception as exc:
-                        if verbose:
-                            logger.error(
-                                "Process with pid {} seems impossible to kill via kill...: {}".format(
-                                    process.pid, exc
-                                )
+                        logger.error(
+                            "Process with pid {} seems impossible to kill via kill...: {}".format(
+                                process.pid, exc
                             )
+                        )
 
     # Let's first wait some arbitrary time for processes to close
     try:
@@ -218,9 +256,14 @@ def kill_childs(
     # If we cannot identify current process using psutil, fallback to os.kill()
     if current_process:
         if children:
+            thread_list = []
             for child in current_process.children(recursive=True):
                 try:
-                    _process_killer(child, is_child=True)
+                    thread_list.append(
+                        _process_killer(
+                            child, is_child=True, __no_threads=not fast_kill
+                        )
+                    )
                 # pylint: disable=W0703
                 except Exception as exc:
                     logger.error(
@@ -228,6 +271,8 @@ def kill_childs(
                             child.pid, exc
                         )
                     )
+            if fast_kill:
+                wait_for_threaded_result(thread_list)
 
         if itself:
             try:
@@ -247,11 +292,27 @@ def kill_childs(
                     os.kill(
                         pid, 15
                     )  # 15 being signal.SIGTERM or SIGKILL depending on the platform
-            except OSError:
+            except OSError as exc:
+                if os.name == "nt":
+                    # We'll do an ugly hack since os.kill() has some pretty big caveats on Windows
+                    # especially for Python 2.7 where we can get Access Denied
+                    try:
+                        os.system("taskkill /F /pid {}".format(pid))
+                    except Exception as exc:
+                        logger.error(
+                            "Process with pid {} exists but cannot be killed by taskkill: {}".format(
+                                pid, exc
+                            )
+                        )
+                else:
+                    logger.error(
+                        "Process with pid {} exists but cannot be killed by os.kill: {}".format(
+                            pid, exc
+                        ),
+                    )
+            except Exception as exc:
                 logger.error(
-                    "Process with pid {} exists but cannot be killed by os.kill".format(
-                        pid
-                    ),
+                    "Unknown error while trying to kill process: {}".format(exc)
                 )
         return False
     return True

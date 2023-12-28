@@ -29,46 +29,52 @@ def test_kill_childs():
     We'll check if kill_childs successfully stops multiprocessing childs by checking the execution time
     This test is time based so we don't need to use the child pid logic to test a child pid based function ;)
     """
-    workers = 4
-    child_exec_time = 120
+    def _test_kill_childs(fast_kill):
+        workers = 4
+        child_exec_time = 120
 
-    process_list = []
+        process_list = []
 
-    start_time = datetime.utcnow()
+        start_time = datetime.utcnow()
 
-    while workers > 0:
-        process = multiprocessing.Process(target=sleep, args=(child_exec_time,))
-        process.start()
-        process_list.append(process)
-        workers -= 1
+        while workers > 0:
+            process = multiprocessing.Process(target=sleep, args=(child_exec_time,))
+            process.start()
+            process_list.append(process)
+            workers -= 1
 
-    running_workers = len(process_list)
-    print("Running {} workers".format(running_workers))
+        running_workers = len(process_list)
+        print("Running {} workers".format(running_workers))
 
-    childs_still_run = True
-    kill_childs_ran = False
-    while childs_still_run:
-        childs_still_run = False
-        for child in process_list:
-            if child.is_alive():
-                childs_still_run = True
-            # Now let's kill the childs if at least 5 seconds elapsed
-            cur_exec_time = (datetime.utcnow() - start_time).total_seconds()
-            if cur_exec_time >= 5:
-                if not kill_childs_ran:
-                    print("Running kill childs at {} seconds".format(cur_exec_time))
-                    kill_childs()
-                    kill_childs_ran = True
-            sleep(0.1)
+        childs_still_run = True
+        kill_childs_ran = False
+        while childs_still_run:
+            childs_still_run = False
+            for child in process_list:
+                if child.is_alive():
+                    childs_still_run = True
+                # Now let's kill the childs if at least 5 seconds elapsed
+                cur_exec_time = (datetime.utcnow() - start_time).total_seconds()
+                if cur_exec_time >= 5:
+                    if not kill_childs_ran:
+                        print("Running kill childs at {} seconds".format(cur_exec_time))
+                        kill_childs(fast_kill=fast_kill)
+                        kill_childs_ran = True
+                sleep(0.1)
 
-    stop_time = datetime.utcnow()
+        stop_time = datetime.utcnow()
 
-    exec_time = (stop_time - start_time).total_seconds()
-    print("Executed workers for {} seconds".format(exec_time))
-    assert (
-        exec_time < 15
-    ), "Execution should have been halted before workers got to finished their job"
+        exec_time = (stop_time - start_time).total_seconds()
+        print("Executed workers for {} seconds".format(exec_time))
+        assert (
+            exec_time < 15
+        ), "Execution should have been halted before workers got to finished their job"
+        return exec_time
 
+    no_fast_kill_exec_time = _test_kill_childs(fast_kill=False)
+    fast_kill_exec_time = _test_kill_childs(fast_kill=True)
+
+    assert no_fast_kill_exec_time > fast_kill_exec_time + 2, "Fast kill should be faster !"
 
 def test_get_processes_by_name():
     """
