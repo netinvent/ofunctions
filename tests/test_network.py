@@ -13,9 +13,9 @@ Versioning semantics:
 
 __intname__ = "tests.ofunctions.network"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2023 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2022041601"
+__build__ = "2023122801"
 
 
 # Use logging so we se actual output of probe_mtu
@@ -94,14 +94,14 @@ def test_ping():
 
 def test_test_http_internet():
     # Hopefully these adresses don't exist
-    result = test_http_internet(
+    result = check_http_internet(
         ["http://example.not.existing"], ["http://192.168.90.256"]
     )
     print("HTTP result: %s" % result)
     assert result is False, "Bogus http check should give negative result"
 
     # This one should give positive result too
-    result = test_http_internet(
+    result = check_http_internet(
         ["http://www.google.com", "http://example.not.existing"]
     )
     print("HTTP result: %s" % result)
@@ -112,7 +112,7 @@ def test_test_http_internet():
 
     # This one should give negative result
     # Hopefully these adresses don't exist
-    result = test_http_internet(
+    result = check_http_internet(
         ["http://example.not.existing"],
         ["http://192.168.90.256"],
         all_targets_must_succeed=True,
@@ -121,7 +121,7 @@ def test_test_http_internet():
     assert result is False, "Bogus http check should give negative result"
 
     # This one should give negative result too
-    result = test_http_internet(
+    result = check_http_internet(
         ["http://www.google.com", "http://example.not.existing"],
         ["http://1.1.1.1", "http://192.168.90.256"],
         all_targets_must_succeed=True,
@@ -133,7 +133,7 @@ def test_test_http_internet():
     )
 
     # Make sure http://1.1.1.1 or http://1.0.0.1 (or whatever you want to test) works, at least one of those two
-    result = test_http_internet(ip_servers=["http://1.1.1.1", "http://1.0.0.1"])
+    result = check_http_internet(ip_servers=["http://1.1.1.1", "http://1.0.0.1"])
     print("HTTP result: %s" % result)
     assert result is True, (
         "Cannot check http internet. This test may fail if the host"

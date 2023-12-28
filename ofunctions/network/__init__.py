@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.41"
-__build__ = "2023101201"
+__version__ = "1.5.0"
+__build__ = "2023122801"
 __compat__ = "python2.7+"
 
 import logging
@@ -242,7 +242,7 @@ def _try_server(server, proxy_dict, timeout):
         return (False, diag_messages)
 
 
-def test_http_internet(
+def check_http_internet(
     fqdn_servers=None,  # type: List[str]
     ip_servers=None,  # type: List[Union[IPv4Address, IPv6Address]]
     proxy=None,  # type: str
