@@ -94,7 +94,7 @@ def kill_childs(
     an AttributeError will be raised if a signal name is not defined as SIG* module level constant.
     """
 
-    if not pid and itself:
+    if not pid:
         pid = os.getpid()
 
     try:

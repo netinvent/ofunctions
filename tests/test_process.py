@@ -53,8 +53,10 @@ def test_kill_childs():
             if child.is_alive():
                 childs_still_run = True
             # Now let's kill the childs if at least 5 seconds elapsed
-            if (datetime.utcnow() - start_time).total_seconds() >= 5:
+            cur_exec_time = (datetime.utcnow() - start_time).total_seconds()
+            if cur_exec_time >= 5:
                 if not kill_childs_ran:
+                    print("Running kill childs at {} seconds".format(cur_exec_time))
                     kill_childs()
                     kill_childs_ran = True
             sleep(0.1)
