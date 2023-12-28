@@ -109,8 +109,8 @@ def kill_childs(
     except NameError:
         sigkill = sigterm = None
 
-    def _grace_period_timer(condition, *args, **kwargs):
-        #  type: (Callable) -> None
+    def _grace_period_timer(condition_fn, *args, **kwargs):
+        #  type: (...) -> None
         """
         Wait for grace period or condition to be true
         """
@@ -124,8 +124,8 @@ def kill_childs(
                 )
                 break
             try:
-                if condition:
-                    if condition(*args, **kwargs):
+                if condition_fn:
+                    if condition_fn(*args, **kwargs):
                         break
             # pylint: disable=W0703
             except Exception as exc:
