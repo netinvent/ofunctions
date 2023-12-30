@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.6.3"
-__build__ = "2023123001"
+__build__ = "2023123101"
 __compat__ = "python2.7+"
 
 
