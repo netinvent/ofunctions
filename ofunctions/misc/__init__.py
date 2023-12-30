@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.6.2"
-__build__ = "2023121102"
+__version__ = "1.6.3"
+__build__ = "2023123001"
 __compat__ = "python2.7+"
 
 
@@ -151,8 +151,8 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
-def replace_in_iterable(src, original, replacement=None, callable_wants_key=False):
-    # type: (Union[dict, list], Union[str, Callable], Any, bool) -> Union[dict, list]
+def replace_in_iterable(src, original, replacement=None, callable_wants_key=False, callable_wants_root_key=False, _root_key="", _parent_key=None):
+    # type: (Union[dict, list], Union[str, Callable], Any, bool, bool, str, Any) -> Union[dict, list]
     """
     Recursive replace data in a struct
 
@@ -162,6 +162,11 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
     If original is a callable function and callable_wants_key == True,
       it will replace every value with original(key, value) for dicts
       and with original(value) for any other data types
+
+    If callable_wants_full_key, we'll hand the full key path to Callable in dot notation, eg section.subsection.key instead of key
+    _root_key is used internally to pass full dot notation
+    _parent_key is used internally and allows to pass parent_key to Callable when dealing with lists
+
 
     This is en enhanced version of the following
         def iter_over_keys(d: dict, fn: Callable) -> dict:
@@ -179,10 +184,14 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
 
     def _replace_in_iterable(key, _src):
         if isinstance(_src, dict) or isinstance(_src, list):
-            _src = replace_in_iterable(_src, original, replacement, callable_wants_key)
+            _src = replace_in_iterable(_src, original, replacement, callable_wants_key, callable_wants_root_key=callable_wants_root_key, _root_key=_sub_key, _parent_key=key)
         elif isinstance(original, Callable):
             if callable_wants_key:
-                _src = original(key, _src)
+                if callable_wants_root_key:
+                    print(f"{_root_key}.{key}" if _root_key else key)
+                    _src = original(f"{_root_key}.{key}" if _root_key else key, _src)
+                else:
+                    _src = original(key, _src)
             else:
                 _src = original(_src)
         elif isinstance(_src, str) and isinstance(replacement, str):
@@ -193,11 +202,12 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
 
     if isinstance(src, dict):
         for key, value in src.items():
+            _sub_key = f"{_root_key}.{key}" if _root_key else key
             src[key] = _replace_in_iterable(key, value)
     elif isinstance(src, list):
         result = []
         for entry in src:
-            result.append(_replace_in_iterable(None, entry))
+            result.append(_replace_in_iterable(_parent_key, entry))
         src = result
     else:
         src = _replace_in_iterable(None, src)
