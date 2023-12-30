@@ -151,7 +151,15 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
-def replace_in_iterable(src, original, replacement=None, callable_wants_key=False, callable_wants_root_key=False, _root_key="", _parent_key=None):
+def replace_in_iterable(
+    src,
+    original,
+    replacement=None,
+    callable_wants_key=False,
+    callable_wants_root_key=False,
+    _root_key="",
+    _parent_key=None,
+):
     # type: (Union[dict, list], Union[str, Callable], Any, bool, bool, str, Any) -> Union[dict, list]
     """
     Recursive replace data in a struct
@@ -184,7 +192,15 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
 
     def _replace_in_iterable(key, _src):
         if isinstance(_src, (dict, list)):
-            _src = replace_in_iterable(_src, original, replacement, callable_wants_key, callable_wants_root_key=callable_wants_root_key, _root_key=_sub_key, _parent_key=key)
+            _src = replace_in_iterable(
+                _src,
+                original,
+                replacement,
+                callable_wants_key,
+                callable_wants_root_key=callable_wants_root_key,
+                _root_key=_sub_key,
+                _parent_key=key,
+            )
         elif isinstance(original, Callable):
             if callable_wants_key:
                 if callable_wants_root_key:

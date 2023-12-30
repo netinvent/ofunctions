@@ -29,6 +29,7 @@ def test_kill_childs():
     We'll check if kill_childs successfully stops multiprocessing childs by checking the execution time
     This test is time based so we don't need to use the child pid logic to test a child pid based function ;)
     """
+
     def _test_kill_childs(fast_kill):
         workers = 4
         child_exec_time = 120
@@ -74,7 +75,10 @@ def test_kill_childs():
     no_fast_kill_exec_time = _test_kill_childs(fast_kill=False)
     fast_kill_exec_time = _test_kill_childs(fast_kill=True)
 
-    assert no_fast_kill_exec_time > fast_kill_exec_time + 2, "Fast kill should be faster !"
+    assert (
+        no_fast_kill_exec_time > fast_kill_exec_time + 2
+    ), "Fast kill should be faster !"
+
 
 def test_get_processes_by_name():
     """
