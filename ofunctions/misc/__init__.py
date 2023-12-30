@@ -183,7 +183,7 @@ def replace_in_iterable(src, original, replacement=None, callable_wants_key=Fals
     """
 
     def _replace_in_iterable(key, _src):
-        if isinstance(_src, dict) or isinstance(_src, list):
+        if isinstance(_src, (dict, list)):
             _src = replace_in_iterable(_src, original, replacement, callable_wants_key, callable_wants_root_key=callable_wants_root_key, _root_key=_sub_key, _parent_key=key)
         elif isinstance(original, Callable):
             if callable_wants_key:
@@ -255,6 +255,7 @@ def is_nan(var):
     Simple check if a variable is a numpy NaN
     based on the simple check where (nan is nan) gives True but (nan == nan) gives False
     """
+    # pylint: disable=R0124 (comparison-with-itself)
     return not var == var
 
 
