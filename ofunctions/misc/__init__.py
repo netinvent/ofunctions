@@ -204,7 +204,6 @@ def replace_in_iterable(
         elif isinstance(original, Callable):
             if callable_wants_key:
                 if callable_wants_root_key:
-                    print(f"{_root_key}.{key}" if _root_key else key)
                     _src = original(f"{_root_key}.{key}" if _root_key else key, _src)
                 else:
                     _src = original(key, _src)
