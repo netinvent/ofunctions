@@ -29,7 +29,7 @@ def running_on_github_actions():
           env:
         RUNNING_ON_GITHUB_ACTIONS: true
     """
-    return os.environ.get("RUNNING_ON_GITHUB_ACTIONS") == "true"  # bash 'true'
+    return os.environ.get("RUNNING_ON_GITHUB_ACTIONS").lower() == "true"
 
 
 def test_ping():
