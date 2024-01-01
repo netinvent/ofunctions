@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.misc"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.6.3"
-__build__ = "2023123101"
+__version__ = "1.6.4"
+__build__ = "2024010101"
 __compat__ = "python2.7+"
 
 
@@ -204,7 +204,7 @@ def replace_in_iterable(
         elif isinstance(original, Callable):
             if callable_wants_key:
                 if callable_wants_root_key:
-                    _src = original(f"{_root_key}.{key}" if _root_key else key, _src)
+                    _src = original("{}.{}".format(_root_key, key) if _root_key else key, _src)
                 else:
                     _src = original(key, _src)
             else:
@@ -217,7 +217,7 @@ def replace_in_iterable(
 
     if isinstance(src, dict):
         for key, value in src.items():
-            _sub_key = f"{_root_key}.{key}" if _root_key else key
+            _sub_key = "{}.{}".format(_root_key, key) if _root_key else key
             src[key] = _replace_in_iterable(key, value)
     elif isinstance(src, list):
         result = []

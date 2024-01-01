@@ -6,6 +6,10 @@
 
 - Monkeypatch get_worst_logger_level() into logger object returned by logger_get_logger()
 
+### misc
+
+- replace_in_iterable() 
+
 ### network
 
 - BREAKING CHANGE: test_http_internet() has been renamed to check_http_internet() to avoid pytest complaints
