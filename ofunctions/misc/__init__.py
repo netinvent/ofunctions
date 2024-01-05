@@ -24,6 +24,7 @@ __compat__ = "python2.7+"
 
 
 import sys
+
 # python 2.7 compat fixes
 try:
     from typing import Optional, List, Any, Union, Callable

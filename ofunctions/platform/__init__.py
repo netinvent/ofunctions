@@ -56,7 +56,7 @@ def os_arch():
     # armv71, aarch64, x86_64
     # windows:
     # AMD64x
-    machine = platform.machine() 
+    machine = platform.machine()
     if machine == "AMD64":
         return "x64"
     machine = machine.lower()
@@ -65,7 +65,7 @@ def os_arch():
     elif "aarch64" in machine or "armv8" in machine:
         return "arm64"
     # 32 bit arm
-    elif "arm" in machine: 
+    elif "arm" in machine:
         return "arm"
     elif "i386" in machine or "i686" in machine:
         return "x86"
