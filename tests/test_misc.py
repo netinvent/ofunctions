@@ -13,9 +13,9 @@ Versioning semantics:
 
 __intname__ = "tests.ofunctions.misc"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2023-2024 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2023121101"
+__build__ = "2024010201"
 
 
 from ofunctions.misc import *
@@ -105,8 +105,15 @@ def test_DotDict():
     assert dic.test.sub.dic == 456, "Setter did not update dict"
 
 
+def test_fn_name():
+    def sub_test_fn_name():
+        assert fn_name() == "sub_test_fn_name"
+        assert fn_name(1) == "test_fn_name"
+
+
 if __name__ == "__main__":
     print("Example code for %s, %s" % (__intname__, __build__))
     test_bytesconverter()
     test_replace_in_iterable()
     test_DotDict()
+    test_fn_name()

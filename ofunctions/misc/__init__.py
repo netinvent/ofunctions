@@ -18,11 +18,12 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.6.4"
-__build__ = "2024010101"
+__version__ = "1.7.0"
+__build__ = "2024010201"
 __compat__ = "python2.7+"
 
 
+import sys
 # python 2.7 compat fixes
 try:
     from typing import Optional, List, Any, Union, Callable
@@ -527,3 +528,10 @@ class BytesConverter(float):
     def human_iec_bits(self):
         unit_list = [unit for unit in self.bits_units if "i" in unit]
         return self._to_human(unit_list)
+
+
+# for current fn name, specify 0 or no argument.
+# for name of caller of current func, specify 1.
+# for name of caller of caller of current func, specify 2. etc.
+# Balantly copied from https://stackoverflow.com/a/31615605/2635443
+fn_name = lambda n=0: sys._getframe(n + 1).f_code.co_name

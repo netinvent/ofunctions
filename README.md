@@ -225,7 +225,7 @@ mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails=
 
 Misc is a collection of somehow useful functions.
 
-Example: BytesConverter
+### BytesConverter
 
 BytesConverter is that little tool that you want when handling bits and byte units.
 Internally, BytesConverter always represents data an int number of bytes.
@@ -264,6 +264,20 @@ BytesConverter objects can be added just as other mathematic types:
 ```
 print(BytesConverter("50 MB") + BytesConverter("8192 Kb"))                          # 51024000.0
 print(BytesConverter(BytesConverter("50 MB") + BytesConverter("8192 Kb")).human)    # 51.0 MB
+```
+
+### fn_name()
+
+`fn_name()` is a quick way to find out what the parent function name is.
+Example:
+```
+from ofunctions.misc import fn_name
+
+
+def test_a():
+    def test_b():
+        print(fn_name())    # prints "test_b"
+        print(fn_name(1))   # prinrs "test_a"
 ```
 
 ## network Usage
