@@ -13,6 +13,8 @@
 ### network
 
 - BREAKING CHANGE: test_http_internet() has been renamed to check_http_internet() to avoid pytest complaints
+- get_public_ip() can now properly enforce timeouts, which didn't work on host resolution because of OS
+- get_public_ip() is now way faster since it tries to concurrently fetch IP addresses
 
 ### process
 
@@ -21,6 +23,7 @@
 ### threading
 
 - @threaded decorator now takes optional `__no_thread` bool which allows to bypass threading will keeping the decorator syntax
+- New wait_for_thread_completion() function which accepts threads or lists of threads, and returns results or lists of results
 
 # v2.7.0
 
