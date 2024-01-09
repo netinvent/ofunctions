@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.network"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.0"
-__build__ = "2023122801"
+__version__ = "1.6.0"
+__build__ = "2024010801"
 __compat__ = "python2.7+"
 
 import logging
@@ -35,7 +35,7 @@ from requests import get
 import urllib3.util.connection as requests_connection
 
 from ofunctions import bisection
-from ofunctions.threading import threaded
+from ofunctions.threading import threaded, wait_for_threaded_result
 from ofunctions.misc import BytesConverter
 
 # python 2.7 compat fixes
@@ -208,39 +208,61 @@ def proxy_dict(proxy):
     return None
 
 
-def _try_server(server, proxy_dict, timeout):
-    # type: (str, dict, int) -> Tuple[bool, str]
-    diag_messages = ""
+def _try_server(servers, proxy_dict, timeout):
+    # type: (Union[str, List[str]], dict, int) -> Tuple[bool, str]
+    """
+    Basically a wrapper for requests.get, that tries to:
+    - Execute get check with or without proxy settings
+    - Honor timeout regardless of outcome
+    - Execute parallel requests if servers is a list
 
-    # With optional proxy
-    try:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=Warning)
-            r = get(server, proxies=proxy_dict, verify=False, timeout=timeout)
-        status_code = r.status_code
-    except Exception as exc:
-        diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
-        status_code = -1
-    if status_code == 200:
-        return (True, r.text)
+    requests.get cannot honor timeout for name resolutions, which will typically
+    take long when default gateway doesn't work
+    See https://github.com/urllib3/urllib3/issues/1334 for more
+    So we need to manually keep time tracking via a thread
+    """
+
+    @threaded
+    def _get(server, proxy_dict, timeout):
+        diag_messages = ""
+        # With optional proxy
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=Warning)
+                r = get(server, proxies=proxy_dict, verify=False, timeout=timeout)
+            status_code = r.status_code
+        except Exception as exc:
+            diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
+            status_code = -1
+        if status_code == 200:
+            return {"result": True, "content": r.text}
+        else:
+            # Check without proxy (if set)
+            if proxy_dict is not None:
+                try:
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings("ignore", category=Warning)
+                        r = get(server, verify=False, timeout=timeout)
+                    status_code = r.status_code
+                except Exception as exc:
+                    diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
+                    status_code = -2
+                if status_code == 200:
+                    return {"result": True, "content": r.text}
+            diag_messages = "{0}\nCould not connect to [{1}], http error {2}.".format(
+                diag_messages, server, status_code
+            )
+            return {"result": False, "reason": diag_messages}
+    
+    if isinstance(servers, list):
+        thread_list = []
+        for server in servers:
+            thread_list.append(_get(server=server, proxy_dict=proxy_dict, timeout=timeout))
+        return wait_for_threaded_result(thread_list, timeout=timeout)
     else:
-        # Check without proxy (if set)
-        if proxy_dict is not None:
-            try:
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("ignore", category=Warning)
-                    r = get(server, verify=False, timeout=timeout)
-                status_code = r.status_code
-            except Exception as exc:
-                diag_messages = "{0}\n{1}".format(diag_messages, str(exc))
-                status_code = -2
-            if status_code == 200:
-                return (True, r.text)
-        diag_messages = "{0}\nCould not connect to [{1}], http error {2}.".format(
-            diag_messages, server, status_code
-        )
-        return (False, diag_messages)
-
+        thread = _get(server=servers, proxy_dict=proxy_dict, timeout=timeout)
+        return wait_for_threaded_result(thread, timeout=timeout)
+    
 
 def check_http_internet(
     fqdn_servers=None,  # type: List[str]
@@ -280,13 +302,13 @@ def check_http_internet(
     dns_resolver_works = False
 
     for fqdn_server in fqdn_servers:
-        result, diag = _try_server(fqdn_server, proxy_dict(proxy), timeout)
-        diag_messages = diag_messages + diag
-        if result:
+        result = _try_server(fqdn_server, proxy_dict(proxy), timeout)
+        if result["result"]:
             if not all_targets_must_succeed:
                 fqdn_success = True
                 break
         else:
+            diag_messages = diag_messages + result["reason"]
             # Let's try to check whether DNS resolution works
             try:
                 hostname = str(fqdn_server).split("//")[1]
@@ -299,13 +321,14 @@ def check_http_internet(
                 break
 
     for ip_server in ip_servers:
-        result, diag = _try_server(ip_server, proxy_dict(proxy), timeout)
-        diag_messages = diag_messages + diag
-        if result:
+        result = _try_server(ip_server, proxy_dict(proxy), timeout)
+
+        if result["result"]:
             if not all_targets_must_succeed:
                 ip_success = True
                 break
         else:
+            diag_messages = diag_messages + result["reason"]
             if all_targets_must_succeed:
                 ip_success = False
                 break
@@ -353,20 +376,24 @@ def get_public_ip(check_services=None, proxy=None, timeout=5, ip_version: int = 
             "https://api.ipify.org",
         ]
 
+    public_ip = None
     prior_ip_version = get_ip_version()
 
     if ip_version:
         set_ip_version(ip_version)
-    for check_service in check_services:
-        result, content = _try_server(
-            check_service, proxy_dict=proxy_dict(proxy), timeout=timeout
-        )
-        if result:
-            # We need to set ip version back to what it was
-            set_ip_version(prior_ip_version)
-            return content
-    set_ip_version(prior_ip_version)
-    return None
+
+    results = _try_server(
+        check_services, proxy_dict=proxy_dict(proxy), timeout=timeout
+    )
+    for result in results:
+        if isinstance(result, dict):
+            if result["result"]:
+                public_ip = result["content"]
+            break
+    # We need to set ip version back to what it was
+    if ip_version:
+        set_ip_version(prior_ip_version)
+    return public_ip
 
 
 def get_public_hostname(ip=None):
