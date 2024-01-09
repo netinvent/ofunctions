@@ -21,11 +21,16 @@ __description__ = (
     "Threading decorator to run functions as threads, antiflood decorator too"
 )
 __licence__ = "BSD 3 Clause"
-__version__ = "2.2.0"
-__build__ = "2023122901"
+__version__ = "2.3.0"
+__build__ = "2024010801"
 __compat__ = "python2.7+"
 
 
+# python 2.7 compat fixes
+try:
+    from typing import Optional
+except ImportError:
+    pass
 import sys
 import threading
 from datetime import datetime
@@ -116,40 +121,53 @@ else:
         return wrapper
 
 
-def wait_for_threaded_result(thread_list):
-    #  type: (Union[List[Future], Future]) -> Any
+def wait_for_threaded_result(threads, timeout = None):
+    #  type: (Union[List[Future], Future], Optional[Union[int, float]]) -> Any
     """
     Simple shorthand to wait for a thread to finish
-    Accepts a sigle thread, or a list of threads
-    If no thread is given, we'll just
+    Accepts a single thread, or a list of threads
+    Returns thread result or result list
+
+    if timeout reached, result list will contain results of done threads and None for unfinished ones
+    
+    If a non threaded function or function list is given, we'll just give back results or result lists
     """
-    if not isinstance(thread_list, list):
-        thread_list = [thread_list]
-        is_list = True
-    else:
-        is_list = False
+    source_is_list = True
+    if not isinstance(threads, list):
+        threads = [threads]
+        source_is_list = False
 
     threads_alive = True
+    timeout_reached = False
+    start_time = datetime.utcnow()
     while threads_alive:
         threads_alive = False
-        for thread in thread_list:
+        if timeout and (datetime.utcnow() - start_time).total_seconds() > timeout:
+            timeout_reached = True
+        for thread in threads:
             if hasattr(thread, "done") and hasattr(thread, "cancelled"):
-                is_thread = True
-                if not thread.done and not thread.cancelled():
+                if not thread.done() and not thread.cancelled():
                     threads_alive = True
-        sleep(0.01)
+                else:
+                    if timeout_reached:
+                        thread.cancel()
+        if timeout_reached:
+            break
+        
     # If threaded, return results or list of results
-    if is_thread:
-        if is_list:
-            result_list = []
-            for thread in thread_list:
+    result_list = []
+    for thread in threads:
+        if hasattr(thread, "done"):
+            if thread.done():
                 result_list.append(thread.result())
-            return result_list
-        # Or return a single thread result
-        return thread.result
-    # If not thread, return a single result
-    return thread
-
+            else:
+                result_list.append(None)
+        else:
+            result_list.append(thread)
+    if not source_is_list:
+        return result_list[0]
+    return result_list
+        
 
 def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
     """
