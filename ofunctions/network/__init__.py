@@ -253,16 +253,18 @@ def _try_server(servers, proxy_dict, timeout):
                 diag_messages, server, status_code
             )
             return {"result": False, "reason": diag_messages}
-    
+
     if isinstance(servers, list):
         thread_list = []
         for server in servers:
-            thread_list.append(_get(server=server, proxy_dict=proxy_dict, timeout=timeout))
+            thread_list.append(
+                _get(server=server, proxy_dict=proxy_dict, timeout=timeout)
+            )
         return wait_for_threaded_result(thread_list, timeout=timeout)
     else:
         thread = _get(server=servers, proxy_dict=proxy_dict, timeout=timeout)
         return wait_for_threaded_result(thread, timeout=timeout)
-    
+
 
 def check_http_internet(
     fqdn_servers=None,  # type: List[str]
@@ -382,9 +384,7 @@ def get_public_ip(check_services=None, proxy=None, timeout=5, ip_version: int = 
     if ip_version:
         set_ip_version(ip_version)
 
-    results = _try_server(
-        check_services, proxy_dict=proxy_dict(proxy), timeout=timeout
-    )
+    results = _try_server(check_services, proxy_dict=proxy_dict(proxy), timeout=timeout)
     for result in results:
         if isinstance(result, dict):
             if result["result"]:

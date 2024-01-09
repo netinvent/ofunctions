@@ -121,7 +121,7 @@ else:
         return wrapper
 
 
-def wait_for_threaded_result(threads, timeout = None):
+def wait_for_threaded_result(threads, timeout=None):
     #  type: (Union[List[Future], Future], Optional[Union[int, float]]) -> Any
     """
     Simple shorthand to wait for a thread to finish
@@ -129,7 +129,7 @@ def wait_for_threaded_result(threads, timeout = None):
     Returns thread result or result list
 
     if timeout reached, result list will contain results of done threads and None for unfinished ones
-    
+
     If a non threaded function or function list is given, we'll just give back results or result lists
     """
     source_is_list = True
@@ -153,7 +153,7 @@ def wait_for_threaded_result(threads, timeout = None):
                         thread.cancel()
         if timeout_reached:
             break
-        
+
     # If threaded, return results or list of results
     result_list = []
     for thread in threads:
@@ -167,7 +167,7 @@ def wait_for_threaded_result(threads, timeout = None):
     if not source_is_list:
         return result_list[0]
     return result_list
-        
+
 
 def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
     """
