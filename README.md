@@ -289,6 +289,18 @@ Setup:
 pip install ofunctions.network
 ```
 
+### get_public_ip()
+
+Easy way to find Public IPv4 or IPv6 using multiple online services
+
+```
+from ofunctions.netowrk import get_public_ip
+
+print("My IP is", get_public_ip())
+print("My IPv4 is", get_public_ip(ip_version=4))
+print("My IPv6 is", get_public_ip(ip_version=6))
+```
+
 ### IOCounters
 
 IOCounters is a class that will log instant sent/received bytes as well as total sent/received bytes.
