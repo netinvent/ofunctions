@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.7.0"
-__build__ = "2024010201"
+__version__ = "1.7.1"
+__build__ = "2024020201"
 __compat__ = "python2.7+"
 
 
@@ -225,6 +225,7 @@ def replace_in_iterable(
             src[key] = _replace_in_iterable(key, value)
     elif isinstance(src, list):
         result = []
+        _sub_key = _root_key
         for entry in src:
             result.append(_replace_in_iterable(_parent_key, entry))
         src = result
