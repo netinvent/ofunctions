@@ -153,6 +153,19 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
+def iter_over_keys(d: dict, fn: Callable) -> dict:
+    """
+    Executz value=fn(value) on any key in a nested dict
+    """
+    if isinstance(d, dict):
+        for key, value in d.items():
+            if isinstance(value, dict):
+                d[key] = iter_over_keys(value, fn)
+            else:
+                d[key] = fn(key, d[key])
+    return d
+
+
 def replace_in_iterable(
     src,
     original,
@@ -178,18 +191,7 @@ def replace_in_iterable(
     _parent_key is used internally and allows to pass parent_key to Callable when dealing with lists
 
 
-    This is en enhanced version of the following
-        def iter_over_keys(d: dict, fn: Callable) -> dict:
-        ""
-        Execute value=fn(value) on any key in a nested env
-        ""
-        if isinstance(d, dict):
-            for key, value in d.items():
-                if isinstance(value, dict):
-                    d[key] = iter_over_keys(value, fn)
-                else:
-                    d[key] = fn(key, d[key])
-        return d
+    This is en enhanced version of the following if iter_over_keys
     """
 
     def _replace_in_iterable(key, _src):
