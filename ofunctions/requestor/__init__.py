@@ -5,11 +5,11 @@
 
 __intname__ = "ofunctions.requestor"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.0.0"
-__build__ = "2022072201"
+__version__ = "1.1.0"
+__build__ = "2024032601"
 __compat__ = "python3.6+"
 
 
@@ -17,6 +17,7 @@ from typing import List, Optional, Any, Union
 from logging import getLogger
 import json
 import requests
+import warnings
 
 
 logger = getLogger(__intname__)
@@ -37,12 +38,14 @@ class Requestor:
         username: str = None,
         password: str = None,
         cert_verify: bool = True,
+        use_json: bool = True,
     ):
         self.api_session = None
         self.username = username
         self.password = password
         self.cert_verify = cert_verify
         self._endpoint = None
+        self._use_json = use_json
 
         self._app_name = "ofunctions-requestor-app"
         self._user_agent = "ofunctions-requestor-ua"
@@ -144,7 +147,7 @@ class Requestor:
     @endpoint.setter
     def endpoint(self, value: str):
         if isinstance(value, str):
-            self._endpoint = "/" + value.strip().lstrip("/")
+            self._endpoint = value.strip().lstrip("/")
 
     @property
     def allowed_models(self):
@@ -203,6 +206,9 @@ class Requestor:
             headers["Accept"] = ""
             if authenticated:
                 api_session.auth = (self.username, self.password)
+
+            if not self.cert_verify:
+                warnings.filterwarnings("ignore", category=Warning)
             result = api_session.get(uri, verify=self.cert_verify, headers=headers)
             try:
                 status_code = result.status_code
@@ -255,9 +261,9 @@ class Requestor:
         auth_endpoint = None
         for server in self.servers:
             if endpoint:
-                auth_endpoint = server + endpoint.strip("/")
+                auth_endpoint = server + endpoint.strip().strip("/")
             elif self._endpoint:
-                auth_endpoint = server + self._endpoint.strip("/")
+                auth_endpoint = server + self._endpoint
             else:
                 auth_endpoint = server
             if (
@@ -287,18 +293,36 @@ class Requestor:
             return False
 
         if endpoint:
-            url = self.connected_server + endpoint.strip("/")
+            url = self.connected_server + endpoint.strip().strip("/")
+        elif self._endpoint:
+            url = self.connected_server + self._endpoint
         else:
             url = self.connected_server
+
         try:
+            if not self.cert_verify:
+                warnings.filterwarnings("ignore", category=Warning)
             if action in ["update", "create"]:
-                result = getattr(self.api_session, self._action_requests_equiv[action])(
-                    url,
-                    headers=self.headers,
-                    data=data,
-                    proxies=self._proxy_dict,
-                    verify=self.cert_verify,
-                )
+                if self._use_json:
+                    result = getattr(
+                        self.api_session, self._action_requests_equiv[action]
+                    )(
+                        url,
+                        headers=self.headers,
+                        json=data,
+                        proxies=self._proxy_dict,
+                        verify=self.cert_verify,
+                    )
+                else:
+                    result = getattr(
+                        self.api_session, self._action_requests_equiv[action]
+                    )(
+                        url,
+                        headers=self.headers,
+                        data=data,
+                        proxies=self._proxy_dict,
+                        verify=self.cert_verify,
+                    )
             else:
                 result = getattr(self.api_session, self._action_requests_equiv[action])(
                     url,
@@ -354,7 +378,6 @@ class Requestor:
         endpoint: str = None,
         action: str = "read",
         data: Any = None,
-        json_output=False,
         raw=False,
     ) -> Union[dict, bytes, bool, str]:
         """
@@ -367,7 +390,7 @@ class Requestor:
         if not result:
             return False
 
-        if json_output:
+        if self._use_json:
             try:
                 return json.loads(result.text)
             except json.JSONDecodeError as exc:
