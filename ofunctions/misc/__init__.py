@@ -43,9 +43,11 @@ def rot13(string):
     """
     return "".join(
         [
-            chr(ord(n) + (13 if "Z" < n < "n" or n < "N" else -13))
-            if ("a" <= n <= "z" or "A" <= n <= "Z")
-            else n
+            (
+                chr(ord(n) + (13 if "Z" < n < "n" or n < "N" else -13))
+                if ("a" <= n <= "z" or "A" <= n <= "Z")
+                else n
+            )
             for n in string
         ]
     )
