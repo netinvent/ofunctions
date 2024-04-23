@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.7.1"
-__build__ = "2024020201"
+__version__ = "1.7.2"
+__build__ = "2024042301"
 __compat__ = "python2.7+"
 
 
@@ -390,13 +390,16 @@ class BytesConverter(float):
                         converted_value /= 8
                     break
             if not converted_value and converted_value != 0:
+                needs_raise = False
                 try:
                     converted_value = float(value)
+                # Here we intercept the original ValueError and replace it with ours
                 except ValueError:
-                    pass
-                raise ValueError(
-                    'Given string "{}" cannot be converted to bytes'.format(value)
-                )
+                    needs_raise = True
+                if needs_raise:
+                    raise ValueError(
+                        'Given string "{}" cannot be converted to bytes'.format(value)
+                    )
             value = converted_value
         if value < 0:
             raise ValueError("Negative bytes should not exist")
@@ -413,13 +416,15 @@ class BytesConverter(float):
                     value /= 8
                 break
         if not value:
+            needs_raise = False
             try:
                 return float(string)
             except ValueError:
-                pass
-            raise ValueError(
-                'Given string "{}" cannot be converted to bytes'.format(string)
-            )
+                needs_raise = True
+            if needs_raise:
+                raise ValueError(
+                    'Given string "{}" cannot be converted to bytes'.format(string)
+                )
         return value
 
     def _from_bytes_to_unit(self, unit):
