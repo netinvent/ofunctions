@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.7.2"
-__build__ = "2024042301"
+__version__ = "1.8.0"
+__build__ = "2024042401"
 __compat__ = "python2.7+"
 
 
@@ -34,6 +34,10 @@ except ImportError:
 
 # Restrict number n between minimum and maximum
 restrict_numbers = lambda n, n_min, n_max: max(min(n_max, n), n_min)
+
+# Get current function name, can take int argument to get higher caller names
+# eg fn_name(1) will return caller name, fn_name(2) will return caller of caller name
+fn_name = lambda n=0: sys._getframe(n + 1).f_code.co_name
 
 
 def rot13(string):
