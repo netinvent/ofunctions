@@ -225,6 +225,14 @@ mailer.send_email(subject='test', sender_mail='me@example.com', recipient_mails=
 
 Misc is a collection of somehow useful functions.
 
+### fn_name
+
+Get the caller function name of current context.
+```
+print(fn_name()) will show current caller function name
+print(fn_name(2)) will show parent of current caller function name
+```
+
 ### BytesConverter
 
 BytesConverter is that little tool that you want when handling bits and byte units.
