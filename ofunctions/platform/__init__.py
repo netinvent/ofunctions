@@ -130,4 +130,3 @@ def get_os_identifier():
         "platform": platform,
         "version": version,
     }
-
