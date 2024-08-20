@@ -8,8 +8,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.1.0"
-__build__ = "2024032601"
+__version__ = "1.1.1"
+__build__ = "2024082001"
 __compat__ = "python3.6+"
 
 
@@ -343,14 +343,14 @@ class Requestor:
                 return result
             else:
                 if (status_code in [400, 404]) and action == "exists":
-                    logger.debug(f"Exists operation{action}:{endpoint}: No.")
+                    logger.debug(f"Exists with url {url} operation{action}:{endpoint}: No.")
                 elif status_code == 401:
-                    logger.error(f"Server denied operation for {action}:{endpoint}")
+                    logger.error(f"Server with url {url} denied operation for {action}:{endpoint}")
                 elif status_code == 404:
-                    logger.debug(f"Server did not find {action}:{endpoint}")
+                    logger.debug(f"Server with url {url} did not find {action}:{endpoint}")
                 else:
-                    logger.error(f"Failed operation {action}:{endpoint}")
-                    logger.error(f"Server return code: {status_code}.")
+                    logger.error(f"Failed with url {url} operation {action}:{endpoint}")
+                    logger.error(f"Server with url {url} return code: {status_code}.")
                     try:
                         logger.error(
                             f'Error:\n{result.text.encode("utf-8", errors="backslashreplace")}'
