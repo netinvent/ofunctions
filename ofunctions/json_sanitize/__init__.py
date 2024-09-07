@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.json_sanitize"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2024 Orsiris de Jong"
 __description__ = "Simple tool that filters unwanted characters including non printable from JSON objects"
 __licence__ = "BSD 3 Clause"
 __version__ = "0.1.1"

@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.file_utils"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2017-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2017-2024 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.2.4"

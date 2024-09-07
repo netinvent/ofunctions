@@ -1,28 +1,38 @@
-# current Master
-
-## Features
+# v2.8.0
 
 ### logger_utils 
 
-- Monkeypatch get_worst_logger_level() into logger object returned by logger_get_logger()
+- Monkeypatch `get_worst_logger_level()` into logger object returned by `logger_get_logger()` in order to easily retrieve worst called log level
 
 ### misc
 
-- replace_in_iterable() 
+- Created a function called `replace_in_iterable()` that recursively walks a dict structure and replaces data depending on key / value names. Replacement can be the result of a function call.
+- Added `fn_name()` function which returns current or parent function name depending on the requested level
+- Fixed `BytesConverter` class to allow interpreting `0`
 
 ### network
 
-- BREAKING CHANGE: test_http_internet() has been renamed to check_http_internet() to avoid pytest complaints
-- get_public_ip() can now properly enforce timeouts, which didn't work on host resolution because of OS
-- get_public_ip() is now way faster since it tries to concurrently fetch IP addresses
+- BREAKING CHANGE: `test_http_internet()` has been renamed to `check_http_internet()` to avoid pytest complaints
+- `get_public_ip()` can now properly enforce timeouts, which didn't work on host resolution because of OS
+- `get_public_ip()` is now way faster since it tries to concurrently fetch IP addresses
+
+
+### platform
+
+- Remove `get_distro()`
+- Added `get_os_identifier()`
 
 ### process
 
-- Refactor kill_childs() to allow grace period before asking nicely to quit, then grace period before being a merciless process killer
+- Refactor `kill_childs()` to allow grace period before asking nicely to quit, then grace period before being a merciless process killer
+
+### requestor
+
+- Requestor now has `ignore_errors` getter/setter, which will transform all log levels above info into info
 
 ### threading
 
-- @threaded decorator now takes optional `__no_thread` bool which allows to bypass threading will keeping the decorator syntax
+- @threaded decorator now takes optional `__no_thread` bool which allows to bypass threading will keeping the decorator syntax (the `__no_thread` argument is given to the original function and is intercepted by the decorator)
 - New wait_for_thread_completion() function which accepts threads or lists of threads, and returns results or lists of results
 
 # v2.7.0

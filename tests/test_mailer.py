@@ -13,7 +13,7 @@ Versioning semantics:
 
 __intname__ = "tests.ofunctions.mailer"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2020-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2020-2024 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
 __build__ = "2022041601"
 

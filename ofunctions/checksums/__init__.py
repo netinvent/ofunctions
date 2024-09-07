@@ -18,7 +18,7 @@ from __future__ import unicode_literals
 
 __intname__ = "ofunctions.checksums"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2024 Orsiris de Jong"
 __description__ = "SHA256 Checksumming, manifest file creation and verification"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.1.0"

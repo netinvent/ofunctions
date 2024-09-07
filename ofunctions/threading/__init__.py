@@ -16,7 +16,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.threading"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2024 Orsiris de Jong"
 __description__ = (
     "Threading decorator to run functions as threads, antiflood decorator too"
 )

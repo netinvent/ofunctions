@@ -431,7 +431,7 @@ Also please note that Python 2.7 can't give you a result, so the function will b
 
 ### @no_flood
 
-There are situations where some code can call multiple times the same function (on a trigger for example), but you don't want that function to run multiple times.
+There are situations where some code can call multiple times the same function (on a trigger for example), but you don't want that function to run multiple times in a short time span.  
 That's a situation where we should handle function call antiflooding.
 
 Example:

@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.service_control"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Windows & Linux service control functions"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.0.0"

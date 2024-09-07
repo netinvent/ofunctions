@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.logger_utils"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
 __version__ = "2.4.1"

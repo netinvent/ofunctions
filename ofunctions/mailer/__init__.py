@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.mailer"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.2.1"

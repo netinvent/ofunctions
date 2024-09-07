@@ -15,7 +15,7 @@ Versioning semantics:
 
 __intname__ = "ofunctions.csv"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2019-2024 Orsiris de Jong"
 __description__ = "CSV file reader with header management, fieldnames, delimiters and comment skipping"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.0.2"
