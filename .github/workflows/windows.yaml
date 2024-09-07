@@ -18,7 +18,7 @@ jobs:
         # As of 2023/10/06, we have removed python 2.7 as they don't work anymore with windows on github
         # As of 2023/10/06, we have removed python 2.7 as they don't work anymore with windows on github
         # As of 2024/09/07, we have removed python 3.5 as they don't have pywin32>=222 on github
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, "3.10", "3.11", "3.12"]
+        python-version: [3.6, 3.7, 3.8, 3.9, "3.10", "3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v3
