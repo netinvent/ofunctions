@@ -18,16 +18,21 @@ from __future__ import unicode_literals
 
 __intname__ = "ofunctions.string_handling"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Simple string sanitization functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.1"
-__build__ = "2023112601"
+__version__ = "1.3.0"
+__build__ = "2024090701"
 __compat__ = "python2.7+"
 
 
 import unicodedata
 import re
+
+
+accent_chars = [chr(code) for code in range(int(0x00C0), int(0x01F7))]
+# Ambiguous characters that could be mistaken for each other or have special functions in os
+ambiguous_chars = ["O", "o", "0", "I", "l", "1"]
 
 
 def convert_accents(string):
