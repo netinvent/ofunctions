@@ -15,16 +15,17 @@ Versioning semantics:
 
 __intname__ = "ofunctions.random"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2023 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Simple random string generator including password generator"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.3.0"
-__build__ = "2023112601"
+__version__ = "0.4.0"
+__build__ = "2024090701"
 __compat__ = "python2.7+"
 
 
 import string
 import random
+from ofunctions.string_handling import accent_chars, ambiguous_chars
 
 
 def random_string(size=8, chars=string.ascii_letters + string.digits):
@@ -36,6 +37,9 @@ def random_string(size=8, chars=string.ascii_letters + string.digits):
 
 
 def pw_gen(size=16, chars=string.ascii_letters + string.digits):
+    """
+    Shorthand for random_string
+    """
     # type: (int, list) -> str
     return random_string(size, chars)
 
@@ -55,7 +59,7 @@ def password_gen(
     if alpha:
         chars += string.ascii_letters
         if not no_accents:
-            chars += "éàèêëïîç"
+            chars += "".join(accent_chars)
     chars += string.digits if numeric else ""
     chars += string.punctuation if special_chars else ""
 
@@ -64,7 +68,7 @@ def password_gen(
         Remove Linux / Windows specific chars from possible char list
         Remove ambiguous letters like 'O' (leave 0)
         """
-        for char in ["/", "\\", "'", '"', "?", "`", ":", ";", "&", "!", "|", ",", "0"]:
+        for char in ambiguous_chars:
             chars = chars.replace(char, "")
 
     return pw_gen(size, chars)
