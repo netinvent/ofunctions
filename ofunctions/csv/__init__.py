@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2019-2022 Orsiris de Jong"
 __description__ = "CSV file reader with header management, fieldnames, delimiters and comment skipping"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.0.1"
-__build__ = "2022041601"
+__version__ = "1.0.2"
+__build__ = "2024090701"
 __compat__ = "python2.7+"
 
 
@@ -74,6 +74,7 @@ def csv_dict_reader(file, skip_comment_char=None, encoding="utf-8", **kwargs):
 
         for row in csv_data:
             if use_OrderedDict:
+                # pylint: disable=E0606 (possibly-used-before-assignment)
                 row = OrderedDict(
                     sorted(
                         row.items(), key=lambda item: csv_data.fieldnames.index(item[0])
