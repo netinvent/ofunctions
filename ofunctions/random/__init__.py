@@ -37,10 +37,10 @@ def random_string(size=8, chars=string.ascii_letters + string.digits):
 
 
 def pw_gen(size=16, chars=string.ascii_letters + string.digits):
+    # type: (int, list) -> str
     """
     Shorthand for random_string
     """
-    # type: (int, list) -> str
     return random_string(size, chars)
 
 
