@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.1"
-__build__ = "2024050701"
+__version__ = "1.5.2"
+__build__ = "2024090701"
 __compat__ = "python2.7+"
 
 import os
@@ -114,10 +114,10 @@ def get_os_identifier():
     Returns a dict of os info
     """
 
-    platform = "Unknown"
+    pform = "Unknown"
     version = "Unknown"
     try:
-        platform = platform.platform()
+        pform = platform.platform()
     except Exception:
         pass
     try:
@@ -127,6 +127,6 @@ def get_os_identifier():
 
     return {
         "type": get_os(),
-        "platform": platform,
+        "platform": pform,
         "version": version,
     }
