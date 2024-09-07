@@ -8,8 +8,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.1.1"
-__build__ = "2024082001"
+__version__ = "1.2.0"
+__build__ = "2024090701"
 __compat__ = "python3.6+"
 
 
@@ -49,6 +49,8 @@ class Requestor:
 
         self._app_name = "ofunctions-requestor-app"
         self._user_agent = "ofunctions-requestor-ua"
+
+        self._ignore_errors = False
 
         self._action_list = ["create", "read", "update", "delete", "exists"]
         self._allowed_models = []
@@ -90,6 +92,32 @@ class Requestor:
                 self.servers.append(server.strip().rstrip("/") + "/")
         self.connected_server = None
 
+    def write_logs(self, logstr: str, level: str = "info"):
+        """
+        Write logs to logger
+        """
+        if level == "info":
+            logger.info(logstr)
+        elif level == "debug":
+            logger.debug(logstr)
+        elif level == "error":
+            if self.ignore_errors:
+                logger.info(logstr)
+            else:
+                logger.error(logstr)
+        elif level == "warning":
+            if self.ignore_errors:
+                logger.info(logstr)
+            else:
+                logger.warning(logstr)
+        elif level == "critical":
+            if self.ignore_errors:
+                logger.info(logstr)
+            else:
+                logger.critical(logstr)
+        else:
+            logger.info(logstr)
+
     @property
     def app_name(self):
         return self._app_name
@@ -113,6 +141,17 @@ class Requestor:
             self.headers["User-Agent"] = self.user_agent
         else:
             raise ValueError("Bogus user agent")
+
+    @property
+    def ignore_errors(self):
+        return self._ignore_errors
+
+    @ignore_errors.setter
+    def ignore_errors(self, value: bool):
+        if isinstance(value, bool):
+            self._ignore_errors = value
+        else:
+            raise ValueError("Bogus ignore_errors value")
 
     @property
     def headers(self):
@@ -213,13 +252,13 @@ class Requestor:
             try:
                 status_code = result.status_code
             except AttributeError:
-                logger.error("Server did not return a status code")
+                self.write_logs("Server did not return a status code", level="error")
                 status_code = None
 
             try:
                 text = result.text
             except AttributeError:
-                logger.error("Server did not return any data")
+                self.write_logs("Server did not return any data", level="error")
                 text = None
             if status_code == 200:
                 self.api_session = api_session
@@ -230,8 +269,10 @@ class Requestor:
                         self.header = {"Authorization": "Bearer {}".format(token)}
                 return True
 
-            logger.error("Cannot establish a session to server.")
-            logger.warning("Server return code: {}".format(status_code))
+            self.write_logs("Cannot establish a session to server.", level="error")
+            self.write_logs(
+                "Server return code: {}".format(status_code), level="warning"
+            )
             try:
                 logger.debug(
                     "Error:\n{}".format(text.encode("utf-8", errors="backslashreplace"))
@@ -239,17 +280,19 @@ class Requestor:
             except:
                 pass
         except requests.exceptions.SSLError:
-            logger.error(
-                "Cannot establish a session: SSL/TLS error. Are your server & client certificates valid ?"
+            self.write_logs(
+                "Cannot establish a session: SSL/TLS error. Are your server & client certificates valid ?",
+                level="error",
             )
             logger.debug("Trace:", exc_info=True)
         except requests.exceptions.ConnectionError:
-            logger.error(
-                "Cannot establish a session. Looks like we cannot reach the server."
+            self.write_logs(
+                "Cannot establish a session. Looks like we cannot reach the server.",
+                level="error",
             )
             logger.debug("Trace:", exc_info=True)
         except Exception as exc:  # pylint: disable=W0703,broad-except
-            logger.error("Cannot establish a session, unknown reason: %s", exc)
+            self.write_logs("Cannot establish a session, unknown reason: %s", exc)
             logger.debug("Trace:", exc_info=True)
         return False
 
@@ -283,12 +326,13 @@ class Requestor:
         simple request function that does handle all exceptions and will return a requeusts.Request object or False
         """
         if not self.api_session:
-            logger.error("Cannot operate without proper session.")
+            self.write_logs("Cannot operate without proper session.", level="error")
             return None
 
         if not self.connected_server:
-            logger.error(
-                "Currently not connected to any server. Do we have an open session ?"
+            self.write_logs(
+                "Currently not connected to any server. Do we have an open session ?",
+                level="error",
             )
             return False
 
@@ -343,33 +387,51 @@ class Requestor:
                 return result
             else:
                 if (status_code in [400, 404]) and action == "exists":
-                    logger.debug(f"Exists with url {url} operation{action}:{endpoint}: No.")
+                    logger.debug(
+                        f"Exists with url {url} operation{action}:{endpoint}: No."
+                    )
                 elif status_code == 401:
-                    logger.error(f"Server with url {url} denied operation for {action}:{endpoint}")
+                    self.write_logs(
+                        f"Server with url {url} denied operation for {action}:{endpoint}",
+                        level="error",
+                    )
                 elif status_code == 404:
-                    logger.debug(f"Server with url {url} did not find {action}:{endpoint}")
+                    logger.debug(
+                        f"Server with url {url} did not find {action}:{endpoint}"
+                    )
                 else:
-                    logger.error(f"Failed with url {url} operation {action}:{endpoint}")
-                    logger.error(f"Server with url {url} return code: {status_code}.")
+                    self.write_logs(
+                        f"Failed with url {url} operation {action}:{endpoint}",
+                        level="error",
+                    )
+                    self.write_logs(
+                        f"Server with url {url} return code: {status_code}.",
+                        level="error",
+                    )
                     try:
-                        logger.error(
-                            f'Error:\n{result.text.encode("utf-8", errors="backslashreplace")}'
+                        self.write_logs(
+                            f'Error:\n{result.text.encode("utf-8", errors="backslashreplace")}',
+                            level="error",
                         )
                     except Exception:  # pylint: disable=W0703,broad-except
-                        logger.error("No other info given by server.")
+                        self.write_logs("No other info given by server.", level="error")
             return False
         except requests.exceptions.SSLError:
-            logger.error(
-                "Cannot establish a session: SSL/TLS error. Are your server & client certificates valid ?"
+            self.write_logs(
+                "Cannot establish a session: SSL/TLS error. Are your server & client certificates valid ?",
+                level="error",
             )
             logger.debug("Trace:", exc_info=True)
         except requests.exceptions.ConnectionError:
-            logger.error(
-                "Cannot establish a session. Looks like we cannot reach the server."
+            self.write_logs(
+                "Cannot establish a session. Looks like we cannot reach the server.",
+                level="error",
             )
             logger.debug("Trace:", exc_info=True)
         except Exception as exc:  # pylint: disable=W0703,broad-except
-            logger.error("Cannot establish a session, unknown reason: %s", exc)
+            self.write_logs(
+                f"Cannot establish a session, unknown reason: {exc}", level="error"
+            )
             logger.debug("Trace:", exc_info=True)
         return False
 
