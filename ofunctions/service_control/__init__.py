@@ -42,6 +42,7 @@ def nt_service_status(service):
     #  win32serviceutil.QueryServiceStatus(service) returns a list. If second entry = 4, service is running
     # TODO: handle other service states than 4
     """
+    # pylint: disable=E0606 (possibly-used-before-assignment)
     service_status = win32serviceutil.QueryServiceStatus(service)
     if service_status[1] == 4:
         return True
