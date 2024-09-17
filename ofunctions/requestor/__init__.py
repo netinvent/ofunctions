@@ -8,8 +8,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.2.0"
-__build__ = "2024090701"
+__version__ = "1.2.1"
+__build__ = "2024091701"
 __compat__ = "python3.6+"
 
 
@@ -440,7 +440,7 @@ class Requestor:
         endpoint: str = None,
         action: str = "read",
         data: Any = None,
-        raw=False,
+        raw: bool = False,
     ) -> Union[dict, bytes, bool, str]:
         """
         simple request function that does handle all exceptions and will return content or False
@@ -451,8 +451,7 @@ class Requestor:
         result = self._base_requestor(endpoint, action, data)
         if not result:
             return False
-
-        if self._use_json:
+        if self._use_json and not raw:
             try:
                 return json.loads(result.text)
             except json.JSONDecodeError as exc:
@@ -517,8 +516,9 @@ class Requestor:
         else:
             model_endpoint = model
 
-        if data and isinstance(data, dict):
-            data = json.dumps(data)
-
-        result = self.requestor(model_endpoint, action, data, json_output)
+        if json_output:
+            if data and isinstance(data, dict):
+                data = json.dumps(data)
+            self._use_json = True
+        result = self.requestor(model_endpoint, action, data)
         return result
