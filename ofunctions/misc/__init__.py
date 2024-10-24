@@ -159,9 +159,10 @@ def deep_dict_update(dict_original, dict_update):
         return dict_update
 
 
-def iter_over_keys(d: dict, fn: Callable) -> dict:
+def iter_over_keys(d, fn) -> dict:
+    # type: (dict, Callable) -> dict
     """
-    Executz value=fn(value) on any key in a nested dict
+    Executes value=fn(value) on any key in a nested dict
     """
     if isinstance(d, dict):
         for key, value in d.items():
@@ -170,6 +171,31 @@ def iter_over_keys(d: dict, fn: Callable) -> dict:
             else:
                 d[key] = fn(key, d[key])
     return d
+
+
+def del_keys(src, keys):
+    # type: (Union[dict, list], List[str]) -> Union[dict, list]
+    """
+    Iters over a struct (dict/dict lists) and removes any key in keys from it
+    """
+
+    def _del_keys(_src):
+        if isinstance(_src, (dict, list)):
+            _src = del_keys(_src, keys)
+        return _src
+
+    if isinstance(src, dict):
+        new_src = {}
+        for key in src.keys():
+            if key not in keys:
+                new_src[key] = _del_keys(src[key])
+        src = new_src
+    elif isinstance(src, list):
+        new_src = []
+        for entry in src:
+            new_src.append(_del_keys(entry))
+        src = new_src
+    return src
 
 
 def replace_in_iterable(
@@ -195,9 +221,6 @@ def replace_in_iterable(
     If callable_wants_full_key, we'll hand the full key path to Callable in dot notation, eg section.subsection.key instead of key
     _root_key is used internally to pass full dot notation
     _parent_key is used internally and allows to pass parent_key to Callable when dealing with lists
-
-
-    This is en enhanced version of the following if iter_over_keys
     """
 
     def _replace_in_iterable(key, _src):
