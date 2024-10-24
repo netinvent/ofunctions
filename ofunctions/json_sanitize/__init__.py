@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2020-2024 Orsiris de Jong"
 __description__ = "Simple tool that filters unwanted characters including non printable from JSON objects"
 __licence__ = "BSD 3 Clause"
-__version__ = "0.1.1"
-__build__ = "2020102801"
+__version__ = "0.2.0"
+__build__ = "2024102401"
 __compat__ = "python2.7+"
 
 
@@ -39,7 +39,14 @@ def json_sanitize(value, is_value=True):
 
     Recursive function that allows to remove any special characters from json,
     especially unknown control characters
+
+    Names may contain whatever but dots
+    Values are sanitized in order to not contain any control characters
+    Extended santization will also remove any BOM
     """
+    name_sanitize_re = re.compile(r"[.\x00-\x1f\x7f-\x9f]")
+    value_sanitize_re = re.compile(r"[\x00-\x1f\x7f-\x9f]")
+
     if isinstance(value, dict):
         value = {
             json_sanitize(k, False): json_sanitize(v, True) for k, v in value.items()
@@ -49,12 +56,9 @@ def json_sanitize(value, is_value=True):
     elif isinstance(value, str):
         if not is_value:
             # Remove dots from value names
-            value = re.sub(r"[.]", "", value)
+            value = re.sub(name_sanitize_re, "", value)
         else:
-            # Convert windows newlines to unix ones, and escape them double
-            # eventID messages may have newlines / other special chars in them
-            # value = re.sub(r"\r\n", "\\\\n", value)
-            # value = re.sub(r"\t", "\\\\t", value)
-            # Finally we remove all control characters
-            value = re.sub(r"[\x00-\x1f\x7f-\x9f]", " ", value)
+            # Windows eventID messages may have newlines / other special chars in them
+            # We remove anything that's not printable character (this includes all control characters, BOM, etc)
+            value = re.sub(value_sanitize_re, " ", value)
     return value
