@@ -454,14 +454,14 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
             result = ping(target, 28, 2, 4, 1, ip_type, False, False, source_interface)
             if not result:
                 raise ValueError(
-                    'ICMP request on target "{}" failed. Cannot determine MTU.'.format(
+                    'ICMP request on target "{}" failed. Cannot determine MTU. Is your host reachable ?'.format(
                         target
                     )
-                )
+                ) from exc
             else:
                 raise ValueError(
                     "Unable to determine MTU via defined method: {}".format(exc)
-                )
+                ) from exc
     else:
         raise ValueError("Method {} not implemented yet.".format(method))
 

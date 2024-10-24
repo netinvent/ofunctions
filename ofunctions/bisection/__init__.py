@@ -69,14 +69,14 @@ def bisect(
 
     if left_result == expected_result and right_result == expected_result:
         if not allow_all_expected:
-            raise ValueError("Both sides of the argument list are expected results")
+            raise ValueError("Both sides of the argument list produced expected results")
         # if all valid results are allowed, we'll consider that any ordering is ascending, hence return right index
         # This is allowed in order to use bisection for min=x, max=y schemas where result could be max
         if fixed_args is None:
             return args_list[index_right]
         return args_list[index_right][0]
     elif left_result != expected_result and right_result != expected_result:
-        raise ValueError("Both sides of the argument list are unexpected results")
+        raise ValueError("Both sides of the argument list produced unexpected results")
     elif left_result == expected_result and right_result != expected_result:
         # The argument list is supposed to provide the expected result left, and not expected result right
         left_to_right_ordered = True
