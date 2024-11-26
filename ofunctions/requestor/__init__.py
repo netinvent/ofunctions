@@ -8,8 +8,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.2.1"
-__build__ = "2024091701"
+__version__ = "1.2.2"
+__build__ = "2024112601"
 __compat__ = "python3.6+"
 
 
@@ -456,6 +456,7 @@ class Requestor:
                 return json.loads(result.text)
             except json.JSONDecodeError as exc:
                 logger.error("Cannot decode json output: {}".format(exc))
+                logger.debug("Trace:", exc_info=True)
                 return None
         if raw:
             return result.content
