@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.4.1"
-__build__ = "2023121801"
+__version__ = "2.4.2"
+__build__ = "2024120301"
 __compat__ = "python2.7+"
 
 import logging
@@ -152,8 +152,10 @@ def logger_get_console_handler(
         return console_handler
 
 
-def logger_get_file_handler(log_file, formatter_insert=None, max_bytes=10485760):
-    # type: (str, Optional[None], int) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
+def logger_get_file_handler(
+    log_file, formatter_insert=None, max_bytes=10485760, console=True
+):
+    # type: (str, Optional[None], int, bool) -> Tuple[Union[RotatingFileHandler, None], Union[str, None]]
     """
     Returns a log file handler
     On failire, will return a temporary file log handler
@@ -166,13 +168,15 @@ def logger_get_file_handler(log_file, formatter_insert=None, max_bytes=10485760)
         )
     except (OSError, IOError) as exc:
         try:
-            print(
-                "Cannot create logfile. Trying to obtain temporary log file.\nMessage: %s"
-                % exc
-            )
+            if console:
+                print(
+                    "Cannot create logfile. Trying to obtain temporary log file.\nMessage: %s"
+                    % exc
+                )
             err_output = str(exc)
             temp_log_file = tempfile.gettempdir() + os.sep + __name__ + ".log"
-            print("Trying temporary log file in " + temp_log_file)
+            if console:
+                print("Trying temporary log file in " + temp_log_file)
             file_handler = RotatingFileHandler(
                 temp_log_file,
                 mode="a",
@@ -188,7 +192,8 @@ def logger_get_file_handler(log_file, formatter_insert=None, max_bytes=10485760)
                 "Cannot create temporary log file either. Will not log to file. Message: %s"
                 % exc
             )
-            print(msg)
+            if console:
+                print(msg)
             return None, msg
     else:
         file_handler.setFormatter(formatter)
@@ -229,13 +234,17 @@ def logger_get_logger(
             _logger.addHandler(console_handler)
     if log_file:
         file_handler, err_output = logger_get_file_handler(
-            log_file, formatter_insert=formatter_insert, max_bytes=max_bytes
+            log_file,
+            formatter_insert=formatter_insert,
+            max_bytes=max_bytes,
+            console=console,
         )
         if file_handler:
             _logger.addHandler(file_handler)
             _logger.propagate = False
             if err_output is not None:
-                print(err_output)
+                if console:
+                    print(err_output)
                 _logger.warning(
                     'Failed to use log file "%s", %s.', log_file, err_output
                 )
@@ -249,13 +258,14 @@ def logger_get_logger(
                     temp_log_file,
                 )
         file_handler, err_output = logger_get_file_handler(
-            temp_log_file, formatter_insert=formatter_insert
+            temp_log_file, formatter_insert=formatter_insert, console=console
         )
         if file_handler:
             _logger.addHandler(file_handler)
             _logger.propagate = False
             if err_output is not None:
-                print(err_output)
+                if console:
+                    print(err_output)
                 _logger.warning(
                     'Failed to use log file "%s", %s.', log_file, err_output
                 )
