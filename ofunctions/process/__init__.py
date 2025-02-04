@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.process"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Shorthand for killing an entire process tree"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.0.0"
-__build__ = "2023122901"
+__version__ = "2.1.0"
+__build__ = "2025020401"
 __compat__ = "python2.7+"
 
 
@@ -78,6 +78,7 @@ def kill_childs(
     verbose=False,  # type: bool
     grace_period=1,  # type: int
     fast_kill=False,  # type: bool
+    process_name=None,  # type: Optional[str]
 ):
     # type: (...) -> bool
     """
@@ -94,6 +95,9 @@ def kill_childs(
 
     :param pid: Which pid tree we'll kill
     :param itself: Should parent be killed too ?
+    :param process_name: Only kill childs corresponding to name
+
+    Attention: on windows, process name has extension, eg "restic.exe" instead of restic under Unix
 
     Extract from Python3 doc
     On Windows, signal() can only be called with SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM, or SIGBREAK.
@@ -154,6 +158,8 @@ def kill_childs(
             except Exception as exc:
                 logger.debug("Conditional grace timer stopped: {}".format(exc))
                 break
+            # Arbitrary time to avoid CPU hogging
+            sleep(0.1)
 
     @threaded
     def _process_killer(
@@ -258,6 +264,9 @@ def kill_childs(
         if children:
             thread_list = []
             for child in current_process.children(recursive=True):
+                if process_name:
+                    if child.name() != process_name:
+                        continue
                 try:
                     thread_list.append(
                         _process_killer(
