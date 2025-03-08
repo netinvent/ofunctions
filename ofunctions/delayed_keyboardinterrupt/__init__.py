@@ -10,7 +10,7 @@ Versioning semantics:
     Major version: backward compatibility breaking changes
     Minor version: New functionality
     Patch version: Backwards compatible bug fixes
-    
+
 """
 
 __intname__ = "ofunctions.delayed_keyboardinterrupt"
