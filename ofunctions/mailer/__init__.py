@@ -72,7 +72,7 @@ class Mailer:
     """
     :param sender_mail:
     :param recipient_mails: Accepts space, comma or semi-colon separated email addresses or list of email addresses
-    :param split_mails: When multiple mails exist, shall we create an email per addresss or an unique one
+    :param split_mails: When multiple mails exist, shall we create an email per address or an unique one
     :param smtp_server:
     :param smtp_port:
     :param smtp_user:

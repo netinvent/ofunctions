@@ -59,7 +59,7 @@ Looking at the result from that middle value, we'll know if the expected result 
 Now let's code the above example in less abstract:
 ```
 def foo(x):
-	# We'll need to find value 712 te quickest way possible
+	# We'll need to find value 712 the quickest way possible
 	if x >= 712:
 		return "gotcha"
 	return False
@@ -267,7 +267,7 @@ print(BytesConverter("4MiB"))               # 4194304.0
 print(BytesConverter("9600 Kb").mbytes)     # 1.1
 ```
 
-Arithmetics:
+Arithmetic:
 BytesConverter objects can be added just as other mathematic types:
 ```
 print(BytesConverter("50 MB") + BytesConverter("8192 Kb"))                          # 51024000.0
@@ -302,7 +302,7 @@ pip install ofunctions.network
 Easy way to find Public IPv4 or IPv6 using multiple online services
 
 ```
-from ofunctions.netowrk import get_public_ip
+from ofunctions.network import get_public_ip
 
 print("My IP is", get_public_ip())
 print("My IPv4 is", get_public_ip(ip_version=4))
@@ -340,13 +340,13 @@ while True:
 `kill_childs` allows to walk a process and kill all it's children, with various options:
 - pid(int): If none given, current process pid is used
 - itself (bool): Shall we also kill current process (defaults to False)
-- children (bool): Shall we kill current process' childs (defaults to True)
+- children (bool): Shall we kill current process' children (defaults to True)
 - verbose (bool): Log more actions (defaults to False)
 - grace_period (int): Period before we consider hard killing a process. Defaults to 1 second
 - fast_kill (bool): Kill children using threads, in order to parallelize grace_period and kill faster
 
 `kill_childs` will first try to send SIGTERM to the process, and if not successful in grace_period, it will send SIGKILL.
-Works well on both Windows and Linux, and has fallback mecanisms to make sure process tree gets properly killed.
+Works well on both Windows and Linux, and has fallback mechanisms to make sure process tree gets properly killed.
 
 Example:
 ```
@@ -448,7 +448,7 @@ for _ in range(0, 20):
 ```
 
 Multiple executions of a functions are permitted as long as they're called with different arguments.
-The `@no_flood` decorator can be setup to prevent **any** multiple function execution in a given timespan, regarless of it's arguments:
+The `@no_flood` decorator can be setup to prevent **any** multiple function execution in a given timespan, regardless of it's arguments:
 
 ```
 @no_flood(5, multiple_instances_diff_args=False)

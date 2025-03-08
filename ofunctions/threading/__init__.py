@@ -181,7 +181,7 @@ def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
     @no_flood(5)
     my_function()
 
-    Don't run my_function more than once in 10 seconds, regarless of it's arguments
+    Don't run my_function more than once in 10 seconds, regardless of it's arguments
     @no_flood(10, False)
     my_function()
 
