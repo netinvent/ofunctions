@@ -39,7 +39,7 @@ def test_system_service_handler():
     if os_name == "nt":
         test_service = "themes"
     else:
-        test_service = "irqbalance"
+        test_service = "crond"
 
     status = system_service_handler(test_service, "status")
     print('Service "{}" status {}'.format(test_service, status))
