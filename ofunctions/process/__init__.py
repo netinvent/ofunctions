@@ -82,7 +82,7 @@ def kill_childs(
 ):
     # type: (...) -> bool
     """
-    Kills pid or all childs of pid (current pid can be obtained with os.getpid())
+    Kills pid or all children of pid (current pid can be obtained with os.getpid())
     If no pid given current pid is taken
     Good idea when using multiprocessing, is to call with atexit.register(ofunctions.kill_childs, os.getpid(),)
 
@@ -95,7 +95,7 @@ def kill_childs(
 
     :param pid: Which pid tree we'll kill
     :param itself: Should parent be killed too ?
-    :param process_name: Only kill childs corresponding to name
+    :param process_name: Only kill children corresponding to name
 
     Attention: on windows, process name has extension, eg "restic.exe" instead of restic under Unix
 

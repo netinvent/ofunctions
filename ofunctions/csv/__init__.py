@@ -59,7 +59,7 @@ def csv_dict_reader(file, skip_comment_char=None, encoding="utf-8", **kwargs):
     :param file: (str) path to csv file to read
     :param skip_comment_char: (str) optional character which, if found on first row, will skip row
     :param delimiter: (char) CSV delimiter char
-    :param fieldnames: (list) CSV field names for dictionnary creation, implies that no header is present in file
+    :param fieldnames: (list) CSV field names for dictionary creation, implies that no header is present in file
                               If not given, first line is used as header and skipped from results
     :param encoding: Default file encoding
     :param kwargs:

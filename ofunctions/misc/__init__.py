@@ -75,7 +75,7 @@ def rot47(string):
 def bytes_to_string(bytes_to_convert, strip_null=False):
     # type: (List[int], bool) -> Optional[str]
     """
-    Litteral bytes to string
+    Literal bytes to string
     :param bytes_to_convert: list of bytes in integer format
     :param strip_null: Remove trailing and ending null bytes
     :return: resulting string
@@ -111,12 +111,12 @@ def convert_time_to_seconds(value):
     Works with higher than 24 hh values, eg 101:45:01 would be 101 hours, 45 min and 1 second
     """
 
-    splitted = value.split(":")
-    splitted = [int(value) for value in splitted]
-    if len(splitted) == 2:
-        return splitted[0] * 60 + splitted[1]
-    elif len(splitted) == 3:
-        return splitted[0] * 3600 + splitted[1] * 60 + splitted[2]
+    split_val = value.split(":")
+    split_val = [int(value) for value in split_val]
+    if len(split_val) == 2:
+        return split_val[0] * 60 + split_val[1]
+    elif len(split_val) == 3:
+        return split_val[0] * 3600 + split_val[1] * 60 + split_val[2]
 
 
 def reverse_dict(dictionary):
@@ -138,7 +138,7 @@ def get_key_from_value(haystack, needle):
 def deep_dict_update(dict_original, dict_update):
     # type: (dict, dict) -> dict
     """
-    Update a nested dictionnary with another nested dictionnary
+    Update a nested dictionary with another nested dictionnary
     Balant copy from https://stackoverflow.com/a/60435617/2635443
     """
     if isinstance(dict_original, dict) and isinstance(dict_update, dict):

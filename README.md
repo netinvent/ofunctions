@@ -95,7 +95,7 @@ with DelayedKeyboardInterrupt():
 ```
 ## file_utils Usage
 
-ofuntions.file_utils is a collection of tools to handle:
+ofunctions.file_utils is a collection of tools to handle:
 - listing of paths
 
 Setup

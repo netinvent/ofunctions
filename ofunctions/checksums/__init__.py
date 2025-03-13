@@ -97,7 +97,7 @@ def create_sha256sum_file(directory, sumfile="SHA256SUMS.TXT", depth=1):
     # type: (str, str, int) -> None
     """
     Create a checksum file for a given directory
-    This function creates the file on the fly bacause we yield results
+    This function creates the file on the fly because we yield results
 
     :param directory: (str) path to the directory to create the sumfile for
     :param sumfile: (str) alternative sumfile name

@@ -56,7 +56,7 @@ if sys.version_info[0] < 3:
 
     def threaded(fn):
         """
-        Threaded allows to make any funtion a thread
+        Threaded allows to make any function a thread
         With python 2.7, there will be no possible return value
         """
 
@@ -176,7 +176,7 @@ def no_flood(flood_timespan=5, multiple_instances_diff_args=True):
 
     Usage:
 
-    Don't run my_funtion more than once in 5 seconds if called multiple times with the same arguments
+    Don't run my_function more than once in 5 seconds if called multiple times with the same arguments
 
     @no_flood(5)
     my_function()

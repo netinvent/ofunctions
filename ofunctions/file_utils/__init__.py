@@ -100,7 +100,7 @@ def check_path_access(
 
     We don't rely on os.access since it doesn't work well on Windows:
             os.access also returns True with writable files or links
-            os.access does report W_OK with windows directories when they arent supposed to
+            os.access does report W_OK with windows directories when they aren't supposed to
 
     :param path: path to check (directory or file)
     :param check: [R/W] check for readability / writability
@@ -572,8 +572,8 @@ def check_file_timestamp_delta(
     Can also check if file has been modified (mtime) earlier than given time delta from timestamp
     If no timestamp is given, we'll use current time
 
-    future comparaisons are achieved by specifying postivie values, ex: days=1 would search for files created / modified / accessed tomorrow
-    past comparaisons are achieved by specifying negative values, ex: days=-1 would search for files created / modified / accessed yesterday
+    future comparisons are achieved by specifying postivie values, ex: days=1 would search for files created / modified / accessed tomorrow
+    past comparisons are achieved by specifying negative values, ex: days=-1 would search for files created / modified / accessed yesterday
     """
     if not os.path.isfile(file):
         raise FileNotFoundError("[%s] not found." % file)
