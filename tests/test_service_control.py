@@ -13,9 +13,9 @@ Versioning semantics:
 
 __intname__ = "tests.ofunctions.service_control"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2021-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2021-2025 Orsiris de Jong"
 __licence__ = "BSD 3 Clause"
-__build__ = "2022041501"
+__build__ = "2025031301"
 
 
 import os
@@ -41,13 +41,13 @@ def test_system_service_handler():
     else:
         test_service = "crond"
 
+    # don't bother to test this on github runner since we don't have privileges, neither can we check if service runs
+    if running_on_github_actions():
+        return
+
     status = system_service_handler(test_service, "status")
     print('Service "{}" status {}'.format(test_service, status))
     assert status, '"{}" service is not started'.format(test_service)
-
-    # don't bother to test this on github runner since we don't have privileges set
-    if running_on_github_actions():
-        return
 
     try:
         result = system_service_handler(test_service, "stop")
