@@ -26,7 +26,7 @@ from ofunctions.process import *
 
 def test_kill_childs():
     """
-    We'll check if kill_childs successfully stops multiprocessing childs by checking the execution time
+    We'll check if kill_childs successfully stops multiprocessing children by checking the execution time
     This test is time based so we don't need to use the child pid logic to test a child pid based function ;)
     """
 
@@ -54,11 +54,11 @@ def test_kill_childs():
             for child in process_list:
                 if child.is_alive():
                     childs_still_run = True
-                # Now let's kill the childs if at least 5 seconds elapsed
+                # Now let's kill the children if at least 5 seconds elapsed
                 cur_exec_time = (datetime.utcnow() - start_time).total_seconds()
                 if cur_exec_time >= 5:
                     if not kill_childs_ran:
-                        print("Running kill childs at {} seconds".format(cur_exec_time))
+                        print("Running kill_childs at {} seconds".format(cur_exec_time))
                         kill_childs(fast_kill=fast_kill)
                         kill_childs_ran = True
                 sleep(0.1)

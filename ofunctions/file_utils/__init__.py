@@ -572,7 +572,7 @@ def check_file_timestamp_delta(
     Can also check if file has been modified (mtime) earlier than given time delta from timestamp
     If no timestamp is given, we'll use current time
 
-    future comparisons are achieved by specifying postivie values, ex: days=1 would search for files created / modified / accessed tomorrow
+    future comparisons are achieved by specifying positive values, ex: days=1 would search for files created / modified / accessed tomorrow
     past comparisons are achieved by specifying negative values, ex: days=-1 would search for files created / modified / accessed yesterday
     """
     if not os.path.isfile(file):

@@ -177,7 +177,7 @@ def test_get_file_time():
         assert isinstance(
             dt, datetime
         ), "Timestamp could not be converted to datetime object"
-        assert 2021 <= dt.year < 2300, "Code will prabably not run in 200 years, ehh"
+        assert 2021 <= dt.year < 2300, "Code will probably not run in 200 years, ehh"
 
 
 def test_check_file_timestamp_delta():
@@ -217,7 +217,7 @@ def test_check_file_timestamp_delta():
 def test_hide_file():
     """
     Dumb checks, need to improve tests here
-    We need to verifiy that attrib has been run on windows and that file begins with dot on unixes
+    We need to verify that attrib has been run on windows and that file begins with dot on unixes
     """
     filename = "ofunctions.test_hide_file." + random_string(16) + ".file"
     test_directory = os.path.abspath(os.path.dirname(__file__))

@@ -49,7 +49,7 @@ def get_os():
 def os_arch():
     # type: () -> str
     """
-    Get current machine (python independant) architecture
+    Get current machine (python independent) architecture
     """
     # Returns:
     # linux:

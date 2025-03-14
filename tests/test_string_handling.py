@@ -36,7 +36,7 @@ def running_on_github_actions():
 
 def test_string_handling():
     """
-    Since we're dealing potentielly with python2, let's have unicode strings for comparaison
+    Since we're dealing potentially with python2, let's have unicode strings for comparison
     """
     test_string = 'ABCDxyz1234&é"-è_çà)"ééà()\'"éài^^$¨IÎiï?./%X'
 

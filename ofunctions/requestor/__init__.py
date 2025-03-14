@@ -208,7 +208,7 @@ class Requestor:
         if isinstance(value, list):
             for key, val in value:
                 if key not in self.allowed_models:
-                    raise ValueError("ACL for non existant model given")
+                    raise ValueError("ACL for non existent model given")
                 if val not in self._action_list:
                     raise ValueError("Not a valid action")
 
@@ -377,7 +377,7 @@ class Requestor:
             status_code = result.status_code
             if status_code in [200, 201, 202]:
                 if status_code == 200:
-                    logger.debug(f"Succesful operation {action}:{endpoint}")
+                    logger.debug(f"Successful operation {action}:{endpoint}")
                 elif status_code == 201:
                     logger.debug(f"Created operation {action}:{endpoint}")
                 elif status_code == 202:

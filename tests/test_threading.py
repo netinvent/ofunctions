@@ -40,7 +40,7 @@ def non_threaded_sleeper_fn(seconds):
 
 
 def test_threading():
-    # Nothing really insane to test here, we just can check wether we get handling back before sleeper_function is finished
+    # Nothing really insane to test here, we just can check whether we get handling back before sleeper_function is finished
     # thread.result() will wait join the thread if not finished
 
     begin_time = datetime.now()
@@ -186,7 +186,7 @@ def test_no_flood_with_arguments():
 
     assert (
         FLOODER_RUNS == 5
-    ), "flooder_function with different arguments should have been run 5 times, not being intercepted by @no_flood since we allow multuple instances with different arguments"
+    ), "flooder_function with different arguments should have been run 5 times, not being intercepted by @no_flood since we allow multiple instances with different arguments"
 
     FLOODER_RUNS = 0
     for i in range(0, 5):

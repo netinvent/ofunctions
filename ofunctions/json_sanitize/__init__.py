@@ -42,7 +42,7 @@ def json_sanitize(value, is_value=True):
 
     Names may contain whatever but dots
     Values are sanitized in order to not contain any control characters
-    Extended santization will also remove any BOM
+    Extended sanitization will also remove any BOM
     """
     name_sanitize_re = re.compile(r"[.\x00-\x1f\x7f-\x9f]")
     value_sanitize_re = re.compile(r"[\x00-\x1f\x7f-\x9f]")

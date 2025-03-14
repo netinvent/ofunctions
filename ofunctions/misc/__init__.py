@@ -138,7 +138,7 @@ def get_key_from_value(haystack, needle):
 def deep_dict_update(dict_original, dict_update):
     # type: (dict, dict) -> dict
     """
-    Update a nested dictionary with another nested dictionnary
+    Update a nested dictionary with another nested dictionary
     Balant copy from https://stackoverflow.com/a/60435617/2635443
     """
     if isinstance(dict_original, dict) and isinstance(dict_update, dict):

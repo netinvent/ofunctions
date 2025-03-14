@@ -43,7 +43,7 @@ def test_ping():
         "Cannot ping. This test may fail if the host" "does not have internet indeed."
     )
 
-    result = ping("exmaple.not.existing")
+    result = ping("example.not.existing")
     print("Ping to not existing host result: %s" % result)
     assert result is False, "Should not be able to ping non existing host"
 
@@ -93,7 +93,7 @@ def test_ping():
 
 
 def test_test_http_internet():
-    # Hopefully these adresses don't exist
+    # Hopefully these addresses don't exist
     result = check_http_internet(
         ["http://example.not.existing"], ["http://192.168.90.256"]
     )
@@ -106,12 +106,12 @@ def test_test_http_internet():
     )
     print("HTTP result: %s" % result)
     assert result is True, (
-        "At least one good result should trigger postive result. This test may fail if the host"
+        "At least one good result should trigger positive result. This test may fail if the host"
         "does not have internet indeed."
     )
 
     # This one should give negative result
-    # Hopefully these adresses don't exist
+    # Hopefully these addresses don't exist
     result = check_http_internet(
         ["http://example.not.existing"],
         ["http://192.168.90.256"],

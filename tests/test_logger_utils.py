@@ -31,32 +31,32 @@ def test_worst_logged_level():
     logger.debug('Something logged')
     called_loglevel = logging.DEBUG
     worst_loglevel = get_worst_logger_level(logger)
-    assert worst_loglevel == called_loglevel, "Wrong log level catched ({} != {})".format(worst_loglevel, called_loglevel)
+    assert worst_loglevel == called_loglevel, "Wrong log level caught ({} != {})".format(worst_loglevel, called_loglevel)
     """
     logger.info("Something logged")
     called_loglevel = logging.INFO
     worst_loglevel = get_worst_logger_level(logger)
     assert (
         worst_loglevel == called_loglevel
-    ), "Wrong log level catched ({} != {})".format(worst_loglevel, called_loglevel)
+    ), "Wrong log level caught ({} != {})".format(worst_loglevel, called_loglevel)
     logger.warning("Something logged")
     called_loglevel = logging.WARNING
     worst_loglevel = get_worst_logger_level(logger)
     assert (
         worst_loglevel == called_loglevel
-    ), "Wrong log level catched ({} != {})".format(worst_loglevel, called_loglevel)
+    ), "Wrong log level caught ({} != {})".format(worst_loglevel, called_loglevel)
     logger.error("Something logged")
     called_loglevel = logging.ERROR
     worst_loglevel = get_worst_logger_level(logger)
     assert (
         worst_loglevel == called_loglevel
-    ), "Wrong log level catched ({} != {})".format(worst_loglevel, called_loglevel)
+    ), "Wrong log level caught ({} != {})".format(worst_loglevel, called_loglevel)
     logger.critical("Something logged")
     called_loglevel = logging.CRITICAL
     worst_loglevel = get_worst_logger_level(logger)
     assert (
         worst_loglevel == called_loglevel
-    ), "Wrong log level catched ({} != {})".format(worst_loglevel, called_loglevel)
+    ), "Wrong log level caught ({} != {})".format(worst_loglevel, called_loglevel)
 
     # back to a info level call, we should still have CRITICAL as worst level
     logger.info("Something logged")
@@ -64,7 +64,7 @@ def test_worst_logged_level():
     worst_loglevel = get_worst_logger_level(logger)
     assert (
         worst_loglevel == called_loglevel
-    ), "Wrong log level catched ({} != {})".format(worst_loglevel, called_loglevel)
+    ), "Wrong log level caught ({} != {})".format(worst_loglevel, called_loglevel)
 
 
 def test_logger_ger_logger():

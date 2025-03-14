@@ -16,7 +16,7 @@ Versioning semantics:
 __intname__ = "ofunctions.network"
 __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
-__description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivty tests, ping, name resolution..."
+__description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivity tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
 __version__ = "1.6.0"
 __build__ = "2024010801"
@@ -73,7 +73,7 @@ def ping(
     icmp_overhead = 8 + 20
     mtu_encapsulated = mtu - icmp_overhead
 
-    # Let's have a maximum process timeout for subprocess of 5 seconds extra ontop of the ping timeout
+    # Let's have a maximum process timeout for subprocess of 5 seconds extra on top of the ping timeout
     # timeout is in seconds (int)
     command_timeout = int(timeout + 5)
     # windows uses timeout in milliseconds
@@ -481,7 +481,7 @@ class IOInterface:
         self._sent_avg_speed = BytesConverter(0)  # b/s
         self._recv_avg_speed = BytesConverter(0)  # b/s
 
-        # Everytime we set sent/recv bytes with a new value, we'll increase the number of samples so we get to calculate average speed
+        # Every time we set sent/recv bytes with a new value, we'll increase the number of samples so we get to calculate average speed
         self._sent_avg_speed_samples = 0
         self._recv_avg_speed_samples = 0
 
@@ -695,7 +695,7 @@ def set_ip_version(ip_version: int = 6):
     """
     Sets preferred IP protocol version to use in requests / ofunctions
     Attention: this propagates
-    By default, AF_INET6 is used which preferes IPv6 but fallbacks to IPv4
+    By default, AF_INET6 is used which prefers IPv6 but fallbacks to IPv4
     """
     if ip_version == 4:
 
