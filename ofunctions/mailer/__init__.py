@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.mailer"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.1"
-__build__ = "2022110601"
+__version__ = "1.2.2"
+__build__ = "2025040401"
 __compat__ = "python2.7+"
 
 import logging
@@ -143,7 +143,7 @@ class Mailer:
             raise ValueError("No destination mails set")
 
         def _send_email(
-            recipient_mail,  # type: str
+            recipient_mail,  # type: Union[str,List[str]]
         ):
             # type: (...) -> bool
             """
@@ -153,7 +153,10 @@ class Mailer:
             # Create a multipart message and set headers
             message = MIMEMultipart()
             message["From"] = sender_mail
-            message["To"] = recipient_mail
+            if isinstance(recipient_mail, list):
+                message["To"] = ",".join(recipient_mail)
+            else:
+                message["To"] = recipient_mail
             message["Date"] = formatdate(localtime=False)
             message["LocalDate"] = formatdate(localtime=True)
             message["Message-Id"] = make_msgid()
@@ -252,7 +255,7 @@ class Mailer:
             return True
 
         if not isinstance(recipient_mails, list):
-            # Make sure destination mails is a list
+            # Make sure recipient mails is a list
             recipient_mails = re.split(r",|;| ", recipient_mails)
 
         # Strip extra chars around mail addresses
@@ -271,7 +274,7 @@ class Mailer:
                 if not _result:
                     result = _result
         else:
-            _result = _send_email(",".join(rfc822_addresses))
+            _result = _send_email(rfc822_addresses)
             if not _result:
                 result = _result
 
