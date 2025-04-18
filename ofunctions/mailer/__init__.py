@@ -177,33 +177,38 @@ class Mailer:
                 else:
                     message.attach(MIMEText(body, "plain", self.encoding))
 
-            if attachment is not None:
-                att_filename = filename
-                if isinstance(attachment, bytes):
-                    # Let's suppose we directly attach binary data
-                    payload = attachment
+            if attachment is not None: #Use Multiples Attachments to your mail if needed
+                if isinstance(attachment, (bytes, bytearray)):
+                    attachment_list = [attachment]
+                    att_filename_list = [filename] if filename else [None]
+                elif isinstance(attachment, str):
+                    attachment_list = [attachment]
+                    att_filename_list = [filename if filename else os.path.basename(attachment)]
+                elif isinstance(attachment, list):
+                    attachment_list = attachment
+                    if isinstance(filename, str):
+                        att_filename_list = [filename] * len(attachment_list)
+                    else:
+                        att_filename_list = [os.path.basename(file_path) for file_path in attachment_list]
                 else:
-                    with open(attachment, "rb") as f_attachment:
-                        payload = f_attachment.read()
-                        if not filename:
-                            att_filename = os.path.basename(attachment)
+                    attachment_list = []
+                    att_filename_list = []
 
-                # Add file as application/octet-stream
-                # Email client can usually download this automatically as attachment
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(payload)
+                for each_attachment, each_filename in zip(attachment_list, att_filename_list):
+                    if isinstance(each_attachment, (bytes, bytearray)):
+                        payload = each_attachment
+                        att_filename = each_filename if each_filename else "attachment.bin"
+                    else:
+                        with open(each_attachment, "rb") as f_attachment:
+                            payload = f_attachment.read()
+                        att_filename = each_filename if each_filename else os.path.basename(each_attachment)
 
-                # Encode file in ASCII characters to send by email
-                encoders.encode_base64(part)
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(payload)
+                    encoders.encode_base64(part)
+                    part.add_header("Content-Disposition", "attachment; filename=%s" % att_filename)
+                    message.attach(part)
 
-                # Add header as key/value pair to attachment part
-                part.add_header(
-                    "Content-Disposition",
-                    "attachment; filename=%s" % att_filename,
-                )
-
-                # Add attachment to message and convert message to string
-                message.attach(part)
 
             text = message.as_string()
 
