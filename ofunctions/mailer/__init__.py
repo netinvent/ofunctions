@@ -184,7 +184,7 @@ class Mailer:
             attachments = []
             filenames = []
             if attachment is not None:
-                # Attachments may be a str (path to file), direct bytes, or a list of str or list of bytes 
+                # Attachments may be a str (path to file), direct bytes, or a list of str or list of bytes
                 if isinstance(attachment, (bytes, bytearray)):
                     attachments = [attachment]
                     filenames = [filename] if filename else [default_attachment_name]
@@ -200,7 +200,9 @@ class Mailer:
                     elif isinstance(filenames, list):
                         filenames = filename
                     else:
-                        filenames = [os.path.basename(file_path) for file_path in attachments]
+                        filenames = [
+                            os.path.basename(file_path) for file_path in attachments
+                        ]
 
                 if len(attachments) != len(filenames):
                     raise ValueError("Mismatch between attachments and filenames lists")
@@ -213,14 +215,17 @@ class Mailer:
                     else:
                         with open(attachment, "rb") as f_attachment:
                             payload = f_attachment.read()
-                        filename = filename if filename else os.path.basename(attachment)
+                        filename = (
+                            filename if filename else os.path.basename(attachment)
+                        )
 
                     part = MIMEBase("application", "octet-stream")
                     part.set_payload(payload)
                     encoders.encode_base64(part)
-                    part.add_header("Content-Disposition", "attachment; filename=%s" % filename)
+                    part.add_header(
+                        "Content-Disposition", "attachment; filename=%s" % filename
+                    )
                     message.attach(part)
-
 
             text = message.as_string()
 
