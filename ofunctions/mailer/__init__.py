@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.2"
-__build__ = "2025040401"
+__version__ = "1.3.0"
+__build__ = "2025042301"
 __compat__ = "python2.7+"
 
 import logging
@@ -124,8 +124,8 @@ class Mailer:
         recipient_mails=None,  # type: Union[str, List[str]]
         subject=None,  # type: str
         body=None,  # type: str
-        attachment=None,  # type: str
-        filename=None,  # type: str
+        attachment=None,  # type: Optional[Union[str, bytes, List[str], List[bytes]]]
+        filename=None,  # type: Optional[Union[str, List[str]]]
         html_enabled=False,  # type: bool
         bcc_mails=None,  # type: str
         priority=False,  # type: bool
@@ -177,36 +177,45 @@ class Mailer:
                 else:
                     message.attach(MIMEText(body, "plain", self.encoding))
 
-            if attachment is not None: #Use Multiples Attachments to your mail if needed
+            default_attachment_name = "attachment"
+            attachments = []
+            filenames = []
+            if attachment is not None:
+                # Attachments may be a str (path to file), direct bytes, or a list of str or list of bytes 
                 if isinstance(attachment, (bytes, bytearray)):
-                    attachment_list = [attachment]
-                    att_filename_list = [filename] if filename else [None]
+                    attachments = [attachment]
+                    filenames = [filename] if filename else [default_attachment_name]
                 elif isinstance(attachment, str):
-                    attachment_list = [attachment]
-                    att_filename_list = [filename if filename else os.path.basename(attachment)]
+                    attachments = [attachment]
+                    filenames = [filename if filename else os.path.basename(attachment)]
                 elif isinstance(attachment, list):
-                    attachment_list = attachment
+                    attachments = attachment
                     if isinstance(filename, str):
-                        att_filename_list = [filename] * len(attachment_list)
+                        filenames = []
+                        for index in range(0, len(attachments)):
+                            filenames.append("{}_{}".format(index, filename))
+                    elif isinstance(filenames, list):
+                        filenames = filename
                     else:
-                        att_filename_list = [os.path.basename(file_path) for file_path in attachment_list]
-                else:
-                    attachment_list = []
-                    att_filename_list = []
+                        filenames = [os.path.basename(file_path) for file_path in attachments]
 
-                for each_attachment, each_filename in zip(attachment_list, att_filename_list):
-                    if isinstance(each_attachment, (bytes, bytearray)):
-                        payload = each_attachment
-                        att_filename = each_filename if each_filename else "attachment.bin"
+                if len(attachments) != len(filenames):
+                    raise ValueError("Mismatch between attachments and filenames lists")
+                for attachment, filename in zip(attachments, filenames):
+                    if isinstance(attachment, (bytes, bytearray)):
+                        payload = attachment
+                        if not filename:
+                            filename = default_attachment_name
+                        filename = filename if filename else default_attachment_name
                     else:
-                        with open(each_attachment, "rb") as f_attachment:
+                        with open(attachment, "rb") as f_attachment:
                             payload = f_attachment.read()
-                        att_filename = each_filename if each_filename else os.path.basename(each_attachment)
+                        filename = filename if filename else os.path.basename(attachment)
 
                     part = MIMEBase("application", "octet-stream")
                     part.set_payload(payload)
                     encoders.encode_base64(part)
-                    part.add_header("Content-Disposition", "attachment; filename=%s" % att_filename)
+                    part.add_header("Content-Disposition", "attachment; filename=%s" % filename)
                     message.attach(part)
 
 
@@ -313,8 +322,8 @@ def send_email(
     security=None,  # type: Optional[str]
     subject=None,  # type: str
     body=None,  # type: str
-    attachment=None,  # type: str
-    filename=None,  # type: str
+    attachment=None,  # type: Optional[Union[str, bytes, List[str], List[bytes]]]
+    filename=None,  # type: Optional[Union[str, List[str]]]
     html_enabled=False,  # type: bool
     bcc_mails=None,  # type: str
     priority=False,  # type: bool
