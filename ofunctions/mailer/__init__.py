@@ -150,6 +150,9 @@ class Mailer:
             Actual mail sending function
             """
 
+            nonlocal attachment
+            nonlocal filename
+
             # Create a multipart message and set headers
             message = MIMEMultipart()
             message["From"] = sender_mail
