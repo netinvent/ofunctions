@@ -21,7 +21,7 @@ __build__ = "2025050201"
 from ofunctions.mailer import *
 
 
-# The following settings need to be overrided by an import file in prod tests
+# The following settings need to be overridden by an import file in prod tests
 # Of course, we cannot send mails on github actions
 
 SMTP_SERVER = "localhost"
