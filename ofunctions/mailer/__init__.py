@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.2"
-__build__ = "2025040401"
+__version__ = "1.3.0"
+__build__ = "2025050201"
 __compat__ = "python2.7+"
 
 import logging
@@ -65,7 +65,7 @@ if sys.version_info[0] < 3:
         pass
 
 
-logger = logging.getLogger(__intname__)
+logger = logging.getLogger()
 
 
 class Mailer:
@@ -124,8 +124,8 @@ class Mailer:
         recipient_mails=None,  # type: Union[str, List[str]]
         subject=None,  # type: str
         body=None,  # type: str
-        attachment=None,  # type: str
-        filename=None,  # type: str
+        attachment=None,  # type: Optional[Union[str, bytes, List[str], List[bytes]]]
+        filename=None,  # type: Optional[Union[str, List[str]]]
         html_enabled=False,  # type: bool
         bcc_mails=None,  # type: str
         priority=False,  # type: bool
@@ -144,12 +144,13 @@ class Mailer:
 
         def _send_email(
             recipient_mail,  # type: Union[str,List[str]]
+            attachment=None,  # type: Optional[Union[str, bytes, List[str], List[bytes]]]
+            filename=None,  # type: Optional[Union[str, List[str]]]
         ):
             # type: (...) -> bool
             """
             Actual mail sending function
             """
-
             # Create a multipart message and set headers
             message = MIMEMultipart()
             message["From"] = sender_mail
@@ -177,33 +178,55 @@ class Mailer:
                 else:
                     message.attach(MIMEText(body, "plain", self.encoding))
 
+            default_attachment_name = "attachment"
+            attachments = []
+            filenames = []
+
             if attachment is not None:
-                att_filename = filename
-                if isinstance(attachment, bytes):
-                    # Let's suppose we directly attach binary data
-                    payload = attachment
+                if isinstance(attachment, list):
+                    attachments = attachment
+                    if isinstance(filename, list):
+                        if len(attachments) != len(filename):
+                            raise ValueError(
+                                "Mismatch between attachments and filenames list sizes"
+                            )
+                        filenames = filename
                 else:
-                    with open(attachment, "rb") as f_attachment:
-                        payload = f_attachment.read()
+                    attachments = [attachment]
+
+                if not filenames:
+                    for index in range(0, len(attachments)):
+                        if isinstance(attachment[index], (bytes, bytearray)):
+                            filenames.append(
+                                "{}_{}".format(index, default_attachment_name)
+                            )
+                        elif isinstance(attachment[index], str):
+                            filenames.append(os.path.basename(attachment[index]))
+                        else:
+                            filenames.append(
+                                "{}.{}".format(index, default_attachment_name)
+                            )
+
+                for attachment, filename in zip(attachments, filenames):
+                    if isinstance(attachment, (bytes, bytearray)):
+                        payload = attachment
                         if not filename:
-                            att_filename = os.path.basename(attachment)
+                            filename = default_attachment_name
+                        filename = filename if filename else default_attachment_name
+                    else:
+                        with open(attachment, "rb") as f_attachment:
+                            payload = f_attachment.read()
+                        filename = (
+                            filename if filename else os.path.basename(attachment)
+                        )
 
-                # Add file as application/octet-stream
-                # Email client can usually download this automatically as attachment
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(payload)
-
-                # Encode file in ASCII characters to send by email
-                encoders.encode_base64(part)
-
-                # Add header as key/value pair to attachment part
-                part.add_header(
-                    "Content-Disposition",
-                    "attachment; filename=%s" % att_filename,
-                )
-
-                # Add attachment to message and convert message to string
-                message.attach(part)
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(payload)
+                    encoders.encode_base64(part)
+                    part.add_header(
+                        "Content-Disposition", "attachment; filename=%s" % filename
+                    )
+                    message.attach(part)
 
             text = message.as_string()
 
@@ -270,11 +293,11 @@ class Mailer:
 
         if split_mails:
             for recipient in rfc822_addresses:
-                _result = _send_email(recipient)
+                _result = _send_email(recipient, attachment, filename)
                 if not _result:
                     result = _result
         else:
-            _result = _send_email(rfc822_addresses)
+            _result = _send_email(rfc822_addresses, attachment, filename)
             if not _result:
                 result = _result
 
@@ -308,8 +331,8 @@ def send_email(
     security=None,  # type: Optional[str]
     subject=None,  # type: str
     body=None,  # type: str
-    attachment=None,  # type: str
-    filename=None,  # type: str
+    attachment=None,  # type: Optional[Union[str, bytes, List[str], List[bytes]]]
+    filename=None,  # type: Optional[Union[str, List[str]]]
     html_enabled=False,  # type: bool
     bcc_mails=None,  # type: str
     priority=False,  # type: bool
