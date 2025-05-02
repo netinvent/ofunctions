@@ -19,7 +19,7 @@ __copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
 __version__ = "1.3.0"
-__build__ = "2025042301"
+__build__ = "2025050201"
 __compat__ = "python2.7+"
 
 import logging
@@ -65,7 +65,7 @@ if sys.version_info[0] < 3:
         pass
 
 
-logger = logging.getLogger(__intname__)
+logger = logging.getLogger()
 
 
 class Mailer:
@@ -144,15 +144,13 @@ class Mailer:
 
         def _send_email(
             recipient_mail,  # type: Union[str,List[str]]
+            attachment=None,  # type: Optional[Union[str, bytes, List[str], List[bytes]]]
+            filename=None,  # type: Optional[Union[str, List[str]]]
         ):
             # type: (...) -> bool
             """
             Actual mail sending function
             """
-
-            nonlocal attachment
-            nonlocal filename
-
             # Create a multipart message and set headers
             message = MIMEMultipart()
             message["From"] = sender_mail
@@ -183,29 +181,32 @@ class Mailer:
             default_attachment_name = "attachment"
             attachments = []
             filenames = []
-            if attachment is not None:
-                # Attachments may be a str (path to file), direct bytes, or a list of str or list of bytes
-                if isinstance(attachment, (bytes, bytearray)):
-                    attachments = [attachment]
-                    filenames = [filename] if filename else [default_attachment_name]
-                elif isinstance(attachment, str):
-                    attachments = [attachment]
-                    filenames = [filename if filename else os.path.basename(attachment)]
-                elif isinstance(attachment, list):
-                    attachments = attachment
-                    if isinstance(filename, str):
-                        filenames = []
-                        for index in range(0, len(attachments)):
-                            filenames.append("{}_{}".format(index, filename))
-                    elif isinstance(filenames, list):
-                        filenames = filename
-                    else:
-                        filenames = [
-                            os.path.basename(file_path) for file_path in attachments
-                        ]
 
-                if len(attachments) != len(filenames):
-                    raise ValueError("Mismatch between attachments and filenames lists")
+            if attachment is not None:
+                if isinstance(attachment, list):
+                    attachments = attachment
+                    if isinstance(filename, list):
+                        if len(attachments) != len(filename):
+                            raise ValueError(
+                                "Mismatch between attachments and filenames list sizes"
+                            )
+                        filenames = filename
+                else:
+                    attachments = [attachment]
+
+                if not filenames:
+                    for index in range(0, len(attachments)):
+                        if isinstance(attachment[index], (bytes, bytearray)):
+                            filenames.append(
+                                "{}_{}".format(index, default_attachment_name)
+                            )
+                        elif isinstance(attachment[index], str):
+                            filenames.append(os.path.basename(attachment[index]))
+                        else:
+                            filenames.append(
+                                "{}.{}".format(index, default_attachment_name)
+                            )
+
                 for attachment, filename in zip(attachments, filenames):
                     if isinstance(attachment, (bytes, bytearray)):
                         payload = attachment
@@ -292,11 +293,11 @@ class Mailer:
 
         if split_mails:
             for recipient in rfc822_addresses:
-                _result = _send_email(recipient)
+                _result = _send_email(recipient, attachment, filename)
                 if not _result:
                     result = _result
         else:
-            _result = _send_email(rfc822_addresses)
+            _result = _send_email(rfc822_addresses, attachment, filename)
             if not _result:
                 result = _result
 
