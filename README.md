@@ -138,6 +138,7 @@ pip install ofunctions.json_sanitize
 
 Usage:
 ```
+from ofunctions.json_sanitize import json_sanitize
 my_json = {'some.name': 'some\tvalue'}
 my_santized_json = json_sanitize(my_json)
 ```
