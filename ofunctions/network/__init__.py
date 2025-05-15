@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivity tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.6.0"
-__build__ = "2024010801"
+__version__ = "1.6.1"
+__build__ = "2025051501"
 __compat__ = "python2.7+"
 
 import logging
@@ -305,12 +305,16 @@ def check_http_internet(
 
     for fqdn_server in fqdn_servers:
         result = _try_server(fqdn_server, proxy_dict(proxy), timeout)
-        if result["result"]:
+        if result and result["result"]:
             if not all_targets_must_succeed:
                 fqdn_success = True
                 break
         else:
-            diag_messages = diag_messages + result["reason"]
+            try:
+                diag_messages += result["reason"]
+            except (TypeError, KeyError):
+                # There might be no reason on thread exit
+                pass
             # Let's try to check whether DNS resolution works
             try:
                 hostname = str(fqdn_server).split("//")[1]
@@ -324,13 +328,16 @@ def check_http_internet(
 
     for ip_server in ip_servers:
         result = _try_server(ip_server, proxy_dict(proxy), timeout)
-
-        if result["result"]:
+        if result and result["result"]:
             if not all_targets_must_succeed:
                 ip_success = True
                 break
         else:
-            diag_messages = diag_messages + result["reason"]
+            try:
+                diag_messages += result["reason"]
+            except (TypeError, KeyError):
+                # There might be no reason on thread exit
+                pass
             if all_targets_must_succeed:
                 ip_success = False
                 break
