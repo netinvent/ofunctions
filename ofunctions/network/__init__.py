@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
 __description__ = "Network diagnostics, MTU probing, Public IP discovery, HTTP/HTTPS internet connectivity tests, ping, name resolution..."
 __licence__ = "BSD 3 Clause"
-__version__ = "1.6.1"
-__build__ = "2025051501"
+__version__ = "1.6.3"
+__build__ = "2025051601"
 __compat__ = "python2.7+"
 
 import logging
@@ -181,6 +181,7 @@ def ping(
 def resolve_hostname(host):
     """
     Resolves a hostname
+    We use getaddrinfo here since it's thread safe
     """
     ip_list = []
 
@@ -188,10 +189,11 @@ def resolve_hostname(host):
         # Port is required
         # python 2.7 getaddrinfo does not take keyword arguments
         # for result in socket.getaddrinfo(host=host, port=0, type=socket.SOCK_STREAM):
-        for result in socket.getaddrinfo(host, 0, socket.SOCK_STREAM):
+        for result in socket.getaddrinfo(host, None, socket.AF_UNSPEC):
             ip_list.append(str(result[4][0]))
-    except socket.gaierror:
-        logger.info('Cannot resolve hostname "{}"'.format(host))
+    except socket.gaierror as exc:
+        logger.info('Cannot resolve hostname "{}": {}'.format(host, exc))
+        logger.debug("Trace:", exc_info=True)
     return ip_list
 
 
@@ -287,12 +289,15 @@ def check_http_internet(
         ]
     if fqdn_servers is False:
         fqdn_servers = []
+    if isinstance(fqdn_servers, str):
+        fqdn_servers = [fqdn_servers]
     if ip_servers is None:
         # Cloudflare dns servers respond to http requests, let's use them for ping checks
         ip_servers = ["http://1.1.1.1", "https://1.0.0.1"]
     if ip_servers is False:
         ip_servers = []
-
+    if isinstance(ip_servers, str):
+        ip_servers = [ip_servers]
     diag_messages = ""
 
     if all_targets_must_succeed:
