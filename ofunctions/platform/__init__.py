@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.platform"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.2"
-__build__ = "2024090701"
+__version__ = "1.5.3"
+__build__ = "2025070101"
 __compat__ = "python2.7+"
 
 import os
@@ -62,10 +62,10 @@ def os_arch():
     machine = machine.lower()
     if "x86_64" in machine:
         return "x64"
-    elif "aarch64" in machine or "armv8" in machine:
+    elif "aarch64" in machine or "armv8" in machine or "arm64":
         return "arm64"
     # 32 bit arm
-    elif "arm" in machine:
+    elif "arm" in machine and not "64" in machine:
         return "arm"
     elif "i386" in machine or "i686" in machine:
         return "x86"
@@ -79,20 +79,27 @@ def python_arch():
     Get current python interpreter architecture
     """
     if os.name == "nt":
-        if "AMD64" in sys.version:
+        arch = platform.machine()
+        if "AMD64" in arch:
             return "x64"
-        return "x86"
+        if "ARM64" in arch:
+            return "arm64"
+        if "ARM" in arch:
+            return "arm"
+        if "i386" in arch or "i686" in arch:
+            return "x86"
 
     # uname property does not exist under windows
     # pylint: disable=E1101
     arch = os.uname()[4].lower()
+
     if "x86_64" in arch:
         return "x64"
     # 64 bit arm
-    elif "aarch64" in arch or "armv8" in arch:
+    elif "aarch64" in arch or "armv8" in arch or "arm64" in arch:
         return "arm64"
     # 32 bit arm
-    elif "arm" in arch:
+    elif "arm" in arch and not 64 in arch:
         return "arm"
     elif "i386" in arch or "i686" in arch:
         return "x86"
