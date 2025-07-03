@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.logger_utils"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Shorthand for logger initialization, recording worst called loglevel and handling nice console output"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.4.2"
-__build__ = "2024120301"
+__version__ = "2.5.0"
+__build__ = "2025070301"
 __compat__ = "python2.7+"
 
 import logging
@@ -64,6 +64,7 @@ class ContextFilterWorstLevel(logging.Filter):
 
     def __init__(self):
         self._worst_level = logging.INFO
+        self._all_time_worst_level = logging.INFO
         if sys.version_info[0] < 3:
             # pylint: disable=E1003 (bad-super-call)
             super(logging.Filter, self).__init__()
@@ -82,6 +83,23 @@ class ContextFilterWorstLevel(logging.Filter):
         # type: (int) -> None
         if isinstance(value, int):
             self._worst_level = value
+        else:
+            raise ValueError("worst_level must be an integer")
+
+    @property
+    def all_time_worst_level(self):
+        """
+        Returns all time worst log level called
+        """
+        return self._all_time_worst_level
+
+    @all_time_worst_level.setter
+    def all_time_worst_level(self, value):
+        # type: (int) -> None
+        if isinstance(value, int):
+            self._all_time_worst_level = value
+        else:
+            raise ValueError("all_time_worst_level must be an integer")
 
     def filter(self, record):
         # type: (str) -> bool
@@ -95,6 +113,8 @@ class ContextFilterWorstLevel(logging.Filter):
         # record.something = 'value'
         if record.levelno > self.worst_level:
             self.worst_level = record.levelno
+        if record.levelno > self._all_time_worst_level:
+            self._all_time_worst_level = record.levelno
         return True
 
 
@@ -275,6 +295,9 @@ def logger_get_logger(
     _logger.get_worst_logger_level = get_worst_logger_level.__get__(
         _logger, type(_logger)
     )
+    _logger.set_worst_logger_level = set_worst_logger_level.__get__(
+        _logger, type(_logger)
+    )
     return _logger
 
 
@@ -304,12 +327,31 @@ def safe_string_convert(string):
                     return string
 
 
-def get_worst_logger_level(self):
-    # type (logging.Logger) -> int
+def get_worst_logger_level(self, logger_instance=None, all_time=False):
+    # type (logging.logger, Optional[logging.logger]) -> int
     """
     Return the worst log level called
     """
-    for flt in self.filters:
+    if not logger_instance:
+        logger_instance = self
+    for flt in logger_instance.filters:
         if isinstance(flt, ContextFilterWorstLevel):
+            if all_time:
+                return flt.all_time_worst_level
             return flt.worst_level
     return 0
+
+
+def set_worst_logger_level(self, value=0, logger_instance=None, all_time=False):
+    # type: (logging.logger, Optional[logging.logger], int, bool) -> None
+    """
+    Set the worst log level called
+    """
+    if not logger_instance:
+        logger_instance = self
+    for flt in logger_instance.filters:
+        if isinstance(flt, ContextFilterWorstLevel):
+            if all_time:
+                flt.all_time_worst_level = value
+            else:
+                flt.worst_level = value
