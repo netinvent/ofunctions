@@ -292,9 +292,12 @@ def logger_get_logger(
     _logger.propagate = True
 
     # Monkeypatching _logger so we get to use get_worst_logger_level() as class method
+    # pylint: disable=E1120 (no-value-for-parameter)
     _logger.get_worst_logger_level = get_worst_logger_level.__get__(
         _logger, type(_logger)
     )
+    # pylint: disable=E1120 (no-value-for-parameter)
+    # pylint: disable=E1111 (assignment-from-no-return)
     _logger.set_worst_logger_level = set_worst_logger_level.__get__(
         _logger, type(_logger)
     )
