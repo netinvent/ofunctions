@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Very basic platform identification"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.5.3"
-__build__ = "2025070101"
+__version__ = "1.5.4"
+__build__ = "2025070501"
 __compat__ = "python2.7+"
 
 import os
@@ -99,7 +99,7 @@ def python_arch():
     elif "aarch64" in arch or "armv8" in arch or "arm64" in arch:
         return "arm64"
     # 32 bit arm
-    elif "arm" in arch and not 64 in arch:
+    elif "arm" in arch and not "64" in arch:
         return "arm"
     elif "i386" in arch or "i686" in arch:
         return "x86"
