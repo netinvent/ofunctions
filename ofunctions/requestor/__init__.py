@@ -5,11 +5,11 @@
 
 __intname__ = "ofunctions.requestor"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.2.2"
-__build__ = "2024112601"
+__version__ = "1.2.3"
+__build__ = "2025070801"
 __compat__ = "python3.6+"
 
 
@@ -266,12 +266,12 @@ class Requestor:
                     # This has to be changed depending on the API
                     if text.lower().startswith("token"):
                         token = text.replace("Token", "").strip()
-                        self.header = {"Authorization": "Bearer {}".format(token)}
+                        self.header = {"Authorization": f"Bearer {token}"}
                 return True
 
             self.write_logs("Cannot establish a session to server.", level="error")
             self.write_logs(
-                "Server return code: {}".format(status_code), level="warning"
+                f"Server return code: {status_code}", level="warning"
             )
             try:
                 logger.debug(
@@ -292,7 +292,7 @@ class Requestor:
             )
             logger.debug("Trace:", exc_info=True)
         except Exception as exc:  # pylint: disable=W0703,broad-except
-            self.write_logs("Cannot establish a session, unknown reason: %s", exc)
+            self.write_logs(f"Cannot establish a session, unknown reason: {exc}", level="error")
             logger.debug("Trace:", exc_info=True)
         return False
 
@@ -304,11 +304,11 @@ class Requestor:
         auth_endpoint = None
         for server in self.servers:
             if endpoint:
-                auth_endpoint = server + endpoint.strip().strip("/")
+                auth_endpoint = server.rstrip('/') + '/' + endpoint.strip().strip("/")
             elif self._endpoint:
-                auth_endpoint = server + self._endpoint
+                auth_endpoint = server.rstrip('/') + '/' + + self._endpoint.strip().strip("/")
             else:
-                auth_endpoint = server
+                auth_endpoint = server.rstrip('/')
             if (
                 not self._create_session(auth_endpoint, authenticated)
                 and len(self.servers) > 1
@@ -337,11 +337,11 @@ class Requestor:
             return False
 
         if endpoint:
-            url = self.connected_server + endpoint.strip().strip("/")
+            url = self.connected_server.rstrip("/") + '/' + endpoint.strip().strip("/")
         elif self._endpoint:
-            url = self.connected_server + self._endpoint
+            url = self.connected_server.rstrip("/") + '/' + self._endpoint
         else:
-            url = self.connected_server
+            url = self.connected_server.rstrip("/")
 
         try:
             if not self.cert_verify:
@@ -422,9 +422,9 @@ class Requestor:
                 level="error",
             )
             logger.debug("Trace:", exc_info=True)
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError as exc:
             self.write_logs(
-                "Cannot establish a session. Looks like we cannot reach the server.",
+                f"Cannot establish a session. Looks like we cannot reach the server: {exc}.",
                 level="error",
             )
             logger.debug("Trace:", exc_info=True)
@@ -455,7 +455,7 @@ class Requestor:
             try:
                 return json.loads(result.text)
             except json.JSONDecodeError as exc:
-                logger.error("Cannot decode json output: {}".format(exc))
+                logger.error(f"Cannot decode json output: {exc}")
                 logger.debug("Trace:", exc_info=True)
                 return None
         if raw:
@@ -513,7 +513,7 @@ class Requestor:
             )
         if id_record:
             # Action is read, exists, update or delete
-            model_endpoint = "{}/{}".format(model, id_record)
+            model_endpoint = f"{model}/{id_record}"
         else:
             model_endpoint = model
 
