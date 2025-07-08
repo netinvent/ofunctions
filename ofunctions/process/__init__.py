@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Shorthand for killing an entire process tree"
 __licence__ = "BSD 3 Clause"
-__version__ = "2.1.0"
-__build__ = "2025020401"
+__version__ = "2.1.1"
+__build__ = "2025070801"
 __compat__ = "python2.7+"
 
 
@@ -119,7 +119,8 @@ def kill_childs(
             """
 
             def wrapper(*args, **kwargs):
-                kwargs.pop("__no_threads")
+                if "__no_threads" in kwargs:
+                    kwargs.pop("__no_threads")
                 return fn(*args, **kwargs)
 
             return wrapper
