@@ -92,16 +92,18 @@ def ping(
     def _ping_host(target, retries, source_interface):
         if is_macos:
             # -c ...: number of packets to send
-            # -M do: do not fragment
             # -s ...: packet size to send
             # -i ...: interval (s), only root can set less than .2 seconds
-            # -W ...: timeous (s)
+            # -W ...: timeout (s)
             # -I ...: optional source interface name
             # -D ...: do not fragment
             if ip_type == 6:
                 command = "ping6 -c 1 -s {} -i {}".format( mtu_encapsulated,  interval)
             else:
-                command = "ping -c 1 -s {} -W {} -D -i {}".format( mtu_encapsulated, timeout, interval )
+                command = "ping -c 1 -s {} -W {} -i {}".format( mtu_encapsulated, timeout, interval )
+                if do_not_fragment:
+                    command += " -D"
+
             encoding = "utf-8"
         elif os.name == "nt":
             # -4/-6: IPType
@@ -122,7 +124,7 @@ def ping(
             # -M do: do not fragment
             # -s ...: packet size to send
             # -i ...: interval (s), only root can set less than .2 seconds
-            # -W ...: timeous (s)
+            # -W ...: timeout (s)
             # -I ...: optional source interface name
             command = "ping -c 1 -s {} -W {} -i {}".format(
                 mtu_encapsulated, timeout, interval
