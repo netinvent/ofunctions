@@ -99,7 +99,7 @@ def ping(
             # -I ...: optional source interface name
             # -D ...: do not fragment
             if ip_type == 6:
-                command = "ping6 -c 1 -s {} -W {} -i {}".format( mtu_encapsulated, timeout, interval)
+                command = "ping6 -c 1 -s {} -i {}".format( mtu_encapsulated,  interval)
             else:
                 command = "ping -c 1 -s {} -W {} -D -i {}".format( mtu_encapsulated, timeout, interval )
             encoding = "utf-8"
