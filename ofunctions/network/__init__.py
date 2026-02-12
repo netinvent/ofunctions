@@ -29,6 +29,7 @@ import warnings
 from ipaddress import IPv4Address, IPv6Address, AddressValueError
 import time
 import psutil
+import platform
 
 from command_runner import command_runner
 from requests import get
@@ -37,6 +38,8 @@ import urllib3.util.connection as requests_connection
 from ofunctions import bisection
 from ofunctions.threading import threaded, wait_for_threaded_result
 from ofunctions.misc import BytesConverter
+
+is_macos = platform.system() == 'Darwin'
 
 # python 2.7 compat fixes
 try:
@@ -87,7 +90,20 @@ def ping(
         targets = ["1.1.1.1", "8.8.8.8", "208.67.222.222"]
 
     def _ping_host(target, retries, source_interface):
-        if os.name == "nt":
+        if is_macos:
+            # -c ...: number of packets to send
+            # -M do: do not fragment
+            # -s ...: packet size to send
+            # -i ...: interval (s), only root can set less than .2 seconds
+            # -W ...: timeous (s)
+            # -I ...: optional source interface name
+            # -D ...: do not fragment
+            if ip_type == 6:
+                command = "ping6 -c 1 -s {} -W {} -i {}".format( mtu_encapsulated, timeout, interval)
+            else:
+                command = "ping -c 1 -s {} -W {} -D -i {}".format( mtu_encapsulated, timeout, interval )
+            encoding = "utf-8"
+        elif os.name == "nt":
             # -4/-6: IPType
             # -n ...: number of packets to send
             # -f: do not fragment
@@ -118,7 +134,7 @@ def ping(
             encoding = "utf-8"
 
         # Add ip_type if specified
-        if ip_type:
+        if ip_type and not is_macos:
             command += " -{}".format(ip_type)
 
         if source_interface:
