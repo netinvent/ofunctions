@@ -472,7 +472,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
             pass
 
         ping_args = [
-            (target, mtu, 2, 4, 1, ip_type, True, False, source_interface)
+            (target, mtu, 2, 4, 0.2, ip_type, True, False, source_interface)
             for mtu in range(min, max + 1)
         ]
 
