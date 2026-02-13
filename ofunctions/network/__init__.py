@@ -441,7 +441,7 @@ def get_public_hostname(ip=None):
     return None
 
 
-def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
+def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None, interval=0.2):
     # type: (Union[str, IPv4Address, IPv6Address], str, int, int, str) -> int
     """
     Detects MTU to target
@@ -472,7 +472,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
             pass
 
         ping_args = [
-            (target, mtu, 2, 4, 0.2, ip_type, True, False, source_interface)
+            (target, mtu, 2, 4, interval, ip_type, True, False, source_interface)
             for mtu in range(min, max + 1)
         ]
 
