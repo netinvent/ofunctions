@@ -33,7 +33,7 @@ ofunctions is a set of various recurrent functions amongst
 - string_handling: remove accents / special chars from strings
 - threading: threading decorator for functions, also contains a function call anti-flood system
 
-ofunctions is compatible with Python 2.7 and 3.5+ and is tested on both Linux and Windows.
+ofunctions is compatible with Python 2.7+ and is tested on both Linux and Windows.
 There are still two subpackages that will only work with Python 3.5+
 - delayed_keyboardinterrupt (signal handling is different in Python 2.7)
 - threading (we don't have concurrent_futures in python 2.7, so the @threaded decorator will indeed work, but can't return a result)
