@@ -39,7 +39,7 @@ from ofunctions import bisection
 from ofunctions.threading import threaded, wait_for_threaded_result
 from ofunctions.misc import BytesConverter
 
-is_macos = platform.system() == 'Darwin'
+is_macos = platform.system() == "Darwin"
 
 # python 2.7 compat fixes
 try:
@@ -98,9 +98,11 @@ def ping(
             # -I ...: optional source interface name
             # -D ...: do not fragment
             if ip_type == 6:
-                command = "ping6 -c 1 -s {} -i {}".format( mtu_encapsulated,  interval)
+                command = "ping6 -c 1 -s {} -i {}".format(mtu_encapsulated, interval)
             else:
-                command = "ping -c 1 -s {} -W {} -i {}".format( mtu_encapsulated, timeout, interval )
+                command = "ping -c 1 -s {} -W {} -i {}".format(
+                    mtu_encapsulated, timeout, interval
+                )
                 if do_not_fragment:
                     command += " -D"
 
@@ -441,7 +443,9 @@ def get_public_hostname(ip=None):
     return None
 
 
-def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None, interval=0.2):
+def probe_mtu(
+    target, method="ICMP", min=1100, max=9000, source_interface=None, interval=0.2
+):
     # type: (Union[str, IPv4Address, IPv6Address], str, int, int, str) -> int
     """
     Detects MTU to target

@@ -30,7 +30,6 @@ import logging
 from time import sleep
 from datetime import datetime
 
-
 logger = logging.getLogger(__intname__)
 
 
@@ -44,7 +43,7 @@ except ImportError:
 def is_pid_alive(
     pid,  # type: int or str
 ):
-    #  type: (...) -> bool
+    # type: (...) -> bool
     """
     Quick check if pid is alive
     From https://stackoverflow.com/a/74720401/2635443
@@ -64,7 +63,7 @@ def is_pid_alive(
 def is_pid_dead(
     pid,  # type: int
 ):
-    #  type: (...) -> bool
+    # type: (...) -> bool
     """
     Reverse of is_pid_alive, for use in conditions, eg grace timer
     """
@@ -138,7 +137,7 @@ def kill_childs(
         sigkill = sigterm = None
 
     def _grace_period_timer(condition_fn, *args, **kwargs):
-        #  type: (...) -> None
+        # type: (...) -> None
         """
         Wait for grace period or condition to be true$
         """

@@ -30,7 +30,6 @@ import sys
 import unicodedata
 import re
 
-
 # python 2.7 compat fixes
 if sys.version_info[0] < 3:
     accent_chars = [

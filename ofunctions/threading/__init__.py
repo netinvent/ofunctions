@@ -36,7 +36,6 @@ import threading
 from datetime import datetime
 from time import sleep
 
-
 # python 2.7 comapt fixes
 try:
     from typing import Union, List, Any
@@ -49,7 +48,6 @@ try:
 except ImportError:
     pass
 from functools import wraps
-
 
 # python 2.7 compat where we will use @threaded
 if sys.version_info[0] < 3:
@@ -122,7 +120,7 @@ else:
 
 
 def wait_for_threaded_result(threads, timeout=None):
-    #  type: (Union[List[Future], Future], Optional[Union[int, float]]) -> Any
+    # type: (Union[List[Future], Future], Optional[Union[int, float]]) -> Any
     """
     Simple shorthand to wait for a thread to finish
     Accepts a single thread, or a list of threads

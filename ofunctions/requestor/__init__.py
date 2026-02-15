@@ -19,7 +19,6 @@ import json
 import requests
 import warnings
 
-
 logger = getLogger(__intname__)
 
 
@@ -270,9 +269,7 @@ class Requestor:
                 return True
 
             self.write_logs("Cannot establish a session to server.", level="error")
-            self.write_logs(
-                f"Server return code: {status_code}", level="warning"
-            )
+            self.write_logs(f"Server return code: {status_code}", level="warning")
             try:
                 logger.debug(
                     "Error:\n{}".format(text.encode("utf-8", errors="backslashreplace"))
@@ -292,7 +289,9 @@ class Requestor:
             )
             logger.debug("Trace:", exc_info=True)
         except Exception as exc:  # pylint: disable=W0703,broad-except
-            self.write_logs(f"Cannot establish a session, unknown reason: {exc}", level="error")
+            self.write_logs(
+                f"Cannot establish a session, unknown reason: {exc}", level="error"
+            )
             logger.debug("Trace:", exc_info=True)
         return False
 
@@ -304,11 +303,13 @@ class Requestor:
         auth_endpoint = None
         for server in self.servers:
             if endpoint:
-                auth_endpoint = server.rstrip('/') + '/' + endpoint.strip().strip("/")
+                auth_endpoint = server.rstrip("/") + "/" + endpoint.strip().strip("/")
             elif self._endpoint:
-                auth_endpoint = server.rstrip('/') + '/' + + self._endpoint.strip().strip("/")
+                auth_endpoint = (
+                    server.rstrip("/") + "/" + self._endpoint.strip().strip("/")
+                )
             else:
-                auth_endpoint = server.rstrip('/')
+                auth_endpoint = server.rstrip("/")
             if (
                 not self._create_session(auth_endpoint, authenticated)
                 and len(self.servers) > 1
@@ -337,9 +338,9 @@ class Requestor:
             return False
 
         if endpoint:
-            url = self.connected_server.rstrip("/") + '/' + endpoint.strip().strip("/")
+            url = self.connected_server.rstrip("/") + "/" + endpoint.strip().strip("/")
         elif self._endpoint:
-            url = self.connected_server.rstrip("/") + '/' + self._endpoint
+            url = self.connected_server.rstrip("/") + "/" + self._endpoint
         else:
             url = self.connected_server.rstrip("/")
 
