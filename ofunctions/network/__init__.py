@@ -29,6 +29,7 @@ import warnings
 from ipaddress import IPv4Address, IPv6Address, AddressValueError
 import time
 import psutil
+import platform
 
 from command_runner import command_runner
 from requests import get
@@ -37,6 +38,8 @@ import urllib3.util.connection as requests_connection
 from ofunctions import bisection
 from ofunctions.threading import threaded, wait_for_threaded_result
 from ofunctions.misc import BytesConverter
+
+is_macos = platform.system() == 'Darwin'
 
 # python 2.7 compat fixes
 try:
@@ -87,7 +90,22 @@ def ping(
         targets = ["1.1.1.1", "8.8.8.8", "208.67.222.222"]
 
     def _ping_host(target, retries, source_interface):
-        if os.name == "nt":
+        if is_macos:
+            # -c ...: number of packets to send
+            # -s ...: packet size to send
+            # -i ...: interval (s), only root can set less than .2 seconds
+            # -W ...: timeout (s)
+            # -I ...: optional source interface name
+            # -D ...: do not fragment
+            if ip_type == 6:
+                command = "ping6 -c 1 -s {} -i {}".format( mtu_encapsulated,  interval)
+            else:
+                command = "ping -c 1 -s {} -W {} -i {}".format( mtu_encapsulated, timeout, interval )
+                if do_not_fragment:
+                    command += " -D"
+
+            encoding = "utf-8"
+        elif os.name == "nt":
             # -4/-6: IPType
             # -n ...: number of packets to send
             # -f: do not fragment
@@ -106,7 +124,7 @@ def ping(
             # -M do: do not fragment
             # -s ...: packet size to send
             # -i ...: interval (s), only root can set less than .2 seconds
-            # -W ...: timeous (s)
+            # -W ...: timeout (s)
             # -I ...: optional source interface name
             command = "ping -c 1 -s {} -W {} -i {}".format(
                 mtu_encapsulated, timeout, interval
@@ -118,7 +136,7 @@ def ping(
             encoding = "utf-8"
 
         # Add ip_type if specified
-        if ip_type:
+        if ip_type and not is_macos:
             command += " -{}".format(ip_type)
 
         if source_interface:
@@ -423,7 +441,7 @@ def get_public_hostname(ip=None):
     return None
 
 
-def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
+def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None, interval=0.2):
     # type: (Union[str, IPv4Address, IPv6Address], str, int, int, str) -> int
     """
     Detects MTU to target
@@ -454,7 +472,7 @@ def probe_mtu(target, method="ICMP", min=1100, max=9000, source_interface=None):
             pass
 
         ping_args = [
-            (target, mtu, 2, 4, 1, ip_type, True, False, source_interface)
+            (target, mtu, 2, 4, interval, ip_type, True, False, source_interface)
             for mtu in range(min, max + 1)
         ]
 
