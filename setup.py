@@ -158,16 +158,13 @@ for package in setuptools.find_namespace_packages(include=["ofunctions.*"]):
     package_file = os.path.join(package_path, "__init__.py")
     metadata = get_metadata(package_file)
     requirements = parse_requirements(os.path.join(package_path, "requirements.txt"))
-    print(package_path)
-    print(package_file)
-    print(metadata)
-    print(requirements)
+    print("\n#### PACKAGE package_path={} package_file={} metadata={} requirements={} ####".format(package, package_file, metadata, requirements))
 
     # Again, we need to clean build paths between runs
     clear_package_build_path(rel_package_path)
 
     setuptools.setup(
-        name=package,
+        name=package.replace(".", "_"),
         namespace_packages=[NAMESPACE_PACKAGE_NAME],
         packages=[package],
         package_data={package: ["__init__.py"]},
