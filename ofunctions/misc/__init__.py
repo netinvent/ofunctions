@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.misc"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2024 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2026 Orsiris de Jong"
 __description__ = "Collection of various functions"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.8.0"
-__build__ = "2024042401"
+__version__ = "1.8.1"
+__build__ = "2026031001"
 __compat__ = "python2.7+"
 
 
@@ -37,7 +37,23 @@ restrict_numbers = lambda n, n_min, n_max: max(min(n_max, n), n_min)
 
 # Get current function name, can take int argument to get higher caller names
 # eg fn_name(1) will return caller name, fn_name(2) will return caller of caller name
+# Balantly copied from https://stackoverflow.com/a/31615605/2635443
 fn_name = lambda n=0: sys._getframe(n + 1).f_code.co_name
+
+fn_names = lambda: [
+    sys._getframe(i).f_code.co_name for i in range(1, sys._getframe().f_back.f_lineno)
+]
+
+def fn_names():
+    """
+    Get all caller function names in a list, starting with the closest one
+    """
+    frame = sys._getframe(1)
+    names = []
+    while frame:
+        names.append(frame.f_code.co_name)
+        frame = frame.f_back
+    return names
 
 
 def rot13(string):
@@ -566,10 +582,3 @@ class BytesConverter(float):
     def human_iec_bits(self):
         unit_list = [unit for unit in self.bits_units if "i" in unit]
         return self._to_human(unit_list)
-
-
-# for current fn name, specify 0 or no argument.
-# for name of caller of current func, specify 1.
-# for name of caller of caller of current func, specify 2. etc.
-# Balantly copied from https://stackoverflow.com/a/31615605/2635443
-fn_name = lambda n=0: sys._getframe(n + 1).f_code.co_name
