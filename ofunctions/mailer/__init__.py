@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.0"
-__build__ = "2025050201"
+__version__ = "1.3.1"
+__build__ = "2026031001"
 __compat__ = "python2.7+"
 
 import logging
@@ -162,7 +162,8 @@ class Mailer:
             message["LocalDate"] = formatdate(localtime=True)
             message["Message-Id"] = make_msgid()
             message["Subject"] = Header(subject, self.encoding)
-            message["Subject"] = subject
+            # Note for myself: Why did we have double subjects ?
+            # message["Subject"] = subject
 
             if bcc_mails is not None:
                 message["Bcc"] = bcc_mails  # Recommended for mass emails
