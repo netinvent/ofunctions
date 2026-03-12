@@ -31,6 +31,7 @@ def get_os():
     # type: () -> str
     """
     Simple windows / linux identification that handles msys too
+    Returns "Windows" or "Linux" or "Darwin" or "Freebsd" as per Python doc
     """
     if os.name == "nt":
         return "Windows"
