@@ -18,8 +18,8 @@ __author__ = "Orsiris de Jong"
 __copyright__ = "Copyright (C) 2017-2024 Orsiris de Jong"
 __description__ = "File/dir/permissions/time handling"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.2.4"
-__build__ = "2022110601"
+__version__ = "1.2.5"
+__build__ = "2026031601"
 __compat__ = "python2.7+"
 
 import json
@@ -871,3 +871,10 @@ def get_writable_random_file(
             ),
         )
     return None
+
+
+def sanitize_filename(file: str) -> str:
+    """
+    Sanitizes a filename so we're sure it can be used on all platforms
+    """
+    return "".join(x if x.isalnum() else "_" for x in file)
