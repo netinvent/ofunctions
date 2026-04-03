@@ -15,11 +15,11 @@ Versioning semantics:
 
 __intname__ = "ofunctions.mailer"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2026 Orsiris de Jong"
 __description__ = "Mail sending class that handles encryption, authentication, bulk and split mail sending"
 __licence__ = "BSD 3 Clause"
-__version__ = "1.3.1"
-__build__ = "2026031001"
+__version__ = "1.3.2"
+__build__ = "2026040201"
 __compat__ = "python2.7+"
 
 import logging
@@ -274,7 +274,8 @@ class Mailer:
                 SMTPNotSupportedError,  # Python 2 error when TLS is required
                 ssl.SSLError,
             ) as exc:
-                logger.error("Cannot send email: %s", exc, exc_info=True)
+                logger.error("Cannot send email: %s", exc)
+                logger.debug("Trace:", exc_info=True)
                 return False
             return True
 
