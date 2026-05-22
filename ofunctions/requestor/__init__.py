@@ -5,11 +5,11 @@
 
 __intname__ = "ofunctions.requestor"
 __author__ = "Orsiris de Jong"
-__copyright__ = "Copyright (C) 2014-2025 Orsiris de Jong"
+__copyright__ = "Copyright (C) 2014-2026 Orsiris de Jong"
 __description__ = "Requests abstractor class for JSON oriented REST APIs"
 __license__ = "BSD-3-Clause"
-__version__ = "1.2.3"
-__build__ = "2025070801"
+__version__ = "1.2.4"
+__build__ = "2026052201"
 __compat__ = "python3.6+"
 
 
@@ -33,9 +33,9 @@ class Requestor:
 
     def __init__(
         self,
-        servers: List[str],
-        username: str = None,
-        password: str = None,
+        servers: Union[List[str], str, None] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
         cert_verify: bool = True,
         use_json: bool = True,
     ):
@@ -243,7 +243,10 @@ class Requestor:
             headers = self.headers
             headers["Accept"] = ""
             if authenticated:
-                api_session.auth = (self.username, self.password)
+                if self.username and self.password:
+                    api_session.auth = (self.username, self.password)
+                else:
+                    raise ValueError("Username and password must be set for authenticated session")
 
             if not self.cert_verify:
                 warnings.filterwarnings("ignore", category=Warning)
@@ -261,7 +264,7 @@ class Requestor:
                 text = None
             if status_code == 200:
                 self.api_session = api_session
-                if authenticated:
+                if authenticated and text:
                     # This has to be changed depending on the API
                     if text.lower().startswith("token"):
                         token = text.replace("Token", "").strip()
@@ -272,7 +275,7 @@ class Requestor:
             self.write_logs(f"Server return code: {status_code}", level="warning")
             try:
                 logger.debug(
-                    "Error:\n{}".format(text.encode("utf-8", errors="backslashreplace"))
+                    "Error:\n{}".format(text.encode("utf-8", errors="backslashreplace") if text else "No other info given by server.")
                 )
             except:
                 pass
@@ -295,7 +298,7 @@ class Requestor:
             logger.debug("Trace:", exc_info=True)
         return False
 
-    def create_session(self, endpoint: str = None, authenticated: bool = False) -> bool:
+    def create_session(self, endpoint: Optional[str] = None, authenticated: bool = False) -> bool:
         """
         Tries every server in server list until one can be reached, and sets server_api
         :return:
@@ -321,8 +324,8 @@ class Requestor:
         return False
 
     def _base_requestor(
-        self, endpoint: str = None, action: str = "read", data: Any = None
-    ) -> requests.Request:
+        self, endpoint: Optional[str] = None, action: str = "read", data: Any = None
+    ) -> Union[requests.Request, bool, None]:
         """
         simple request function that does handle all exceptions and will return a requeusts.Request object or False
         """
@@ -438,11 +441,11 @@ class Requestor:
 
     def requestor(
         self,
-        endpoint: str = None,
+        endpoint: Optional[str] = None,
         action: str = "read",
         data: Any = None,
         raw: bool = False,
-    ) -> Union[dict, bytes, bool, str]:
+    ) -> Union[dict, bytes, bool, str, None]:
         """
         simple request function that does handle all exceptions and will return content or False
         """
@@ -463,7 +466,7 @@ class Requestor:
             return result.content
         return result.text
 
-    def get_raw(self, endpoint: str) -> Union[bytes, bool]:
+    def get_raw(self, endpoint: str) -> Union[bytes, bool, None]:
         """
         Shorthand essentially used to download binary files
         """
@@ -474,7 +477,7 @@ class Requestor:
 
     def data_model(
         self,
-        model: str = None,
+        model: Optional[str] = None,
         id_record: Optional[Union[int, str]] = None,
         action: str = "read",
         data: Any = None,
@@ -506,7 +509,7 @@ class Requestor:
             model = model.strip().strip("/")
 
         if id_record:
-            id_record = id_record.strip().strip("/")
+            id_record = str(id_record).strip().strip("/")
 
         if isinstance(id_record, str) and id_record.startswith("#"):
             raise ValueError(
